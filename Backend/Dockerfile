@@ -1,5 +1,8 @@
 FROM python:3.11-slim
 
+# System dependencies for PostgreSQL
+RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/lists/*
+
 # Set root working directory
 WORKDIR /app
 
@@ -21,5 +24,4 @@ WORKDIR /app/Backend
 
 EXPOSE 8000
 
-# Adjust if using FastAPI
-CMD ["python", "app/main.py"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

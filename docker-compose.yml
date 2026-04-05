@@ -1,6 +1,17 @@
-version: "3.9"
-
 services:
+  db:
+    image: postgres:15
+    container_name: clinical_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: clinical_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   backend:
     build:
       context: .
@@ -22,23 +33,9 @@ services:
     depends_on:
       - backend
 
-  db:
-    image: postgres:15
-    container_name: clinical_db
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: clinical_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
   pgadmin:
     image: dpage/pgadmin4
     container_name: clinical_pgadmin
-    restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
