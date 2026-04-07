@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 import { 
   Search, PlusSquare, MinusSquare, X, Upload, Send, 
   FileText, Loader2, Database, Eye 
 } from 'lucide-react';
 import ulsLogo from '../assets/ULS_Logo.png';
+import api from '../api';
 
 const Dashboard = () => {
   // --- ESTADOS PRINCIPAIS ---
@@ -41,7 +41,7 @@ const Dashboard = () => {
   // --- FUNÇÕES DE API ---
   const fetchPatients = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/patients/');
+      const response = await api.get('/api/patients/');
       setPatients(response.data);
     } catch (error) { console.error("Erro ao carregar pacientes:", error); }
   };
@@ -66,7 +66,7 @@ const Dashboard = () => {
   setSelectedSummary({ id: patientId, text: "A gerar novo resumo clínico...", loading: true });
   
   try {
-    const response = await axios.post('http://127.0.0.1:8000/api/summaries/patient-summary/generate/', {
+    const response = await api.post('/api/summaries/patient-summary/generate/', {
       patient_id: patientId
     });
     setSelectedSummary({ id: patientId, text: response.data.summary_text, loading: false });
@@ -89,7 +89,7 @@ const Dashboard = () => {
 
   try {
     // O await espera que a LLM no Django responda
-    await axios.post('http://127.0.0.1:8000/api/diaries/upload_diary/', formData);
+    await api.post('/api/diaries/upload_diary/', formData);
     
     // Feedback de sucesso
     setFeedback({ type: 'success', message: "Processamento concluído com sucesso!" });
@@ -113,7 +113,7 @@ const Dashboard = () => {
   e.preventDefault();
   if (!newPatientId) return;
   try {
-    await axios.post('http://127.0.0.1:8000/api/patients/', { id: newPatientId });
+    await api.post('/api/patients/', { id: newPatientId });
     setFeedback({ type: 'success', message: `Paciente ${newPatientId} adicionado!` });
     setNewPatientId("");
     setShowAddPatientModal(false);

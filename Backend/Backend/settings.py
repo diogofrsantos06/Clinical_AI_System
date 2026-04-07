@@ -79,13 +79,24 @@ WSGI_APPLICATION = "Backend.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
+'''
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get('DATABASE_URL')
     )
 }
+'''
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DATABASE_NAME'),
+        'USER':os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
+        'HOST': os.environ.get('DATABASE_HOST'),
+        'PORT': os.environ.get('DATABASE_PORT'),
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -123,8 +134,14 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+'''
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+]
+'''
+
+CORS_ALLOWED_ORIGINS = [
+    os.environ.get('FRONTEND_URL'),
 ]
 
 MEDIA_URL = '/media/'
