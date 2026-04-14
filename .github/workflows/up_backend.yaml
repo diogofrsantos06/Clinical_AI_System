@@ -1,12 +1,12 @@
 name: CI-CD Backend Pipeline
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'backend/**'
-
+  #push:
+    #branches:
+    #  - main
+    #paths:
+    #  - 'backend/**'
+    
   workflow_dispatch:
 
 jobs:

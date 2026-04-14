@@ -4,25 +4,20 @@ backend:
   enabled: true
   replicaCount: 1
   image:
-    repository: git.ulscoimbra.min-saude.pt/teses26/teste-backend
-    tag: v1.0.2
+    repository: git.ulscoimbra.min-saude.pt/teses26/clinical-AI-system-backend
+    tag: v0.0.1
     pullPolicy: IfNotPresent
   containerPort: 8000
   service:
     type: NodePort
     port: 8000
     targetPort: 8000
-    nodePort: 31400
   env:
-    djangoDebug: "False"
-    djangoAllowedHosts: "172.19.2.222,localhost,teste-backend.teses-26.svc.cluster.local,127.0.0.1"
-    frontendUrl: "http://172.19.2.222:31401"
-    djangoCsrfTrustedOrigins: "http://172.19.2.222:31401"
-    sessionCookieSecure: "False"
-    csrfCookieSecure: "False"
-    postgresHost: "pg-testes-pooler.teses-26.svc.cluster.local"
-    postgresPort: "5432"
-  secretName: teste-secret
+    DATABASE_NAME: "clinical_db"
+    DATABASE_HOST: "db"
+    DATABASE_PORT: "5432"
+    FRONTEND_URL: "http://172.19.2.222:31405"
+  secretName: clinical-ai-system-secret
   resources:
     requests:
       cpu: "100m"
@@ -54,17 +49,17 @@ frontend:
   enabled: true
   replicaCount: 1
   image:
-    repository: git.ulscoimbra.min-saude.pt/teses26/teste-frontend
-    tag: v1.0.0
+    repository: git.ulscoimbra.min-saude.pt/teses26/clinical-AI-system-frontend
+    tag: v0.0.1
     pullPolicy: IfNotPresent
   containerPort: 80
   service:
     type: NodePort
     port: 80
     targetPort: 80
-    nodePort: 31401
+    nodePort: 31405
   env:
-    backendHost: "teses-django-app-backend.teses-26.svc.cluster.local"
+    backendHost: "clinical-AI-system-backend.teses-26.svc.cluster.local"
     backendPort: "8000"
   resources:
     requests:

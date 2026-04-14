@@ -1,11 +1,11 @@
 name: CI-CD Frontend Pipeline
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'frontend/**'
+  #push:
+   # branches:
+    #  - main
+    #paths:
+    #  - 'frontend/**'
 
   workflow_dispatch:
 

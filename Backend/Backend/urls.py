@@ -7,3 +7,4 @@ urlpatterns = [
     path('api/diaries/', include('apps.diaries.urls')),
     path('api/summaries/', include('apps.summaries.urls')),
 ]
+  

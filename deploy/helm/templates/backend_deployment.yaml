@@ -30,78 +30,40 @@ spec:
               name: http
           
           env:
-            - name: DJANGO_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backend.secretName }}
-                  key: DJANGO_SECRET_KEY
+      
 
-            - name: DJANGO_DEBUG
-              value: "{{ .Values.backend.env.djangoDebug }}"
+            - name: DATABASE_NAME
+              value: "{{ .Values.backend.env.DATABASE_NAME }}"
 
-            - name: DJANGO_ALLOWED_HOSTS
-              value: "{{ .Values.backend.env.djangoAllowedHosts }}"
+            - name: DATABASE_HOST
+              value: "{{ .Values.backend.env.DATABASE_HOST }}"
+
+            - name: DATABASE_PORT
+              value: "{{ .Values.backend.env.DATABASE_PORT }}"
 
             - name: FRONTEND_URL
-              value: "{{ .Values.backend.env.frontendUrl }}"
+              value: "{{ .Values.backend.env.FRONTEND_URL }}"
 
-            - name: DJANGO_CSRF_TRUSTED_ORIGINS
-              value: "{{ .Values.backend.env.djangoCsrfTrustedOrigins }}"
-
-            - name: SESSION_COOKIE_SECURE
-              value: "{{ .Values.backend.env.sessionCookieSecure }}"
-
-            - name: CSRF_COOKIE_SECURE
-              value: "{{ .Values.backend.env.csrfCookieSecure }}"
-
-            - name: OIDC_CLIENT_ID
+          
+            - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.backend.secretName }}
-                  key: OIDC_CLIENT_ID
+                  key: DATABASE_USER
 
-            - name: OIDC_CLIENT_SECRET
+            - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.backend.secretName }}
-                  key: OIDC_CLIENT_SECRET
+                  key: DATABASE_PASSWORD
 
-            - name: OIDC_SERVER_METADATA_URL
+            - name: OPENAI_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.backend.secretName }}
-                  key: OIDC_SERVER_METADATA_URL
+                  key: OPENAI_API_KEY
 
-            - name: OIDC_END_SESSION_ENDPOINT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backend.secretName }}
-                  key: OIDC_END_SESSION_ENDPOINT
-
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backend.secretName }}
-                  key: POSTGRES_DB
-
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backend.secretName }}
-                  key: POSTGRES_USER
-
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backend.secretName }}
-                  key: POSTGRES_PASSWORD
-
-            - name: POSTGRES_HOST
-              value: "{{ .Values.backend.env.postgresHost }}"
-
-            - name: POSTGRES_PORT
-              value: "{{ .Values.backend.env.postgresPort }}"
-
+            
 {{- if .Values.backend.probes.enabled }}
           startupProbe:
             httpGet:
