@@ -23,7 +23,7 @@ jobs:
     env:
       REGISTRY: git.ulscoimbra.min-saude.pt
       REG_NAME: ${{ github.repository_owner }} # public ou  ${{ github.repository_owner }}
-      IMAGE_NAME: clinical-AI-system
+      IMAGE_NAME: clinical-ai-system
       #HELM_CHART_DIR: deploy/helm
       #K8S_NAMESPACE: teses-26
       VALUES_FILE: deploy/helm/values.yaml
