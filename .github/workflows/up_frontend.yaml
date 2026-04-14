@@ -16,7 +16,7 @@ jobs:
     env:
       REGISTRY: git.ulscoimbra.min-saude.pt
       REG_NAME: ${{ github.repository_owner }} # public ou  ${{ github.repository_owner }}
-      IMAGE_NAME: teste-frontend
+      IMAGE_NAME: clinical-ai-system-frontend
       #HELM_CHART_DIR: deploy/helm
       #K8S_NAMESPACE: teses-26
       VALUES_FILE: deploy/helm/values.yaml
@@ -91,7 +91,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: ./frontend
+          context: ./Frontend
           platforms: linux/amd64
           push: true
           tags: |
