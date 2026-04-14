@@ -1,5 +1,5 @@
 apiVersion: v2
-name: clinical-AI-system
+name: clinical-ai
 description: ertyu
 type: application
 version: 1.0.0

@@ -59,7 +59,7 @@ frontend:
     targetPort: 80
     nodePort: 31405
   env:
-    backendHost: "clinical-AI-system-backend.teses-26.svc.cluster.local"
+    backendHost: "clinical-ai-backend.teses-26.svc.cluster.local"
     backendPort: "8000"
   resources:
     requests:
