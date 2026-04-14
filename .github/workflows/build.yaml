@@ -60,7 +60,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          dockerfile: ./Backend/Dockerfile 
+          file: ./Backend/Dockerfile 
           platforms: linux/amd64
           push: true
           tags: |
