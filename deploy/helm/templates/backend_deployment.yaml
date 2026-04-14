@@ -44,7 +44,9 @@ spec:
             - name: FRONTEND_URL
               value: "{{ .Values.backend.env.FRONTEND_URL }}"
 
-          
+            - name: ALLOWED_HOSTS
+              value: "{{ .Values.backend.env.ALLOWED_HOSTS }}"
+
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
