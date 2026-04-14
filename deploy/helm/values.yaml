@@ -5,7 +5,7 @@ backend:
   replicaCount: 1
   image:
     repository: git.ulscoimbra.min-saude.pt/teses26/clinical-ai-system-backend
-    tag: v0.0.3
+    tag: v0.0.4
     pullPolicy: IfNotPresent
   containerPort: 8000
   service:
