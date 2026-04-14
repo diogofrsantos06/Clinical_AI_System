@@ -13,10 +13,16 @@ import sys
 from pathlib import Path
 import os
 import dj_database_url
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR.parent))
+
+ENV_DIR = Path(__file__).resolve().parent.parent.parent
+env_path = ENV_DIR / '.env' 
+load_dotenv(dotenv_path=env_path)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -28,7 +34,6 @@ SECRET_KEY = "django-insecure-#zcmua=qhhvzp)rzjjj_jv3g8k+w+et#-y*zuy8%vi)!6#l^-z
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -116,6 +121,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    # Desligamos a 'SessionAuthentication' para remover a exigência do CSRF
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    # Garantimos que, por defeito, a API é aberta
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -138,11 +153,9 @@ STATIC_URL = "static/"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
-'''
 
-CORS_ALLOWED_ORIGINS = [
-    os.environ.get('FRONTEND_URL'),
-]
+'''
+CORS_ALLOWED_ORIGINS = os.environ.get('FRONTEND_URL', '').split(',')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
