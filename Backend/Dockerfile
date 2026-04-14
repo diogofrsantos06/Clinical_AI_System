@@ -30,7 +30,7 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 # Copy Backend + Pipeline
 COPY --chown=appuser:appuser Backend/ ./Backend
-COPY --chown=appuser:appuser Pipeline/ ./Pipeline
+COPY --chown=appuser:appuser Pipeline/ ../Pipeline
 
 # Make Pipeline visible to Python
 ENV PYTHONPATH=/app
