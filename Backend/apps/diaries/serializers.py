@@ -1,13 +1,8 @@
 from rest_framework import serializers
-from .models import ClinicalDiary, ExtractedSections
+from .models import ClinicalDiary
 
-class ExtractedSectionsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ExtractedSections
-        fields = ['sections_json', 'created_at']
 
 class ClinicalDiarySerializer(serializers.ModelSerializer):
-    sections = ExtractedSectionsSerializer(read_only=True)
 
     class Meta:
         model = ClinicalDiary
@@ -17,7 +12,8 @@ class ClinicalDiarySerializer(serializers.ModelSerializer):
             'diary_number', 
             'original_text', 
             'cleaned_text', 
-            'sections', 
+            'extracted_data',
+            'title',
             'created_at'
         ]
 

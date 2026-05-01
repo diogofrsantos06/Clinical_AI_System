@@ -1,21 +1,16 @@
-import sys
 import json
 from pathlib import Path
 from typing import Dict, Any
 
-# Setup de caminhos para encontrar o groq_client e os prompts
-BASE_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(BASE_DIR))
-
-from groq_client import chat, get_client
-from Prompts.Summary_Prompt import SUMMARY_TEXT_PROMPT
+from Pipeline.llm import chat, get_client
+from Pipeline.Prompts.Summary_Prompt import SUMMARY_TEXT_PROMPT
 
 class Summarizer:
     def __init__(self, system_prompt_path: Path):
         """Inicializa o cliente e carrega o System Prompt do ficheiro."""
         self.client = get_client()
         
-        # Carregamento dinâmico do System Prompt
+        # Carregamen to dinâmico do System Prompt
         try:
             with open(system_prompt_path, 'r', encoding='utf-8') as f:
                 self.system_prompt = f.read().strip()

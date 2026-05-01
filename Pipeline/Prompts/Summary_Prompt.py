@@ -1,38 +1,87 @@
 # prompts/Summary_Prompt.py
 
 SUMMARY_TEXT_PROMPT = """
-Age como um Médico Consultor de Medicina Interna. O teu objetivo é consolidar o histórico clínico de um paciente com base em múltiplos diários clínicos já extraídos.
+Transforma o seguinte JSON clínico num relatório estruturado.
 
-DADOS PARA ANÁLISE (JSON):
+JSON:
 {extracted_data}
 
-ESTRUTURA DO RELATÓRIO:
+========================
+INSTRUÇÕES DE MAPEAMENTO (OBRIGATÓRIO)
+========================
 
-1. ANTECEDENTES PESSOAIS (AP) E DIAGNÓSTICOS:
-- Diferenciação: AP são doenças crónicas e historial passado. DIAGNÓSTICOS são as condições agudas ou suspeitas identificadas nos episódios atuais.
-- Lista todos os AP e Diagnósticos encontrados em todos os diários.
-- Apresenta em tópicos curtos.
+1. DIAGNÓSTICOS
+- Listar TODOS os itens de "diagnosticos"
+- Formato: nome da doença (sem interpretação)
 
-2. MEDICAÇÃO HABITUAL E ALERGIAS:
-- Alergias: Varre todos os diários e lista todas as alergias mencionadas. Se não houver, escreve "Sem alergias conhecidas".
-- Medicação Habitual: Identifica o diário MAIS RECENTE (pela chave "data", não pelo ID) que contenha informação na secção "terapeutica_e_medicao". Lista os fármacos, doses e posologia.
+2. MEDICAÇÃO
+- Listar TODOS os itens de "medicacao"
+- Um fármaco por linha
+- NÃO excluir nenhum
 
-3. EXAMES E RESULTADOS:
-- Para cada exame relevante (GSA, Eco, Rx, Análises, etc.), extrai apenas o resultado mais crítico de forma muito sucinta (ex: "GSA: Acidose metabólica", "ECG: Elevação ST").
-- Inclui obrigatoriamente o ID do diário (ou data) entre parênteses à frente de cada item.
+3. EXAMES
 
-4. SÍNTESE DE SINTOMAS:
-- Resume os sintomas principais relatados, agrupando-os se forem repetidos.
-- Inclui o ID do diário correspondente. Se um sintoma for mencionado em vários diários, apresenta-o apenas uma vez, mas com referência a todos os IDs onde foi encontrado (ex: "Dispneia (Diários: 123, 125)").
+3.1 Análises laboratoriais
+- Para cada entrada com "parametro" e "valor":
+  → escrever: parametro: valor unidade (se existir)
+- NÃO agrupar
+- NÃO eliminar duplicados
 
-5. PLANO E DECISÃO:
-- Apresenta as decisões tomadas mais relevantes, do diário mais RECENTE para o mais ANTIGO (ex: "Decisão de colocar pacemaker") .
-- Descarta decisões que sejam meramente administrativas ou de rotina (ex: "Solicitar análises", "Rever em consulta", "Transferência para Cardiologia", "Alta com seguimento em consulta").
-- Máximo de uma linha por plano, sintetizando a ação principal.
-- Inclui Data e ID do diário.
+3.2 Exames de imagem
+- Se existir campo "relatorio":
+  → copiar texto integral ou quase integral
+- NÃO resumir
 
-REGRAS DE OURO:
-- Resposta em Português de Portugal.
-- Texto simples (Plain Text). NÃO USES Markdown (asteriscos, cardinais, etc.).
-- Sê clínico, direto e evita redundâncias.
+4. SINTOMAS
+- Listar todos os "descricao"
+- NÃO agrupar
+- NÃO interpretar
+
+5. PLANO
+- Listar todas as ações
+
+========================
+FORMATO FIXO (OBRIGATÓRIO)
+========================
+
+ANTECEDENTES PESSOAIS / DIAGNÓSTICOS
+- item
+- item
+
+MEDICAÇÃO HABITUAL
+- item
+- item
+
+EXAMES (VALORES E RELATÓRIOS)
+
+### Análises laboratoriais
+- parametro: valor
+- parametro: valor
+
+### Imagiologia
+- relatório
+- relatório
+
+SINTOMAS E ACHADOS CLÍNICOS
+- item
+- item
+
+PLANO / DECISÃO / ORIENTAÇÃO FUTURA
+- item
+- item
+
+========================
+REGRAS FINAIS
+========================
+
+- NÃO resumir
+- NÃO omitir
+- NÃO interpretar
+- NÃO inventar
+- NÃO reorganizar informação
+
+Se existirem 10 itens no JSON, devem existir 10 itens no output.
+
+Responde apenas com o relatório final.
 """
+

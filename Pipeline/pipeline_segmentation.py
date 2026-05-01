@@ -1,6 +1,8 @@
 import re
 import json
 import sys
+import traceback
+import time
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent  
@@ -11,8 +13,21 @@ if str(PROJ_ROOT) not in sys.path:
 if str(BASE_DIR) not in sys.path:
     sys.path.append(str(BASE_DIR))
 
-from groq_client import get_client, chat
+from llm import chat
 
+def gerar_titulo_diario(texto_diario, index):
+    """Extrai a data e a especialidade do texto bruto para criar o título."""
+    primeira_linha = texto_diario.split('\n')[0].strip()
+    
+    match_data = re.search(r'\d{1,2}[-/](?:[A-Za-z]{3}|\d{1,2})[-/]\d{2,4}', primeira_linha)
+    data = match_data.group(0) if match_data else "Data Desconhecida"
+    
+    if '/' in primeira_linha:
+        especialidade = primeira_linha.split('/')[-1].strip()
+    else:
+        especialidade = f"Nota Clínica {index}" 
+        
+    return f"{especialidade} - {data}"
 
 def get_diary_start_indices(text):
     
@@ -52,39 +67,75 @@ def parse_segmentation_response(response_text):
 
 def run_smart_segmentation(full_text, client):
     indices = get_diary_start_indices(full_text)
+
+    print(f"\n[DEBUG] Regex encontrou {len(indices)} inícios de diários no PDF.", flush=True)
+
     if not indices:
+        print("[AVISO] Nenhum diário encontrado pelo Regex! A extração vai parar aqui.", flush=True)
         return []
     
     indices.append(len(full_text))
     todos_diarios = []
+    total_esperado = len(indices) - 1
 
     for i in range(len(indices) - 1):
         inicio = indices[i]
         fim = indices[i+1]
         segmento_bruto = full_text[inicio:fim].strip()
         
-        if len(segmento_bruto) < 20: continue
+        if len(segmento_bruto) < 20: 
+            print(f"[{i+1}/{total_esperado}] Ignorado: Segmento muito curto ({len(segmento_bruto)} caracteres).", flush=True)
+            continue
 
         # Identificamos se é o último bloco para aplicar a regra restritiva
         e_ultimo = (i == len(indices) - 2)
 
-        print(f"Processando Diário {i+1}...")
-        
-        # Prompt adaptativo
+        print(f"[{i+1}/{total_esperado}] A enviar para o LLM (Tamanho: {len(segmento_bruto)} caracteres)...", flush=True)
+
+        if e_ultimo:
+            regra_extra = """
+        3. ATENÇÃO: Este é o último bloco do documento e contém secções extra.
+           - DEVES REMOVER completamente as secções: "Notas de Enfermagem", "Medicação", "MCDT Requisitados" e "Destino do Doente".
+           - DEVES MANTER a secção "Diagnósticos" (ou "Diagnosticos") e o seu respetivo conteúdo. Adiciona esta secção no final da tua resposta, logo após o fim da narrativa do médico.
+            """
+        else:
+            regra_extra = ""
+
         sys_prompt = f"""
         És um assistente médico. O teu objetivo é LIMPAR esta nota clínica.
         1. Mantém conteúdo clínico, datas e nomes de médicos.
-        2. Remove lixo de formatação (cabeçalhos, rodapés).
-        { '3. ATENÇÃO: Se o texto terminar com secções de "Notas de Enfermagem", "Diagnósticos", "Medicação", "MCDT Requisitados" e "Destino do Doente", REMOVE-AS. Para apenas no fim da narrativa do médico.' if e_ultimo else '' }
+        2. Remove lixo de formatação (cabeçalhos, rodapés).{regra_extra}
         4. Devolve apenas o texto limpo, sem comentários.
         """
         
         try:
             resposta = chat(client, user_prompt=segmento_bruto, system_prompt=sys_prompt)
             if len(resposta.strip()) > 10:
-                todos_diarios.append(resposta.strip())
+                titulo_gerado = gerar_titulo_diario(segmento_bruto, i+1)
+                
+                diario_obj = {
+                    "titulo": titulo_gerado,
+                    "texto": resposta.strip()
+                }
+                
+                todos_diarios.append(diario_obj)
+                print(f"[{i+1}/{total_esperado}] Sucesso! Título: {titulo_gerado}", flush=True)
+            else:
+                print(f"[{i+1}/{total_esperado}] Falhou: LLM devolveu vazio.", flush=True)
+                
+            # 2. PREVENÇÃO DE RATE LIMITS DA GROQ
+            time.sleep(1.5) 
+            
         except Exception as e:
-            print(f"Erro no diário {i+1}: {e}")
+            # 3. DEBUG CRÍTICO DO ERRO
+            print(f"\n!!! ERRO CRÍTICO NO DIÁRIO {i+1} !!!", flush=True)
+            print(f"Mensagem: {str(e)}", flush=True)
+            print(traceback.format_exc(), flush=True)
+            
+            # Se for um erro de Rate Limit, esperamos uns segundos antes de continuar
+            if "rate_limit" in str(e).lower() or "429" in str(e):
+                print(">> Limite da Groq atingido! A esperar 10 segundos antes do próximo...", flush=True)
+                time.sleep(10)
 
     return todos_diarios
 
@@ -92,7 +143,7 @@ def run_smart_segmentation(full_text, client):
 from Backend.apps.diaries.utils.pdf_splitter import extract_full_pdf_text
 
 if __name__ == "__main__":
-    PDF_TESTE = r"C:/Users/Utilizador/Desktop/01.pdf"
+    PDF_TESTE = r"C:/Users/Utilizador/Desktop/00.pdf"
     
     print("\n[PASSO 1] Extraindo texto do PDF...")
     resultado_pdf = extract_full_pdf_text(PDF_TESTE, debug=False)
@@ -111,6 +162,6 @@ if __name__ == "__main__":
         tamanho = len(d)
         print(f"\nDIÁRIO {idx} | Total de Caracteres: {tamanho}")
         print({d}) 
-        '''
-
+        
+'''
 #Correr python Pipeline/pipeline_segmentation.py na diretoria raiz do projeto.

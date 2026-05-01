@@ -1,69 +1,71 @@
-def get_prompt_for_section(section_name: str, section_text: str) -> str:
-
-    structures = {
-        "historia_clinica": "Lista de objetos com 'evento', 'inicio', 'caracteristicas' e 'antecedentes_relevantes'.",
-        "exames_e_resultados": "Lista de objetos com 'exame', 'parametro', 'valor', 'unidade' e 'interpretacao'.",
-        "avaliacao_e_sintomas": "Lista de objetos com 'sinal_sintoma', 'localizacao', 'intensidade' e 'exame_objetivo_detalhe'.",
-        "terapeutica_e_medicao": "Lista de objetos com 'fármaco', 'dosagem', 'via', 'frequência' e 'tipo' (habitual ou nova).",
-        "plano_e_decisao": "Lista de objetos com 'acao_proposta', 'urgencia' e 'destino_doente'.",
-        "diagnosticos": "Lista de objetos com 'doenca', 'tipo' (suspeita ou confirmado) e 'estado' (novo ou conhecido).",
-        "outras_informacoes": "Lista de objetos com 'observacao' e 'detalhe'."
-    }
-
-    structure = structures.get(section_name, "Lista de factos relevantes.")
-
+def get_prompt_for_diary_extraction(diary_text: str) -> str:
     return f"""
-Extrai TODA a informação clinicamente relevante da secção "{section_name}" seguindo rigorosamente esta estrutura:
-{structure}
+Extrai toda a informação clínica relevante do texto abaixo e organiza-a num JSON estruturado.
 
-REGRAS OBRIGATÓRIAS:
+OBJETIVO:
+Criar uma representação clínica limpa e estruturada que permita gerar um resumo médico.
 
-1. EXTRAÇÃO LITERAL
-- Copia exatamente o texto original.
-- NÃO traduzas, reformules ou expandas abreviaturas.
-- NÃO alteres unidades, números ou termos.
+FORMATO DE SAÍDA (JSON obrigatório):
 
-2. EXAUSTIVIDADE
-- Inclui toda a informação clinicamente relevante.
-- NÃO omitas informação presente no texto.
+{{
+  "data": "",
+  "diagnosticos": [
+    {{
+      "doenca": "",
+      "tipo": "suspeita | confirmado",
+      "temporalidade": "cronico | agudo",
+      "relevancia": "principal | secundario"
+    }}
+  ],
+  "medicacao": [
+    {{
+      "farmaco": "",
+      "classe": "",
+      "tipo": "habitual | iniciada | ajustada | suspensa"
+    }}
+  ],
+  "exames": [
+    {{
+      "tipo_exame": "analise | gasimetria | ecografia | rx | tac | outro",
+      "parametro": "",
+      "valor": "",
+      "unidade": "",
+      "interpretacao": "",
+      "categoria_clinica": "inflamacao | metabolico | renal | hepatobiliar | outro"
+    }}
+  ],
+  "sintomas": [
+    {{
+      "descricao": "",
+      "localizacao": "",
+      "tipo": "sintoma | sinal"
+    }}
+  ],
+  "plano": [
+    {{
+      "acao": "",
+      "tipo": "diagnostico | terapeutico | organizacional",
+      "urgencia": "eletivo | urgente | emergente"
+    }}
+  ]
+}}
 
-3. SEPARAÇÃO SEMÂNTICA
-- Coloca cada informação apenas na secção correta.
-- NÃO mistures exames, eventos, diagnósticos ou terapêutica entre si.
+REGRAS CRÍTICAS:
 
-4. NÃO REDUNDÂNCIA
-- NÃO repitas a mesma informação em vários campos.
-- Cada campo deve conter apenas o tipo de informação correspondente.
-
-5. ESTRUTURAÇÃO
-- Divide a informação em múltiplas entradas quando necessário.
-- NÃO agregues múltiplos factos diferentes no mesmo campo.
-
-6. GESTÃO DE DADOS
-- Usa null apenas quando a informação não existir.
-- NÃO inventes dados.
-
-7. FORMATO DE SAÍDA (CRÍTICO)
-- A resposta deve começar diretamente com "{" e terminar com "}"
-- NÃO incluir texto antes ou depois do JSON
-- NÃO usar blocos de código (```json)
-- NÃO usar aspas simples
-
-8. EXTRAÇÃO DE EXAMES
-- Extrai apenas a informação objetiva e relevante do exame.
-- NÃO copiar relatórios completos.
-- Cada resultado deve ser separado em entradas distintas.
-- Preencher sempre que possível:
-  - parametro
-  - valor
-  - unidade
-- "interpretacao" deve ser curta e conter apenas a conclusão clínica essencial.
-- NÃO repetir o mesmo conteúdo em múltiplos exames.
-
-9. NÃO DUPLICAÇÃO GLOBAL
-- NÃO repetir a mesma informação em múltiplas entradas.
-- Cada facto deve aparecer apenas uma vez em toda a secção.
+1. NÃO copiar texto bruto — reescrever sempre em linguagem clínica curta
+2. NÃO inventar informação
+3. Incluir TODOS os dados clínicos relevantes
+4. Separar corretamente:
+   - sintomas
+   - sinais
+   - exames
+   - diagnósticos
+   - terapêutica
+5. Interpretar apenas o mínimo necessário (ex: leucocitose, hiperglicemia)
+6. Medicação deve ser classificada corretamente (habitual vs iniciada)
+7. NÃO incluir texto administrativo
+8. JSON válido obrigatório (sem texto extra)
 
 TEXTO:
-{section_text}
+{diary_text}
 """

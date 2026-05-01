@@ -1,6 +1,6 @@
 import logging
 from django.db import transaction
-from ..models import ClinicalDiary, ExtractedSections
+from ..models import ClinicalDiary
 from Pipeline.pipeline_extraction import ExtractionPipeline 
 
 logger = logging.getLogger(__name__)
@@ -20,14 +20,16 @@ def process_clinical_diary(diary_id):
         result = pipeline.run(diary.original_text)
 
         if result.get("status") == "success":
+
             with transaction.atomic():
                 diary.cleaned_text = result.get("cleaned_text")
-                diary.extracted_data = result.get("extracted_json")
+                diary.extracted_data = result.get("extracted_data")
                 diary.save()
 
-                ExtractedSections.objects.update_or_create(diary=diary,defaults={'sections_json': result.get("sections_text")})
-
-            logger.info(f"Diário {diary.diary_number} (Paciente: {diary.patient.id}) processado com sucesso.")
+            logger.info(
+                f"Diário {diary.diary_number} (Paciente: {diary.patient.id}) processado com sucesso."
+                )
+            
             return True
         
         else:

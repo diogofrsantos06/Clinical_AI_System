@@ -34,11 +34,7 @@ class DiaryCleaner:
         
         # Elimina quebras de linha excessivas
         text = diary_text.replace('\\n', '\n')
-
-        # Elimina o cabeçalho deixando a data
-        header_pattern = r'^(\d{1,2}[-/][\w\d]{2,10}[-/]\d{2,4})[^\n]*(\n|$)'
-        text = re.sub(header_pattern, r'\1\n\n', text, flags=re.MULTILINE)
-
+        
         # Normalizar parágrafos
         lines = [line.strip() for line in text.split('\n')]
         

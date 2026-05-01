@@ -10,7 +10,7 @@ def get_client():
 
     return Groq(api_key=api_key)
 
-def chat(client, user_prompt, system_prompt=None, model="llama-3.3-70b-versatile"): #llama-3.1-8b-instant #llama-3.3-70b-versatile #openai/gpt-oss-120b
+def chat(client, user_prompt, system_prompt=None, model="llama-3.1-8b-instant"): #llama-3.1-8b-instant #llama-3.3-70b-versatile #openai/gpt-oss-120b
     try:
         messages = []
         if system_prompt:

@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
 SUMMARY_SYSTEM_PROMPT_PATH = BASE_DIR / "Pipeline" / "System_Prompts" / "Summary.txt"
 
-from Summary_Codes.Summarization import Summarizer
+from Pipeline.Summary_Codes.Summarization import Summarizer
 
 class SummaryPipeline:
     def __init__(self):
@@ -17,55 +17,27 @@ class SummaryPipeline:
         Entrada: Lista de DIÁRIOS EXTRAÍDOS (JSON) vindos da BD.
         Saída: Texto do sumário final.
         """
-        # Organizamos as extrações num dicionário para a IA saber qual é qual
-        structured_payload = {}
-        for idx, extraction in enumerate(list_of_extractions):
-            diary_label = f"Diário_{idx + 1}"
-            structured_payload[diary_label] = extraction
-
-        return self.summarizer.generate_summary(structured_payload)
-
-
-#Teste 
-'''
-if __name__ == "__main__":
-    print("Iniciando Teste da Pipeline de Sumarização...")
-
-    PATIENT_ID = "Patient_test2"
-    EXTRACTIONS_DIR = BASE_DIR / "Pipeline" / "Patients" / PATIENT_ID / "sections"
-    
-    extraction_files = sorted(EXTRACTIONS_DIR.glob("extraction_output_*.json"))
-
-    if not extraction_files:
-        print(f"Erve: Não foram encontrados ficheiros JSON em {EXTRACTIONS_DIR}")
-    else:
-        # 3. Carregar os dados estruturados para uma lista
-        list_of_data = []
-        for f_path in extraction_files:
-            with open(f_path, 'r', encoding='utf-8') as f:
-                list_of_data.append(json.load(f))
-        
-        print(f"✅ Carregados {len(list_of_data)} diários extraídos.")
-
-        # 4. Executar a Pipeline
-        pipeline = SummaryPipeline()
-        print("⏳ A comunicar com a LLM para gerar o sumário consolidado...")
-        
         try:
-            resumo_final = pipeline.run_summary(list_of_data)
+            structured_payload = {}
             
-            print("\n" + "="*60)
-            print("SUMÁRIO GERADO:")
-            print("="*60)
-            print(resumo_final)
-            print("="*60)
-            
-            # 5. Opcional: Guardar o resultado do teste num ficheiro de texto
-            output_path = EXTRACTIONS_DIR / "debug_summary_result.txt"
-            with open(output_path, 'w', encoding='utf-8') as f:
-                f.write(resumo_final)
-            print(f"\n💾 Sumário guardado para revisão em: {output_path.name}")
+            # Usamos enumerate para ter um contador (i) que começa no 1
+            for i, item in enumerate(list_of_extractions, start=1):
+                # Cria uma chave única juntando o título e o número do registo
+                diary_label = f"{item['titulo']} (Registo {i})" 
+                
+                structured_payload[diary_label] = item["dados"]
+
+            print("Esta é do STRUCTURED_PAYLOAD: ")
+            print(json.dumps(structured_payload, indent=2, ensure_ascii=False)) # Imprime bonito para conseguires ler
+
+            summary_text = self.summarizer.generate_summary(structured_payload)
+
+            if not summary_text or "Error code:" in str(summary_text) or "limit" in str(summary_text).lower():
+                print(f"[Pipeline] IA devolveu um erro em vez de resumo: {summary_text}")
+                return None 
+
+            return summary_text
 
         except Exception as e:
-            print(f"❌ Erro durante a execução: {e}")
-            '''
+            print(f"[Pipeline] Erro crítico na geração: {str(e)}")
+            return None

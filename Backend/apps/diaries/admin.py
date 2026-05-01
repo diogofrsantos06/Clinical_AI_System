@@ -1,5 +1,4 @@
 from django.contrib import admin
-from .models import ClinicalDiary, ExtractedSections
+from .models import ClinicalDiary
 
 admin.site.register(ClinicalDiary)
-admin.site.register(ExtractedSections)

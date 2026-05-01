@@ -211,7 +211,7 @@ const Dashboard = () => {
                         className="flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-black transition-colors"
                       >
                         {openDiariesList === patient.id ? <MinusSquare size={16}/> : <PlusSquare size={16}/>}
-                        LISTAR NOTAS ({patient.diaries?.length || 0})
+                        LISTAR DIÁRIOS ({patient.diaries?.length || 0})
                       </button>
 
                       {openDiariesList === patient.id && (
@@ -223,7 +223,7 @@ const Dashboard = () => {
                                 onClick={() => { setViewingDiary(d); setViewMode('text'); }}
                                 className="text-[11px] text-blue-500 hover:text-blue-800 hover:underline flex items-center gap-2 font-medium"
                               >
-                                <FileText size={12} /> Diário nº {d.diary_number}
+                                <FileText size={12} /> {d.title || `Diário nº ${d.diary_number}`}
                               </button>
                             ))
                           ) : (

@@ -10,15 +10,17 @@ class ClinicalDiary(models.Model):
     cleaned_text = models.TextField(null=True, blank=True)
 
     extracted_data = models.JSONField(null=True, blank=True)
+    
+    title = models.CharField(max_length=255, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # Garante que não existem dois "Diário 1" para o MESMO paciente
         unique_together = ['patient', 'diary_number']
         ordering = ['patient', 'diary_number']
 
     def save(self, *args, **kwargs):
+        
         if not self.diary_number:
             last_diary = ClinicalDiary.objects.filter(patient=self.patient).order_by("-diary_number").first()
             if last_diary:
@@ -31,10 +33,3 @@ class ClinicalDiary(models.Model):
     def __str__(self):
         return f"Paciente {self.patient.id} - Diário {self.diary_number}"
 
-
-class ExtractedSections(models.Model):
-    """Guarda a divisão semântica feita pelo SectionParser"""
-    diary = models.OneToOneField(ClinicalDiary, on_delete=models.CASCADE, related_name="sections")
-    sections_json = models.JSONField() 
-    created_at = models.DateTimeField(auto_now_add=True)    
-    
