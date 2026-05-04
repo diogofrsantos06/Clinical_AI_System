@@ -1,7 +1,9 @@
 import logging
 from django.db import transaction
 from ..models import ClinicalDiary
+from apps.metrics.models import PerformanceMetric
 from Pipeline.pipeline_extraction import ExtractionPipeline 
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -17,9 +19,22 @@ def process_clinical_diary(diary_id):
 
         logger.info(f"Iniciando processamento da Pipeline para o Diário ID: {diary_id}")
 
+        start_time = time.time()
+
         result = pipeline.run(diary.original_text)
 
         if result.get("status") == "success":
+
+            end_time = time.time()
+
+            duration = end_time - start_time
+
+            PerformanceMetric.objects.create(
+                operation_type='EXTRACTION',
+                duration_seconds=duration,
+                patient=diary.patient,  
+                diary=diary             
+            )
 
             with transaction.atomic():
                 diary.cleaned_text = result.get("cleaned_text")
@@ -27,7 +42,7 @@ def process_clinical_diary(diary_id):
                 diary.save()
 
             logger.info(
-                f"Diário {diary.diary_number} (Paciente: {diary.patient.id}) processado com sucesso."
+                f"Diário {diary.diary_number} (Paciente: {diary.patient.id}) processado com sucesso em {duration:.2f}s."
                 )
             
             return True

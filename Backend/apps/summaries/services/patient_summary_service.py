@@ -1,10 +1,11 @@
 import logging
-
+import time 
 from apps.patients.models import Patient
 from apps.diaries.models import ClinicalDiary
 from ..models import Summary
 
 from Pipeline.pipeline_summary import SummaryPipeline
+from apps.metrics.models import PerformanceMetric
 
 logger = logging.getLogger(__name__)
 
@@ -27,19 +28,33 @@ def generate_patient_summary(patient_id):
                 "dados": diary.extracted_data 
             })
 
-        print("Esta é do ALL_INFORMATION: ")
-        print(all_information)
         summary_pipeline = SummaryPipeline()
+
+        logger.info(f"Iniciando a geração de sumário para o paciente ID: {patient_id}")
+
+        start_time = time.time()
+
         summary_text = summary_pipeline.run_summary(all_information)
 
         if not summary_text or "Error code:" in summary_text or "rate_limit" in summary_text:
             logger.error(f"Falha na IA. O retorno foi um erro: {summary_text}")
             return None 
+        
+        end_time = time.time()
+        duration = end_time - start_time
+
+        PerformanceMetric.objects.create(
+            operation_type='SUMMARIZATION',
+            duration_seconds=duration,
+            patient=diary.patient
+        )
 
         summary, created = Summary.objects.update_or_create(
             patient=patient,
             defaults={"summary_text": summary_text}
         )
+
+        logger.info(f"Sumário do paciente {patient.id} gerado com sucesso em {duration:.2f}s.")
 
         return summary
 

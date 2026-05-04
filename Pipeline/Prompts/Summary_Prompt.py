@@ -1,87 +1,56 @@
-# prompts/Summary_Prompt.py
-
 SUMMARY_TEXT_PROMPT = """
-Transforma o seguinte JSON clínico num relatório estruturado.
+Age como um Médico Consultor de Medicina Interna. O teu objetivo é consolidar o histórico clínico de um paciente com base em múltiplos diários clínicos já extraídos.
 
-JSON:
+DADOS PARA ANÁLISE (JSON):
+
 {extracted_data}
 
-========================
-INSTRUÇÕES DE MAPEAMENTO (OBRIGATÓRIO)
-========================
+ESTRUTURA DO RELATÓRIO:
 
-1. DIAGNÓSTICOS
-- Listar TODOS os itens de "diagnosticos"
-- Formato: nome da doença (sem interpretação)
+ANTECEDENTES PESSOAIS (AP) E DIAGNÓSTICOS:
+- Diferenciação: AP são doenças crónicas já estabelecidas (ex: Diabetes, HTA, Dislipidemia). DIAGNÓSTICOS são as condições agudas do episódio atual.
+- ELIMINA REPETIÇÕES: NENHUM diagnóstico ou AP deve aparecer mais do que uma vez na lista.
+- ESTADO DO DIAGNÓSTICO (A REGRA DA SUSPEITA):
+  1. Antecedentes Pessoais (doenças crónicas de base) são SEMPRE factos estabelecidos. NUNCA lhes adiciones a palavra "(Suspeita)".
+  2. Para os Diagnósticos Agudos: Lê o campo 'tipo' no JSON. Apenas se a condição aguda for explicitamente marcada como 'suspeita' (ou 'hipótese'), deves adicionar "(Suspeita)" à frente dessa doença (ex: "Síndrome de Abdomen Agudo (Suspeita)").
+- Apresenta as doenças em tópicos curtos.
 
-2. MEDICAÇÃO
-- Listar TODOS os itens de "medicacao"
-- Um fármaco por linha
-- NÃO excluir nenhum
+MEDICAÇÃO HABITUAL E ALERGIAS:
+- Esta informação está presente no campo "terapeutica_e_medicao".
+- Alergias: Varre todos os diários e lista todas as alergias mencionadas. Se não houver, escreve "Sem alergias conhecidas".
+- Medicação Habitual: Identifica a medicação presente nos diários. Identifica a medicação que é administrada habitualmente e escreve no sumário. Lista doses e posologia se presentes.
+- Não deves excluir nenhuma medicação. Sê objetivo e mostra toda a informação referente a medicação.
 
-3. EXAMES
+EXAMES E RESULTADOS:
+- Separa claramente Análises Laboratoriais (resultados numéricos) de Relatórios de Imagiologia (texto descritivo como Eco, Rx, TC).
+- ANÁLISES: Lista os valores laboratoriais e unidades de forma sucinta.
+- IMAGIOLOGIA: É obrigatório identificar o TIPO DE EXAME antes dos achados (ex: "ECOGRAFIA:", "RX:", "TAC:"). Transcreve os achados e relatórios de imagem de forma coerente (em frases completas ou texto corrido), para que a leitura clínica faça sentido. Não deixes frases cortadas.
+- Inclui obrigatoriamente o ID do diário (ou data) como subtítulo de cada bloco.
 
-3.1 Análises laboratoriais
-- Para cada entrada com "parametro" e "valor":
-  → escrever: parametro: valor unidade (se existir)
-- NÃO agrupar
-- NÃO eliminar duplicados
+SÍNTESE DE SINTOMAS:
+- Resume os sintomas principais relatados, agrupando-os se forem repetidos.
+- Inclui o título do diário correspondente. Se um sintoma for mencionado em vários diários, apresenta-o apenas uma vez, mas com referência a todos os diários onde foi encontrado.
 
-3.2 Exames de imagem
-- Se existir campo "relatorio":
-  → copiar texto integral ou quase integral
-- NÃO resumir
+PLANO E DECISÃO:
+- Apresenta as decisões tomadas mais relevantes, do diário mais RECENTE para o mais ANTIGO (ex: "Decisão de colocar pacemaker").
+- Descarta decisões que sejam meramente administrativas ou de rotina (ex: "Solicitar análises", "Rever em consulta", "Transferência para Cardiologia", "Alta com seguimento em consulta").
+- Máximo de uma linha por plano, sintetizando a ação principal.
+- Inclui Data e ID do diário.
 
-4. SINTOMAS
-- Listar todos os "descricao"
-- NÃO agrupar
-- NÃO interpretar
+REGRAS DE OURO:
+- Resposta em Português de Portugal.
+- Texto estritamente simples (Plain Text). NÃO USES Markdown em nenhuma secção.
+- Sê clínico, direto e evita redundâncias.
 
-5. PLANO
-- Listar todas as ações
+Siga EXATAMENTE esta estrutura de exemplo visual (sem usar formatações extra):
 
-========================
-FORMATO FIXO (OBRIGATÓRIO)
-========================
+EXAMES E RESULTADOS:
 
-ANTECEDENTES PESSOAIS / DIAGNÓSTICOS
-- item
-- item
+DIARIO: HUC-URG CIRURGIA GERAL - 10-Ago-2023 (Registo 1)
+- ANALISES: pH: 7.52, pCO2: 28.1, Na: 131.8
+- IMAGIOLOGIA (ECOGRAFIA ABDOMINAL): Vesícula biliar distendida sugestiva de colecistite enfisematosa. Múltiplos ecos em suspensão. Fígado e Baço sem alterações ecográficas.
 
-MEDICAÇÃO HABITUAL
-- item
-- item
-
-EXAMES (VALORES E RELATÓRIOS)
-
-### Análises laboratoriais
-- parametro: valor
-- parametro: valor
-
-### Imagiologia
-- relatório
-- relatório
-
-SINTOMAS E ACHADOS CLÍNICOS
-- item
-- item
-
-PLANO / DECISÃO / ORIENTAÇÃO FUTURA
-- item
-- item
-
-========================
-REGRAS FINAIS
-========================
-
-- NÃO resumir
-- NÃO omitir
-- NÃO interpretar
-- NÃO inventar
-- NÃO reorganizar informação
-
-Se existirem 10 itens no JSON, devem existir 10 itens no output.
-
-Responde apenas com o relatório final.
+DIARIO: HUC-URG ENDOCRINOLOGIA - 10-Ago-2023 (Registo 4)
+- ANALISES: Glicemia: 375, Leucócitos: 14.3
+- IMAGIOLOGIA: Sem relatórios de imagem associados a este registo.
 """
-
