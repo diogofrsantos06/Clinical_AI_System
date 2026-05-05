@@ -3,8 +3,13 @@ import pytesseract
 from PIL import Image
 import io
 import re
+import os
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+caminho_tesseract = os.getenv('TESSERACT_PATH', 'tesseract')
+pytesseract.pytesseract.tesseract_cmd = caminho_tesseract
+
 
 def clean_clinical_text(text):
     """

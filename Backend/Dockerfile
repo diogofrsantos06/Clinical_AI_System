@@ -21,7 +21,7 @@ FROM python:3.13-slim
 
 RUN useradd -m -r appuser && mkdir /app && chown -R appuser /app
 
-RUN apt-get update && apt-get install -y libpq-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libpq-dev tesseract-ocr tesseract-ocr-por && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

@@ -15,16 +15,43 @@ if str(BASE_DIR) not in sys.path:
 
 from llm import chat
 
+import re
+
 def gerar_titulo_diario(texto_diario, index):
     """Extrai a data e a especialidade do texto bruto para criar o título."""
     primeira_linha = texto_diario.split('\n')[0].strip()
     
+    # 1. Extrair a Data (Apanha tanto '10-Ago-2023' como '04-12-2025')
     match_data = re.search(r'\d{1,2}[-/](?:[A-Za-z]{3}|\d{1,2})[-/]\d{2,4}', primeira_linha)
     data = match_data.group(0) if match_data else "Data Desconhecida"
     
+    # Padronizar a data: se estiver em formato "04-12-2025", converte para "04-Dez-2025"
+    if re.match(r'\d{2}-\d{2}-\d{4}', data):
+        meses = {
+            '01':'Jan', '02':'Fev', '03':'Mar', '04':'Abr', '05':'Mai', '06':'Jun', 
+            '07':'Jul', '08':'Ago', '09':'Set', '10':'Out', '11':'Nov', '12':'Dez'
+        }
+        partes = data.split('-')
+        if len(partes) == 3:
+            dia, mes, ano = partes
+            data = f"{dia}-{meses.get(mes, mes)}-{ano}"
+    
+    # 2. Extrair a Especialidade
     if '/' in primeira_linha:
+        # Formato 1: "... / HUC-URG CIRURGIA GERAL"
         especialidade = primeira_linha.split('/')[-1].strip()
+        
+    elif '(' in primeira_linha and ')' in primeira_linha:
+        # Formato 2: "... (HUC-ONCOLOGIA MEDICA)"
+        # Procura o texto dentro do último par de parênteses da linha
+        match_especialidade = re.search(r'\(([^)]+)\)[^()]*$', primeira_linha)
+        if match_especialidade:
+            especialidade = match_especialidade.group(1).strip()
+        else:
+            especialidade = f"Nota Clínica {index}"
+            
     else:
+        # Fallback (Plano B) se não encontrar nem barra nem parênteses
         especialidade = f"Nota Clínica {index}" 
         
     return f"{especialidade} - {data}"
