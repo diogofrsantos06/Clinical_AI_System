@@ -24,6 +24,11 @@ FORMATO DE SAÍDA (JSON obrigatório):
       "tipo": "habitual | iniciada | ajustada | suspensa"
     }}
   ],
+  "alergias": [
+    {{
+      "substancia": ""
+    }}
+  ],
   "exames": [
     {{
       "tipo_exame": "analise | gasimetria | ecografia | rx | tac | outro",
@@ -52,7 +57,7 @@ FORMATO DE SAÍDA (JSON obrigatório):
 
 REGRAS CRÍTICAS:
 
-1. NÃO copiar texto bruto — reescrever sempre em linguagem clínica curta
+1. Copia o texto bruto
 2. NÃO inventar informação
 3. Incluir TODOS os dados clínicos relevantes
 4. Separar corretamente:
@@ -61,10 +66,9 @@ REGRAS CRÍTICAS:
    - exames
    - diagnósticos
    - terapêutica
-5. Interpretar apenas o mínimo necessário (ex: leucocitose, hiperglicemia)
-6. Medicação deve ser classificada corretamente (habitual vs iniciada)
-7. NÃO incluir texto administrativo
-8. JSON válido obrigatório (sem texto extra)
+5. Medicação deve ser classificada corretamente (habitual vs iniciada)
+6. NÃO incluir texto administrativo
+7. JSON válido obrigatório (sem texto extra)
 
 TEXTO:
 {diary_text}
