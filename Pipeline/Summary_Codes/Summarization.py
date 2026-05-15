@@ -4,7 +4,7 @@ from typing import Dict, Any
 
 from Pipeline.llm import chat, get_client
 from Pipeline.Prompts.Summary_Prompt import SUMMARY_TEXT_PROMPT
-from Pipeline.Summary_Codes.json_to_text import achatar_dados_clinicos
+from Pipeline.Summary_Codes.json_to_text import change_data_format
 
 class Summarizer:
     def __init__(self, system_prompt_path: Path):
@@ -29,7 +29,7 @@ class Summarizer:
         data_str = json.dumps(all_extractions, indent=2, ensure_ascii=False)
         
         # Injeta os dados no molde (User Prompt)
-        data_format_text = achatar_dados_clinicos(data_str)
+        data_format_text = change_data_format(data_str)
         print(data_format_text)
         user_prompt = SUMMARY_TEXT_PROMPT.format(extracted_data=data_format_text)
         

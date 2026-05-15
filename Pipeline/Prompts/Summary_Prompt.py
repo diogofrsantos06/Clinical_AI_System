@@ -5,7 +5,7 @@ DADOS PARA ANÁLISE (JSON):
 {extracted_data}
 
 REGRA CRÍTICA DE LEITURA:
-O JSON acima contém múltiplos diários/registos. É OBRIGATÓRIO leres o JSON desde a primeira até à última linha. NÃO sejas preguiçoso. Tens de extrair e fundir a informação de TODOS os registos presentes no JSON. Se um dado existir no último diário, tem de aparecer no resumo.
+O TEXTO acima contém múltiplos diários/registos. É OBRIGATÓRIO leres todo o texto, do inicio ao fim. Tens de extrair e fundir a informação de TODOS os registos presentes no Texto.
 
 REGRAS GERAIS E DE FORMATAÇÃO:
 1. Resposta em Português de Portugal.
@@ -16,21 +16,23 @@ REGRAS POR SECÇÃO:
 
 ANTECEDENTES PESSOAIS (AP) E DIAGNÓSTICOS:
 - Extrai 100% das doenças crónicas (AP) e diagnósticos agudos de TODOS os diários. Não omitas nenhuma patologia.
-- AP são factos estabelecidos. Nunca escrevas "(Suspeita)".
-- DIAGNÓSTICOS AGUDOS: Apenas se o JSON disser explicitamente 'suspeita', adiciona "(Suspeita)".
+- DIAGNÓSTICOS AGUDOS: Apenas se no TEXT disser explicitamente 'suspeita', adiciona "(Suspeita)".
 
 MEDICAÇÃO HABITUAL E ALERGIAS:
 - Alergias: Compila todas. Se não houver, escreve "Sem alergias conhecidas".
-- Medicação: Lista TODOS os fármacos mencionados ao longo de TODOS os diários (ex: se o JSON tiver 6 medicamentos espalhados, lista os 6). Não deixes nenhum de fora.
+- Medicação: Lista TODOS os fármacos mencionados ao longo de TODOS os diários. Não deixes nenhum de medicmento de fora a menos que esteja explicíto que vai deixar de ser tomado. 
 
 EXAMES E RESULTADOS:
-- TÍTULO: Usa o NOME descritivo do diário (ex: "HUC-URG CIRURGIA GERAL - 10-Ago-2023") e NUNCA o ID técnico (ex: "HUC-2024-01-26-001").
-- CRITÉRIO DE INCLUSÃO: Mantém apenas exames críticos que impactem decisões ou indiquem patologia aguda.
-- IMAGIOLOGIA: Procura ativamente por resultados de Ecografias, RX ou TACs em TODOS os registos. Se o relatório existir no JSON, TENS de transcrever os achados. Não escrevas "Não disponível" sem teres a certeza absoluta que nenhum diário contém imagens.
+- TÍTULO: Usa o NOME EXATO do diário (ex: "HUC-URG CIRURGIA GERAL - 10-Ago-2023 (Registo 1)").
+- ANÁLISES E GASIMETRIAS: Deves listar TODOS os parâmetros, valores e unidades encontrados na secção de análises (ex: "Glicose: 375 mg/dL, pH: 7.52"). É OBRIGATÓRIO incluir o valor numérico se ele existir nos dados.
+- IMAGIOLOGIA: Transcreve na íntegra os achados dos relatórios de exames. Não resumas o conteúdo médico; se o relatório existe, transcreve-o frase a frase.
+- IMAGIOLOGIA: Agrupa obrigatoriamente os achados por tipo de exame dentro de cada diário para evitar repetições. Se existirem vários órgãos/achados para o mesmo exame (ex: "ECOGRAFIA ABDOMINAL"), escreve o nome do exame apenas uma vez seguido de dois pontos, e depois lista os achados individuais separados por ponto e vírgula.
+  * Exemplo de formato: "ECOGRAFIA ABDOMINAL: (Vesícula Biliar): achado X; (Fígado): achado Y; (Rins): achado Z."
+  * Não repitas o nome do exame em cada linha ou frase.
 
 SÍNTESE DE SINTOMAS:
 - É PROIBIDO listar os sintomas agrupados por diário. Agrupa por SINTOMA.
-- Lista o sintoma uma única vez e, à frente, entre parênteses, lista todos os diários onde ele aparece. Exemplo: Dor abdominal (Registo 1, Registo 2)
+- Lista o sintoma uma única vez e, à frente, entre parênteses, lista todos os diários onde ele aparece. Exemplo: Dor abdominal (Diário X, Diario Y)
 
 PLANO E DECISÃO:
 - Apenas as decisões clínicas mais relevantes (do mais recente para o mais antigo).
@@ -50,9 +52,9 @@ MEDICAÇÃO HABITUAL E ALERGIAS:
 
 EXAMES E RESULTADOS:
 
-DIARIO: [Escreve aqui o Título longo do Diário e não o ID]
-- ANALISES: [Achados]
-- IMAGIOLOGIA ([TIPO]): [Achados em texto corrido]
+DIARIO: [NOME EXATO DO DIÁRIO]
+- ANÁLISES: [Lista OBRIGATORIAMENTE todos os parâmetros e valores numa única linha, separados apenas por ponto e vírgula. Ex: "pH: 7.528; pCO2: 28.1; pO2: 86.4". NÃO repitas a categoria ou tipo de exame]
+- IMAGIOLOGIA: [Transcreve o relatório na íntegra. Se não houver, escreve Nenhuma]
 
 SÍNTESE DE SINTOMAS:
 - [Nome do Sintoma Unificado] ([Título do Diário A], [Título do Diário B])

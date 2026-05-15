@@ -14,7 +14,7 @@ FORMATO DE SAÍDA (JSON obrigatório):
       "doenca": "",
       "tipo": "suspeita | confirmado",
       "temporalidade": "cronico | agudo",
-      "relevancia": "principal | secundario"
+      "relevancia": ""
     }}
   ],
   "medicacao": [
@@ -31,19 +31,18 @@ FORMATO DE SAÍDA (JSON obrigatório):
   ],
   "exames": [
     {{
-      "tipo_exame": "analise | gasimetria | ecografia | rx | tac | outro",
+      "tipo_exame": "",
       "parametro": "",
       "valor": "",
       "unidade": "",
-      "interpretacao": "",
-      "categoria_clinica": "inflamacao | metabolico | renal | hepatobiliar | outro"
+      "relatorio": "",
     }}
   ],
   "sintomas": [
     {{
       "descricao": "",
       "localizacao": "",
-      "tipo": "sintoma | sinal"
+      "tipo": ""
     }}
   ],
   "plano": [
