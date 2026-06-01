@@ -8,6 +8,7 @@ from .models import ClinicalDiary
 from .serializers import ClinicalDiarySerializer, DiaryUploadSerializer
 from .utils.pdf_splitter import extract_full_pdf_text
 from ..summaries.models import Summary
+from ..summaries.services.patient_summary_service import generate_patient_summary
 
 from Pipeline.pipeline_segmentation import run_smart_segmentation
 from Pipeline.llm import get_client 
@@ -55,6 +56,9 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
             
             Summary.objects.filter(patient_id=patient_id).delete()
             print("Resumo antigo apagado porque entraram novos diários!", flush=True)
+
+            generate_patient_summary(patient_id)
+            print(f"Novo sumário gerado automaticamente para o paciente {patient_id}.", flush=True)
 
             return Response({
                 "message": f"Sucesso! {len(lista_diarios)} diários detetados e guardados.",

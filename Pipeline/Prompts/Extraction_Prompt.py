@@ -1,9 +1,12 @@
 def get_prompt_for_diary_extraction(diary_text: str) -> str:
     return f"""
-Extrai toda a informação clínica relevante do texto abaixo e organiza-a num JSON estruturado.
+Como médico assistente e especialista em análise de documentação clínica, extrai as entidades clínicas do texto fornecido abaixo.
 
-OBJETIVO:
-Criar uma representação clínica limpa e estruturada que permita gerar um resumo médico.
+REGRAs FUNDAMENTAIS:
+Não te limites a extrair listas. Deves realizar uma análise semântica profunda. 
+- Identifica diagnósticos presentes em orações narrativas e extrai-os
+DATA: Formato DD/MM/YYYY. PROIBIDO: "hoje", "ontem", "agora", horas. Se não houver data, usa "Sem informação".
+MEDICACAO: Se o texto listar 'X+Y', cria dois objetos JSON distintos (um para X, outro para Y).
 
 FORMATO DE SAÍDA (JSON obrigatório):
 
@@ -14,19 +17,23 @@ FORMATO DE SAÍDA (JSON obrigatório):
       "doenca": "",
       "tipo": "suspeita | confirmado",
       "temporalidade": "cronico | agudo",
-      "relevancia": ""
+      "desde": ""
     }}
   ],
   "medicacao": [
     {{
       "farmaco": "",
-      "classe": "",
-      "tipo": "habitual | iniciada | ajustada | suspensa"
+      "indicação": "",
+      "tipo": "habitual | administrada | suspensa",
+      "posologia": "", 
+      "dosagem": "", 
+      "observações": ""
     }}
   ],
   "alergias": [
     {{
-      "substancia": ""
+      "substancia": "",
+      "reação": ""
     }}
   ],
   "exames": [
@@ -48,27 +55,21 @@ FORMATO DE SAÍDA (JSON obrigatório):
   "plano": [
     {{
       "acao": "",
-      "tipo": "diagnostico | terapeutico | organizacional",
-      "urgencia": "eletivo | urgente | emergente"
     }}
   ]
 }}
 
-REGRAS CRÍTICAS:
+DIRETRIZES DE EXTRAÇÃO:
+1. Extração Semântica: Prioriza o significado clínico sobre a estrutura da frase. Se o texto diz "Doente com [Diagnóstico]", extrai apenas "[Diagnóstico]".
+2. Limpeza de Entidades: Remove palavras de ligação, determinantes e verbos de estado ("é", "apresenta", "tem", "trata-se de").
+3. Exaustividade: Extrai toda a informação presente, independentemente de estar numa lista, tabela ou parágrafo descritivo.
+4. Validade: O JSON deve ser perfeitamente estruturado, sem texto adicional ou explicações antes/depois do bloco JSON.
+5. Medicacao: Mantém a distinção entre habitual e agudo conforme o contexto do texto.
+6. Exclusão Clínica: Sintomas ou queixas isoladas NÃO são diagnósticos. Um diagnóstico deve ser uma patologia médica estabelecida, um síndrome ou uma condição crónica/aguda diagnosticada ou que seja suspeita.
+7. A data que aparece nos diagnosticos deve ser do tipo DD/MM/YYYY ou apenas YYYY. Não deve aparecer horas, nem referências temporais como 'hoje'.
 
-1. Copia o texto bruto
-2. NÃO inventar informação
-3. Incluir TODOS os dados clínicos relevantes
-4. Separar corretamente:
-   - sintomas
-   - sinais
-   - exames
-   - diagnósticos
-   - terapêutica
-5. Medicação deve ser classificada corretamente (habitual vs iniciada)
-6. NÃO incluir texto administrativo
-7. JSON válido obrigatório (sem texto extra)
+TEXTO A ANALISAR:
 
-TEXTO:
 {diary_text}
+
 """

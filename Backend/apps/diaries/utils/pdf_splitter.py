@@ -5,10 +5,10 @@ import io
 import re
 import os
 
-#pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-caminho_tesseract = os.getenv('TESSERACT_PATH', 'tesseract')
-pytesseract.pytesseract.tesseract_cmd = caminho_tesseract
+#caminho_tesseract = os.getenv('TESSERACT_PATH', 'tesseract')
+#pytesseract.pytesseract.tesseract_cmd = caminho_tesseract
 
 
 def clean_clinical_text(text):

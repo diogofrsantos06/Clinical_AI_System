@@ -161,9 +161,6 @@ CORS_ALLOWED_ORIGINS = [
 '''
 CORS_ALLOWED_ORIGINS = os.environ.get('FRONTEND_URL', '').split(',')
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 

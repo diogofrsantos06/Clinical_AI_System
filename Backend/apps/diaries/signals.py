@@ -10,3 +10,5 @@ def run_diary_pipeline(sender, instance, created, **kwargs):
 
     if created:
         process_clinical_diary(instance.id)
+
+        

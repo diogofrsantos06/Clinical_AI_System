@@ -15,50 +15,60 @@ REGRAS GERAIS E DE FORMATAÇÃO:
 REGRAS POR SECÇÃO:
 
 ANTECEDENTES PESSOAIS (AP) E DIAGNÓSTICOS:
-- Extrai 100% das doenças crónicas (AP) e diagnósticos agudos de TODOS os diários. Não omitas nenhuma patologia.
-- DIAGNÓSTICOS AGUDOS: Apenas se no TEXT disser explicitamente 'suspeita', adiciona "(Suspeita)".
+- Extrai 100% das doenças crónicas (AP) e diagnósticos agudos de TODOS os diários. Não omitas nenhuma patologia. Consolida patologias identicas, fica a que estiver mais especifica.
+- Apenas se no TEXTO disser explicitamente 'suspeita', adiciona "(Suspeita)".
+- Adiciona a data do diagnóstico, se não tiver data coloca sem informação nesse campo.
 
 MEDICAÇÃO HABITUAL E ALERGIAS:
 - Alergias: Compila todas. Se não houver, escreve "Sem alergias conhecidas".
-- Medicação: Lista TODOS os fármacos mencionados ao longo de TODOS os diários. Não deixes nenhum de medicmento de fora a menos que esteja explicíto que vai deixar de ser tomado. 
+- Medicação: Lista TODOS os fármacos mencionados ao longo de TODOS os diários que sejam do TIPO HABITUAL. Todos os que não forem do tipo HABITUAL são descartados
 
 EXAMES E RESULTADOS:
 - TÍTULO: Usa o NOME EXATO do diário (ex: "HUC-URG CIRURGIA GERAL - 10-Ago-2023 (Registo 1)").
-- ANÁLISES E GASIMETRIAS: Deves listar TODOS os parâmetros, valores e unidades encontrados na secção de análises (ex: "Glicose: 375 mg/dL, pH: 7.52"). É OBRIGATÓRIO incluir o valor numérico se ele existir nos dados.
+- ANÁLISES: Deves listar TODOS os parâmetros, valores e unidades encontrados na secção de análises (ex: "Glicose: 375 mg/dL, pH: 7.52"). É OBRIGATÓRIO incluir o valor numérico se ele existir nos dados e a unidade dele.
 - IMAGIOLOGIA: Transcreve na íntegra os achados dos relatórios de exames. Não resumas o conteúdo médico; se o relatório existe, transcreve-o frase a frase.
 - IMAGIOLOGIA: Agrupa obrigatoriamente os achados por tipo de exame dentro de cada diário para evitar repetições. Se existirem vários órgãos/achados para o mesmo exame (ex: "ECOGRAFIA ABDOMINAL"), escreve o nome do exame apenas uma vez seguido de dois pontos, e depois lista os achados individuais separados por ponto e vírgula.
   * Exemplo de formato: "ECOGRAFIA ABDOMINAL: (Vesícula Biliar): achado X; (Fígado): achado Y; (Rins): achado Z."
   * Não repitas o nome do exame em cada linha ou frase.
 
-SÍNTESE DE SINTOMAS:
-- É PROIBIDO listar os sintomas agrupados por diário. Agrupa por SINTOMA.
-- Lista o sintoma uma única vez e, à frente, entre parênteses, lista todos os diários onde ele aparece. Exemplo: Dor abdominal (Diário X, Diario Y)
-
 PLANO E DECISÃO:
-- Apenas as decisões clínicas mais relevantes (do mais recente para o mais antigo).
+- Apenas as decisões clínicas mais relevantes, apenas do diário mais recente.
 
-=== TEMPLATE DE RESPOSTA OBRIGATÓRIO ===
-Preenche a estrutura abaixo exatamente nesta ordem, sem usar markdown:
-
-ANTECEDENTES PESSOAIS (AP) E DIAGNÓSTICOS:
-- [Doença 1]
-- [Doença 2]
-
-MEDICAÇÃO HABITUAL E ALERGIAS:
-- Alergias: [Lista ou Sem alergias conhecidas]
-- Medicação Habitual:
-  - [Fármaco 1]
-  - [Fármaco 2]
-
-EXAMES E RESULTADOS:
-
-DIARIO: [NOME EXATO DO DIÁRIO]
-- ANÁLISES: [Lista OBRIGATORIAMENTE todos os parâmetros e valores numa única linha, separados apenas por ponto e vírgula. Ex: "pH: 7.528; pCO2: 28.1; pO2: 86.4". NÃO repitas a categoria ou tipo de exame]
-- IMAGIOLOGIA: [Transcreve o relatório na íntegra. Se não houver, escreve Nenhuma]
-
-SÍNTESE DE SINTOMAS:
-- [Nome do Sintoma Unificado] ([Título do Diário A], [Título do Diário B])
-
-PLANO E DECISÃO:
-- DIARIO: [Título longo]: [Ação principal]
+ESTRUTURA JSON OBRIGATÓRIA:
+{{
+  "antecedentes": [
+    {{
+      "diagnostico": "Nome da doença",
+      "tipo": "Suspeita ou Confirmado",
+      "temporalidade": "Crónico ou Agudo",
+      "desde": "Data ou Sem informação"
+    }}
+  ],
+  "medicacao": [
+    {{
+      "farmaco": "Nome",
+      "dosagem": "Valor ou N/A",
+      "posologia": "Informação ou N/A",
+      "indicacao": "Indicação",
+      "observacoes": "Observações"
+    }}
+  ],
+  "alergias": ["Substância e reação"],
+  "exames": [
+    {{
+      "nome": "Título do diário",
+      "data": "retirada do titulo",
+      "resultado": "Análises (parâmetros: valores); Imagiologia: relatório integral"
+    }}
+  ],
+  "plano": "Plano de decisão do diário mais recente"
+}}
 """
+
+
+#SÍNTESE DE SINTOMAS:
+#- É PROIBIDO listar os sintomas agrupados por diário. Agrupa por SINTOMA.
+#- Lista o sintoma uma única vez e, à frente, entre parênteses, lista todos os diários onde ele aparece. Exemplo: Dor abdominal (Diário X, Diario Y)
+
+#SÍNTESE DE SINTOMAS:
+#- [Nome do Sintoma Unificado] ([Título do Diário A], [Título do Diário B])

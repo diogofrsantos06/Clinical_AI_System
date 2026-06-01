@@ -18,7 +18,11 @@ class PatientSerializer(serializers.ModelSerializer):
 
     def get_summary(self, obj):
         if hasattr(obj, 'clinical_summary'):
-            return obj.clinical_summary.summary_text
+            summary = obj.clinical_summary
+            return {
+                "summary_text": summary.summary_text,
+                "dados_estruturados": summary.dados_estruturados 
+            }
         return None
     
     def get_new_diaries_added(self, obj):
