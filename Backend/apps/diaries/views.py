@@ -66,5 +66,6 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            # Captura o erro real para sabermos se foi na IA ou no PDF
-            return Response({"error": f"Falha no Pipeline: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            import traceback
+            traceback.print_exc() 
+            return Response({"error": f"Falha: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

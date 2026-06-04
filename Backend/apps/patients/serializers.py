@@ -10,7 +10,10 @@ class PatientSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Patient
-        fields = ['id', 'summary','diaries','new_diaries_added']
+        fields = ['id', 'nome', 'data_nascimento', 'numero_processo', 'sexo', 
+            'telefone', 'email', 'n_sns', 'nif', 'subsistema', 
+            'data_admissao', 'servico', 'medico', 'contacto_urg_nome', 
+            'contacto_urg_telefone', 'summary', 'diaries', 'new_diaries_added','nacionalidade','morada']
 
         extra_kwargs = {
             'id': {'read_only': False}
