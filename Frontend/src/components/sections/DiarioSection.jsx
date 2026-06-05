@@ -15,19 +15,19 @@ export default function DiarioSection({ diarios }) {
     return new Date(year, months[monthStr] || 0, day);
   };
 
-  // 1. Ordenação global
   const sortedDiaries = [...diarios]
     .map(d => ({ ...d, date: parseTitleDate(d.title) }))
     .sort((a, b) => b.date - a.date);
 
-  // 2. Cálculo da label "D" específica por título
   const diariosComLabel = sortedDiaries.map((d) => {
     const tituloBase = d.title.split(' - ')[0];
+    
     const grupoMesmoNome = sortedDiaries
       .filter(item => item.title.split(' - ')[0] === tituloBase)
       .sort((a, b) => a.date - b.date);
     
-    const indexNoGrupo = grupoMesmoNome.findIndex(item => item.date.getTime() === d.date.getTime());
+    const indexNoGrupo = grupoMesmoNome.findIndex(item => item === d);
+    
     return { ...d, diaLabel: `D${indexNoGrupo + 1}` };
   });
 

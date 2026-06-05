@@ -2,7 +2,7 @@ import time
 import uuid
 import requests
 
-DEFAULT_BASE_URL = "http://172.30.2.225:11434"
+DEFAULT_BASE_URL = "http://172.30.2.225:11434" 
 DEFAULT_MODEL = "gemma3:27b"
 
 
@@ -11,22 +11,8 @@ def get_client(base_url: str = DEFAULT_BASE_URL) -> dict:
     return {"base_url": base_url}
 
 
-def chat(client: dict,
-    user_prompt: str,
-    system_prompt: str = None,
-    model: str = DEFAULT_MODEL,
-    retries: int = 10,
-    retry_delay: float = 10.0,
-) -> str:
-    """
-    Envia um pedido de chat para a API do Ollama.
-
-    - Sessão HTTP isolada por tentativa (sem partilha de estado).
-    - Backoff exponencial em caso de 404, 503, timeout ou erro de ligação:
-        tentativa 1 → espera 15s
-        tentativa 2 → espera 30s
-    - Erros irrecuperáveis (ex: 400 bad request) falham imediatamente sem retry.
-    """
+def chat(client: dict,user_prompt: str,system_prompt: str = None,model: str = DEFAULT_MODEL,retries: int = 10,retry_delay: float = 10.0,) -> tuple:
+    
     messages = []
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
@@ -45,52 +31,41 @@ def chat(client: dict,
     url = f"{client['base_url']}/api/chat"
     session_id = str(uuid.uuid4())
 
+    is_retry = False
+
     for attempt in range(1, retries + 1):
         wait = retry_delay  
 
         try:
             with requests.Session() as session:
+                start_inference = time.perf_counter()
+
                 response = session.post(url, json=payload, timeout=1800)
 
-                if response.status_code == 404:
-                    if attempt < retries:
-                        print(f"[{session_id}] 404 — modelo a carregar "
-                              f"(tentativa {attempt}/{retries}), aguarda {wait:.0f}s...")
-                        time.sleep(wait)
-                        continue
-                    return f"Erro ao chamar a API: 404 após {retries} tentativas"
+                if response.status_code == 200:
+                    duration = time.perf_counter() - start_inference
+                    data = response.json()
+                    return data["message"]["content"], duration, is_retry
 
-                if response.status_code == 503:
+                if response.status_code in [404, 503]:
+                    is_retry = True 
                     if attempt < retries:
-                        print(f"[{session_id}] 503 — servidor sobrecarregado "
-                              f"(tentativa {attempt}/{retries}), aguarda {wait:.0f}s...")
+                        print(f"[{session_id}] {response.status_code} — Aguarda {wait:.0f}s...")
                         time.sleep(wait)
                         continue
-                    return f"Erro ao chamar a API: 503 após {retries} tentativas"
+                    return f"Erro: {response.status_code} após {retries} tentativas", 0.0, is_retry
 
                 response.raise_for_status()
-                data = response.json()
-                return data["message"]["content"]
-
-        except requests.exceptions.ConnectionError as e:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+            is_retry = True
             if attempt < retries:
-                print(f"[{session_id}] Erro de ligação (tentativa {attempt}/{retries}), "
-                      f"aguarda {wait:.0f}s...")
+                print(f"[{session_id}] Erro de rede, aguarda {wait:.0f}s...")
                 time.sleep(wait)
-            else:
-                return f"Erro ao chamar a API: {str(e)}"
-
-        except requests.exceptions.Timeout:
-            if attempt < retries:
-                print(f"[{session_id}] Timeout (tentativa {attempt}/{retries}), "
-                      f"aguarda {wait:.0f}s...")
-                time.sleep(wait)
-            else:
-                return f"Erro ao chamar a API: timeout após {retries} tentativas"
+                continue
+                    
+            return f"Erro: {str(e)}", 0.0, is_retry
 
         except requests.exceptions.RequestException as e:
-            # Erros irrecuperáveis (400, etc.) — falha imediata sem retry
-            return f"Erro ao chamar a API: {str(e)}"
+            return f"Erro: {str(e)}", 0.0, is_retry
 
-    return f"Erro ao chamar a API: falhou após {retries} tentativas"
-
+        return "Erro: Limite de tentativas", 0.0, is_retry

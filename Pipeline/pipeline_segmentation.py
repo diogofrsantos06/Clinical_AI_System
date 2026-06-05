@@ -111,7 +111,7 @@ def run_smart_segmentation(full_text, client):
         """
         
         try:
-            resposta = chat(client, user_prompt=segmento_bruto, system_prompt=sys_prompt)
+            resposta, tempo_llm, houve_retry = chat(client, user_prompt=segmento_bruto, system_prompt=sys_prompt)
             if len(resposta.strip()) > 10:
                 titulo_gerado = gerar_titulo_diario(segmento_bruto, i+1)
                 

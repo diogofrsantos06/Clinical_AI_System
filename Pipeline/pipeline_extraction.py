@@ -23,12 +23,17 @@ class ExtractionPipeline:
         try:
             clean_text = self.cleaner.clean_diary(raw_diary_text)
 
-            extracted_data = self.extractor.extract_full_diary(clean_text)
+            extraction_result = self.extractor.extract_full_diary(clean_text)
+
+            if "erro" in extraction_result:
+                return {"status": "error", "message": "Falha na extração"}
 
             return {
                 "status": "success",
                 "cleaned_text": clean_text,
-                "extracted_data": extracted_data  
+                "extracted_data": extraction_result.get("dados",[]), 
+                "tempo_llm": extraction_result.get("tempo_llm", 0.0), 
+                "houve_retry": extraction_result.get("houve_retry", False)
             }
             
         except Exception as e:

@@ -19,21 +19,22 @@ def process_clinical_diary(diary_id):
 
         logger.info(f"Iniciando processamento da Pipeline para o Diário ID: {diary_id}")
 
-        start_time = time.time()
+        start_total = time.perf_counter()
 
         result = pipeline.run(diary.original_text)
 
         if result.get("status") == "success":
 
-            end_time = time.time()
-
-            duration = end_time - start_time
+            total_duration = time.perf_counter() - start_total
 
             PerformanceMetric.objects.create(
                 operation_type='EXTRACTION',
-                duration_seconds=duration,
-                patient=diary.patient,  
-                diary=diary             
+                duration_seconds=total_duration,      
+                inference_duration=result["tempo_llm"], 
+                is_retry=result["houve_retry"],   
+                input_size=len(diary.original_text), 
+                patient=diary.patient,
+                diary=diary
             )
 
             with transaction.atomic():
@@ -42,7 +43,7 @@ def process_clinical_diary(diary_id):
                 diary.save()
 
             logger.info(
-                f"Diário {diary.diary_number} (Paciente: {diary.patient.id}) processado com sucesso em {duration:.2f}s."
+                f"Diário {diary.diary_number} (Paciente: {diary.patient.id}) processado com sucesso em {total_duration:.2f}s."
                 )
             
             return True

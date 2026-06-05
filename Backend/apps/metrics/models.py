@@ -12,7 +12,10 @@ class PerformanceMetric(models.Model):
     duration_seconds = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Agora usamos a classe diretamente, sem aspas!
+    inference_duration = models.FloatField(help_text="Tempo real de processamento do modelo")
+    input_size = models.IntegerField(help_text="Número de caracteres ou tokens processados")
+    is_retry = models.BooleanField(default=False, help_text="Se houve falhas antes do sucesso")
+
     patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True, blank=True)
     diary = models.ForeignKey(ClinicalDiary, on_delete=models.SET_NULL, null=True, blank=True)
 

@@ -67,6 +67,7 @@ DIRETRIZES DE EXTRAÇÃO:
 5. Medicacao: Mantém a distinção entre habitual e agudo conforme o contexto do texto.
 6. Exclusão Clínica: Sintomas ou queixas isoladas NÃO são diagnósticos. Um diagnóstico deve ser uma patologia médica estabelecida, um síndrome ou uma condição crónica/aguda diagnosticada ou que seja suspeita.
 7. A data que aparece nos diagnosticos deve ser do tipo DD/MM/YYYY ou apenas YYYY. Não deve aparecer horas, nem referências temporais como 'hoje'.
+8. Exames podem incluir valores analíticos de anlíses ou relatórios de exames (como Raio X, Eco,...). Apresenta toda a informação sobre cada exame/analíse.
 
 TEXTO A ANALISAR:
 

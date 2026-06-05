@@ -59,15 +59,19 @@ class DiaryExtractor:
         user_prompt = get_prompt_for_diary_extraction(diary_text)
 
         try:
-            response = chat(self.client, user_prompt, self.system_prompt)
+            response, tempo_llm, houve_retry = chat(self.client, user_prompt, self.system_prompt)
 
             json_str = self._clean_json_response(response)
-            return json.loads(json_str)
+            dados = json.loads(json_str)
+
+            return {
+                "dados": dados,
+                "tempo_llm": tempo_llm,
+                "houve_retry": houve_retry,
+                "status": "success"
+            }
 
         except Exception as e:
             print(f"Erro na extração do diário: {e}")
-            return {
-                "erro": "falha_extracao",
-                "conteudo_original": diary_text
-            }
-    
+            return {"status": "error", "message": str(e)}
+        

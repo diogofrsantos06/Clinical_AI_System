@@ -8,8 +8,10 @@ class Summary(models.Model):
 
     @property
     def dados_estruturados(self):
-        # Chama a tua função de parsing aqui
-        return json.loads(self.summary_text)
+        try:
+            return json.loads(self.summary_text)
+        except (json.JSONDecodeError, TypeError):
+            return {"resumo_texto": self.summary_text}
     
     def __str__(self):
         return f"Summary for Patient {self.patient.id}"

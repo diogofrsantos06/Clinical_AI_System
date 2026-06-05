@@ -1,7 +1,8 @@
 export default function AlergiasSection({ alergias }) {
-  // A lógica atualizada para detetar alergias reais
-  const temAlergias = alergias && alergias.length > 0 && alergias[0] !== "Sem alergias conhecidas";
-
+  const valoresNulos = ["Sem alergias conhecidas", "N/A", "Nenhum", ""];
+  const temAlergias = alergias && 
+                      alergias.length > 0 && 
+                      !valoresNulos.includes(alergias[0]);
   return (
     <div className="w-full mb-8">
       <div className="flex items-center gap-3 mb-6">

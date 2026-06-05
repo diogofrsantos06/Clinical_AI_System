@@ -58,6 +58,7 @@ ESTRUTURA JSON OBRIGATÓRIA:
     {{
       "nome": "Título do diário",
       "data": "retirada do titulo",
+      "tipo_exame": "tipo de exame",
       "resultado": "Análises (parâmetros: valores); Imagiologia: relatório integral"
     }}
   ],

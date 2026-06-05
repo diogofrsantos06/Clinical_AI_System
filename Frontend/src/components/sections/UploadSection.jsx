@@ -37,6 +37,8 @@ export default function UploadSection({ patientId, onUploadSuccess }) {
     }
   };
 
+  console.log("A enviar patient_id para o upload:", patientId);
+  
   return (
     <div className="w-full mb-8">
       <div className="flex items-center gap-3 mb-6">
