@@ -1,11 +1,36 @@
-import React from 'react';
 import { useNavigate, useParams} from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+
 import { ArrowLeft, User, FileText, Phone } from 'lucide-react';
 
-export default function PatientProfile({ patient }) {
+import api from '../api';
+import axios from 'axios';
+
+export default function PatientProfile({ patient: propPatient }) {
   const { numero_processo } = useParams();
   const navigate = useNavigate();
 
+  const [patient, setPatient] = useState(propPatient);
+  const [loading, setLoading] = useState(!propPatient);
+
+  useEffect(() => {
+    if (!patient && numero_processo) {
+      const fetchPatientData = async () => {
+        try {
+          const response = await api.get(`/api/patients/${numero_processo}/`);
+          setPatient(response.data);
+        } catch (err) {
+          console.error("Erro ao carregar paciente no Perfil:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      fetchPatientData();
+    } else {
+      setLoading(false);
+    }
+  }, [numero_processo, patient]);
 
   const formatDate = (dateString) => {
     if (!dateString) return "--";
@@ -13,8 +38,13 @@ export default function PatientProfile({ patient }) {
     return `${day}/${month}/${year}`;
   };
 
-  if (!patient) return <div className="p-10">Paciente não encontrado.</div>;
+  if (loading) {
+    return <div className="p-10 text-center">A carregar dados do paciente...</div>;
+  }
 
+  if (!patient) {
+    return <div className="p-10 text-center">Paciente não encontrado.</div>;
+  }
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar Lateral Verde */}
@@ -53,7 +83,7 @@ export default function PatientProfile({ patient }) {
           >
             {patient.nome}
           </h1>          
-          <p className="text-gray-500 text-sm mt-1">Nº {patient.numero_processo} · 21 anos · Sexo: {patient.sexo} · Nasc. {patient.data_nascimento}</p>
+          <p className="text-gray-500 text-sm mt-1">Nº {patient.numero_processo} · 21 anos · Sexo: {patient.sexo} · Nasc. {formatDate(patient.data_nascimento)}</p>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -95,7 +125,7 @@ export default function PatientProfile({ patient }) {
                 { label: 'Nº SNS', value: patient.n_sns },
                 { label: 'NIF', value: patient.nif },
                 { label: 'SUBSISTEMA', value: patient.subsistema },
-                { label: 'DATA DE ADMISSÃO', value: patient.data_admissao },
+                { label: 'DATA DE ADMISSÃO', value: formatDate(patient.data_admissao) },
                 { label: 'SERVIÇO / CAMA', value: patient.servico },
                 { label: 'MÉDICO ASSISTENTE', value: patient.medico }
               ].map(item => (

@@ -51,7 +51,6 @@ export default function PatientSearch({ onSearch, loading, recentPatients = [], 
           
           <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-[#216348] relative">
             <User size={16} />
-            {/* Indicador de "ação" - pequena seta para baixo */}
             <div className="absolute -bottom-1 -right-1 bg-white rounded-full border border-gray-200 p-[1px]">
               <ChevronDown size={10} className="text-gray-500" />
             </div>

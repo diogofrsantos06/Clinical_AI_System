@@ -17,6 +17,12 @@ export default function PatientHeader({ patient, onBack, searchTerm, onSearch })
     return `${age} anos`;
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "--";
+    const [year, month, day] = dateString.split('-');
+    return `${day}/${month}/${year}`;
+  };
+
   const nomeExibido = patient.nome || "Sem Nome";
   
   return (
@@ -44,7 +50,7 @@ export default function PatientHeader({ patient, onBack, searchTerm, onSearch })
           <div className="flex flex-col">
             <span className="font-bold text-gray-900 text-sm whitespace-nowrap">{nomeExibido}</span>
             <span className="text-[11px] text-gray-500 whitespace-nowrap">
-              Nº {patient.numero_processo || "---"} · {calculateAge(patient.data_nascimento)} · {patient.sexo || "---"} · Nasc. {patient.data_nascimento}
+              Nº {patient.numero_processo || "---"} · {calculateAge(patient.data_nascimento)} · {patient.sexo || "---"} · Nasc. {formatDate(patient.data_nascimento)}
             </span>
           </div>
         </button>
