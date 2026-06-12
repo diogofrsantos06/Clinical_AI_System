@@ -2,9 +2,10 @@ def get_prompt_for_diary_extraction(diary_text: str) -> str:
     return f"""
 Como médico assistente e especialista em análise de documentação clínica, extrai as entidades clínicas do texto fornecido abaixo.
 
-REGRAs FUNDAMENTAIS:
+REGRAS FUNDAMENTAIS:
 Não te limites a extrair listas. Deves realizar uma análise semântica profunda. 
 - Identifica diagnósticos presentes em orações narrativas e extrai-os
+Sintomas NÃO são diagnósticos.
 DATA: Formato DD/MM/YYYY. PROIBIDO: "hoje", "ontem", "agora", horas. Se não houver data, usa "Sem informação".
 MEDICACAO: Se o texto listar 'X+Y', cria dois objetos JSON distintos (um para X, outro para Y).
 

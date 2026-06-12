@@ -1,4 +1,4 @@
-import json
+import json, re
 from pathlib import Path
 from typing import Dict, Any
 
@@ -31,12 +31,18 @@ class Summarizer:
         data_str = json.dumps(all_extractions, indent=2, ensure_ascii=False)
         
         data_format_text = change_data_format(data_str)
-                
+        print(data_format_text)
         user_prompt = SUMMARY_TEXT_PROMPT.format(extracted_data=data_format_text)
         
         summary, tempo_llm, houve_retry = chat(self.client, user_prompt, self.system_prompt)
 
         print(f"DEBUG LLM RESPONSE: '{summary}'")
+
+        match = re.search(r'\{.*\}', summary, re.DOTALL)
+        if match:
+            summary_limpo = match.group(0) # Extrai só o JSON
+        else:
+            summary_limpo = summary
         
-        return summary.strip(), tempo_llm, houve_retry
+        return summary_limpo.strip(), tempo_llm, houve_retry
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, X, Check, FlaskConical} from 'lucide-react';
+import { FileText, X, Sparkles } from 'lucide-react';
 
 export default function TriagemSection({ processNumber, triagemData, onSave }) {
   const [texto, setTexto] = useState(triagemData || "");
@@ -7,15 +7,10 @@ export default function TriagemSection({ processNumber, triagemData, onSave }) {
   const [analiseClinica, setAnaliseClinica] = useState(null);
   const [carregando, setCarregando] = useState(false);
 
-  // Detecta alterações para mostrar os botões
+  // Detecta alterações para gerir o estado 'alterado'
   useEffect(() => {
     setAlterado(texto !== (triagemData || ""));
   }, [texto, triagemData]);
-
-  const handleGuardar = () => {
-    onSave(texto);
-    setAlterado(false);
-  };
 
   const handleDescartar = () => {
     setTexto(triagemData || "");
@@ -24,6 +19,14 @@ export default function TriagemSection({ processNumber, triagemData, onSave }) {
 
   const enviarTriagemParaAnalise = async () => {
     setCarregando(true);
+    
+    // (Opcional) Se quiseres que o Dashboard também "saiba" qual é o texto atual,
+    // podes chamar o onSave aqui. Se não precisares de guardar na Base de Dados, podes remover esta linha.
+    if (alterado) {
+       onSave(texto);
+       setAlterado(false);
+    }
+
     try {
       const response = await fetch('/api/summaries/patient-summary/analyze_triage/', {
         method: 'POST',
@@ -71,41 +74,39 @@ export default function TriagemSection({ processNumber, triagemData, onSave }) {
         <div className="flex justify-between items-center mt-4">
           {/* Esquerda: Status do texto */}
           <span className="text-xs text-slate-400">
-            {texto.length} caracteres {alterado ? "· alterações por guardar" : "· guardado"}
+            {texto.length} caracteres {alterado ? "· não analisado" : "· guardado"}
           </span>
           
-          {/* Direita: Botões */}
           <div className="flex gap-3">
             
-            {/* A. Botão de IA (Sempre disponível se houver texto) */}
-            {texto.length > 0 && !alterado && (
+            {/* O botão Descartar só aparece se houver alterações não guardadas */}
+            {alterado && (
+              <button 
+                onClick={handleDescartar} 
+                className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg flex items-center gap-2"
+                disabled={carregando}
+              >
+                <X size={16} /> Descartar
+              </button>
+            )}
+
+            {/* O botão Analisar aparece sempre que há texto, independentemente de estar alterado ou não */}
+            {texto.length > 0 && (
               <button 
                 onClick={enviarTriagemParaAnalise}
                 disabled={carregando}
                 className="px-4 py-2 bg-[#2d6a4f] text-white text-sm font-bold rounded-lg flex items-center gap-2 hover:bg-[#235841] transition-colors"
               >
-                <FlaskConical size={16} /> {carregando ? "A analisar..." : "Analisar Triagem"}
+                <Sparkles size={16} /> {carregando ? "A analisar..." : "Analisar Triagem"}
               </button>
             )}
-
-            {/* B. Botões de Edição (Apenas quando alterado) */}
-            {alterado && (
-              <>
-                <button onClick={handleDescartar} className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg flex items-center gap-2">
-                  <X size={16} /> Descartar
-                </button>
-                <button onClick={handleGuardar} className="px-4 py-2 bg-[#2d6a4f] text-white text-sm font-bold rounded-lg flex items-center gap-2 hover:bg-[#235841] transition-colors">
-                  <Check size={16} /> Guardar
-                </button>
-              </>
-            )}
+            
           </div>
         </div>
       </div>
 
       {analiseClinica && (
         <div className="w-full mt-6">
-          {/* Cabeçalho */}
           <div className="flex items-center gap-3 mb-6">
             <div className="bg-[#2d6a4f] p-1 rounded-md text-white">
               <FileText size={16} />
@@ -120,15 +121,10 @@ export default function TriagemSection({ processNumber, triagemData, onSave }) {
             </div>
           </div>
 
-          {/* Estrutura de Retângulo dentro de Retângulo */}
-          {/* Este primeiro div é a borda exterior cinzenta/fina */}
           <div className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl">
-            
-            {/* Este segundo div é o retângulo interno branco */}
-            <div className="w-full p-4 bg-white border border-slate-200 rounded-xl text-slate-700 leading-relaxed text-sm min-h-[120px]">
+            <div className="w-full p-4 bg-white border border-slate-200 rounded-xl text-slate-700 leading-relaxed text-sm min-h-[120px] whitespace-pre-wrap">
               {analiseClinica.analise_texto}
             </div>
-            
           </div>
         </div>
       )}

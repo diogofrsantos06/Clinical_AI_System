@@ -7,7 +7,7 @@ from .serializers import SummarySerializer
 @admin.register(Summary)
 class SummaryAdmin(admin.ModelAdmin):
     list_display = ('id', 'patient', 'updated_at')
-    readonly_fields = ('dados_estruturados_view',) # Criamos um nome diferente para o campo de leitura
+    readonly_fields = ('dados_estruturados_view',) 
 
     def dados_estruturados_view(self, obj):
         serializer = SummarySerializer(obj)

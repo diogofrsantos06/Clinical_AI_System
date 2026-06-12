@@ -21,7 +21,7 @@ ANTECEDENTES PESSOAIS (AP) E DIAGNÓSTICOS:
 
 MEDICAÇÃO HABITUAL E ALERGIAS:
 - Alergias: Compila todas. Se não houver, escreve "Sem alergias conhecidas".
-- Medicação: Lista TODOS os fármacos mencionados ao longo de TODOS os diários que sejam do TIPO HABITUAL. Todos os que não forem do tipo HABITUAL são descartados
+- Medicação: Lista TODOS os fármacos mencionados ao longo de TODOS os diários que sejam do TIPO HABITUAL. Todos os que não forem do tipo HABITUAL são descartados. Se o mesmo medicamento for do tipo HABITUAL e SUSPENSA, descarta se o tipo SUSPENSA aparecer mais recentemente.
 
 EXAMES E RESULTADOS:
 - TÍTULO: Usa o NOME EXATO do diário (ex: "HUC-URG CIRURGIA GERAL - 10-Ago-2023 (Registo 1)").
@@ -34,7 +34,7 @@ EXAMES E RESULTADOS:
 PLANO E DECISÃO:
 - Apenas as decisões clínicas mais relevantes, apenas do diário mais recente.
 
-ESTRUTURA JSON OBRIGATÓRIA:
+FORMATO DE SAÍDA (ESTRUTURA JSON OBRIGATÓRIA):
 {{
   "antecedentes": [
     {{
