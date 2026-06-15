@@ -9,8 +9,10 @@ O TEXTO acima contém múltiplos diários/registos. É OBRIGATÓRIO leres todo o
 
 REGRAS GERAIS E DE FORMATAÇÃO:
 1. Resposta em Português de Portugal.
-2. TEXTO PURAMENTE SIMPLES (PLAIN TEXT). É ABSOLUTAMENTE PROIBIDO o uso de Markdown (sem asteriscos, sem negritos).
-3. TENS DE RESPEITAR RIGOROSAMENTE A ORDEM DAS SECÇÕES ABAIXO.
+2. O teu output TEM DE SER EXCLUSIVAMENTE UM OBJETO JSON VÁLIDO. 
+3. É ABSOLUTAMENTE PROIBIDO o uso de formatação Markdown (sem asteriscos, sem negritos, sem blocos de código ```json) no output. 
+4. Não escrevas texto introdutório nem conclusões fora do JSON.
+. TENS DE RESPEITAR RIGOROSAMENTE A ORDEM DAS SECÇÕES ABAIXO.
 
 REGRAS POR SECÇÃO:
 
