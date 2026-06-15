@@ -1,4 +1,4 @@
-PROVIDER = "groq"
+PROVIDER = "ollama"
 
 if PROVIDER == "ollama":
     from Pipeline.ollama_local_client import get_client, chat
