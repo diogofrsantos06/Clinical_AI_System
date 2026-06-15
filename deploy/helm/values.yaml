@@ -24,7 +24,7 @@ backend:
       cpu: "100m"
       memory: "256Mi"
     limits:
-      cpu: "500m"
+      cpu: "100m"
       memory: "512Mi"
   probes:
     enabled: false
@@ -67,7 +67,7 @@ frontend:
       cpu: "50m"
       memory: "64Mi"
     limits:
-      cpu: "250m"
+      cpu: "50m"
       memory: "128Mi"
   probes:
     enabled: true
