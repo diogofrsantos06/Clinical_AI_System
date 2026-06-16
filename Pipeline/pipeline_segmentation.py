@@ -15,17 +15,19 @@ if str(BASE_DIR) not in sys.path:
 
 from llm import chat
 
-import re
 
 def gerar_titulo_diario(texto_diario, index):
-    """Extrai a data e a especialidade do texto bruto para criar o título."""
-    primeira_linha = texto_diario.split('\n')[0].strip()
+    """Extrai a data e a especialidade do cabeçalho limpo para gerar o título."""
+    linhas = [l.strip() for l in texto_diario.split('\n') if l.strip()]
+    if not linhas:
+        return f"Nota Clínica {index}"
+        
+    primeira_linha = linhas[0]
     
-    # 1. Extrair a Data (Apanha tanto '10-Ago-2023' como '04-12-2025')
+    # Extrair a Data
     match_data = re.search(r'\d{1,2}[-/](?:[A-Za-z]{3}|\d{1,2})[-/]\d{2,4}', primeira_linha)
     data = match_data.group(0) if match_data else "Data Desconhecida"
     
-    # Padronizar a data: se estiver em formato "04-12-2025", converte para "04-Dez-2025"
     if re.match(r'\d{2}-\d{2}-\d{4}', data):
         meses = {
             '01':'Jan', '02':'Fev', '03':'Mar', '04':'Abr', '05':'Mai', '06':'Jun', 
@@ -36,82 +38,59 @@ def gerar_titulo_diario(texto_diario, index):
             dia, mes, ano = partes
             data = f"{dia}-{meses.get(mes, mes)}-{ano}"
     
-    # 2. Extrair a Especialidade
+    # Extrair a Especialidade
     if '/' in primeira_linha:
-        # Formato 1: "... / HUC-URG CIRURGIA GERAL"
         especialidade = primeira_linha.split('/')[-1].strip()
-        
     elif '(' in primeira_linha and ')' in primeira_linha:
-        # Formato 2: "... (HUC-ONCOLOGIA MEDICA)"
-        # Procura o texto dentro do último par de parênteses da linha
         match_especialidade = re.search(r'\(([^)]+)\)[^()]*$', primeira_linha)
-        if match_especialidade:
-            especialidade = match_especialidade.group(1).strip()
-        else:
-            especialidade = f"Nota Clínica {index}"
-            
+        especialidade = match_especialidade.group(1).strip() if match_especialidade else f"Nota Clínica {index}"
     else:
-        # Fallback (Plano B) se não encontrar nem barra nem parênteses
         especialidade = f"Nota Clínica {index}" 
         
     return f"{especialidade} - {data}"
 
-def get_diary_start_indices(text):
-    
-    #Identifica o início de cada diário. 
-    date_part = r'\d{1,2}[-/](?:[A-Za-z]{3}|\d{1,2})[-/]\d{2,4}'
-    time_part = r'(?:\s+\d{2}:\d{2}(?::\d{2})?)?'
-    doctor_part = r'.*?(?:Dr\(?a?\)?\.?\s|Drª\s|Médico:)' 
-    
-    full_pattern = f'{date_part}{time_part}{doctor_part}'
-    return [m.start() for m in re.finditer(full_pattern, text, re.IGNORECASE)]
-
 
 def run_smart_segmentation(full_text, client):
-    indices = get_diary_start_indices(full_text)
-
-    print(f"\n[DEBUG] Regex encontrou {len(indices)} inícios de diários no PDF.", flush=True)
-
-    if not indices:
-        print("[AVISO] Nenhum diário encontrado pelo Regex! A extração vai parar aqui.", flush=True)
-        return []
+    """
+    Divide o texto purificado usando o marcador universal '[NOVO DIARIO]' gerado pela Fase 1.
+    """
+    # Divide a string pelos marcadores injetados e remove segmentos vazios
+    segmentos = [s.strip() for s in full_text.split("[NOVO DIARIO]") if s.strip()]
     
-    indices.append(len(full_text))
+    print(f"\n[DEBUG] Pipeline identificou {len(segmentos)} diários estruturados no texto limpo.", flush=True)
+    
     todos_diarios = []
-    total_esperado = len(indices) - 1
+    total_esperado = len(segmentos)
 
-    for i in range(len(indices) - 1):
-        inicio = indices[i]
-        fim = indices[i+1]
-        segmento_bruto = full_text[inicio:fim].strip()
+    for i, segmento_bruto in enumerate(segmentos):
         
         if len(segmento_bruto) < 20: 
-            print(f"[{i+1}/{total_esperado}] Ignorado: Segmento muito curto ({len(segmento_bruto)} caracteres).", flush=True)
+            print(f"[{i+1}/{total_esperado}] Ignorado: Segmento invulgarmente curto.", flush=True)
             continue
 
-        # Identificamos se é o último bloco para aplicar a regra restritiva
-        e_ultimo = (i == len(indices) - 2)
-
-        print(f"[{i+1}/{total_esperado}] A enviar para o LLM (Tamanho: {len(segmento_bruto)} caracteres)...", flush=True)
+        e_ultimo = (i == total_esperado - 1)
+        print(f"[{i+1}/{total_esperado}] A aplicar regras de negócio no diário...", flush=True)
 
         if e_ultimo:
+            # Regra especial mantida para tratar o fim do documento clínico
             regra_extra = """
         3. ATENÇÃO: Este é o último bloco do documento e contém secções extra.
            - DEVES REMOVER completamente as secções: "Notas de Enfermagem", "Medicação", "MCDT Requisitados" e "Destino do Doente".
-           - DEVES MANTER a secção "Diagnósticos" (ou "Diagnosticos") e o seu respetivo conteúdo. Adiciona esta secção no final da tua resposta, logo após o fim da narrativa do médico.
+           - DEVES MANTER a secção "Diagnósticos" (or "Diagnosticos") e o seu respetivo conteúdo. Adiciona esta secção no final da tua resposta, logo após o fim da narrativa do médico.
             """
         else:
             regra_extra = ""
 
         sys_prompt = f"""
-        És um assistente médico. O teu objetivo é LIMPAR esta nota clínica.
-        1. Mantém conteúdo clínico, datas e nomes de médicos.
-        2. Remove lixo de formatação (cabeçalhos, rodapés).{regra_extra}
-        4. Devolve apenas o texto limpo, sem comentários.
+        És um assistente médico especialista em curadoria de registos. O teu objetivo é a validação final desta nota clínica.
+        1. Garante a integridade absoluta de todo o conteúdo clínico da consulta.
+        2. Certifica-te de que nenhuma frase médica é cortada ou resumida.{regra_extra}
+        4. Devolve exclusivamente o texto clínico resultante limpo, mantendo a estrutura de quebra de linhas, sem comentários ou markdown.
         """
         
         try:
-            resposta, tempo_llm, houve_retry = chat(client, user_prompt=segmento_bruto, system_prompt=sys_prompt)
+            resposta, _, _ = chat(client, user_prompt=segmento_bruto, system_prompt=sys_prompt)
+            
             if len(resposta.strip()) > 10:
                 titulo_gerado = gerar_titulo_diario(segmento_bruto, i+1)
                 
@@ -121,22 +100,16 @@ def run_smart_segmentation(full_text, client):
                 }
                 
                 todos_diarios.append(diario_obj)
-                print(f"[{i+1}/{total_esperado}] Sucesso! Título: {titulo_gerado}", flush=True)
+                print(f"[{i+1}/{total_esperado}] Processado com Sucesso: {titulo_gerado}", flush=True)
             else:
-                print(f"[{i+1}/{total_esperado}] Falhou: LLM devolveu vazio.", flush=True)
+                print(f"[{i+1}/{total_esperado}] Falhou: Resposta vazia da LLM.", flush=True)
                 
-            # 2. PREVENÇÃO DE RATE LIMITS DA GROQ
-            time.sleep(1.5) 
+            time.sleep(1.0) 
             
         except Exception as e:
-            # 3. DEBUG CRÍTICO DO ERRO
-            print(f"\n!!! ERRO CRÍTICO NO DIÁRIO {i+1} !!!", flush=True)
-            print(f"Mensagem: {str(e)}", flush=True)
+            print(f"\n!!! ERRO CRÍTICO NO PROCESSAMENTO DO DIÁRIO {i+1} !!!", flush=True)
             print(traceback.format_exc(), flush=True)
-            
-            # Se for um erro de Rate Limit, esperamos uns segundos antes de continuar
             if "rate_limit" in str(e).lower() or "429" in str(e):
-                print(">> Limite da Groq atingido! A esperar 10 segundos antes do próximo...", flush=True)
                 time.sleep(10)
 
     return todos_diarios

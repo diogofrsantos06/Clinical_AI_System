@@ -3,7 +3,10 @@ import uuid
 import requests
 
 DEFAULT_BASE_URL = "http://172.30.2.225:11434" 
-DEFAULT_MODEL = "gemma3:27b"
+#DEFAULT_MODEL = "gemma3:27b" 
+#DEFAULT_MODEL = "qwen2.5:14b-instruct" 
+DEFAULT_MODEL = "qwen3:14b-q4_K_M"  #qwen2.5:0.5b
+
 
 
 def get_client(base_url: str = DEFAULT_BASE_URL) -> dict:
@@ -11,7 +14,7 @@ def get_client(base_url: str = DEFAULT_BASE_URL) -> dict:
     return {"base_url": base_url}
 
 
-def chat(client: dict,user_prompt: str,system_prompt: str = None,model: str = DEFAULT_MODEL,retries: int = 10,retry_delay: float = 10.0,) -> tuple:
+def chat(client: dict,user_prompt: str,system_prompt: str = None,model: str = DEFAULT_MODEL,retries: int = 20,retry_delay: float = 1.0,) -> tuple:
     
     messages = []
     if system_prompt:

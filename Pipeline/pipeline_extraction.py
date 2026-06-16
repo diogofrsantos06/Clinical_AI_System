@@ -17,9 +17,6 @@ class ExtractionPipeline:
         self.extractor = DiaryExtractor(self.extraction_prompt)
 
     def run(self, raw_diary_text: str) -> Dict[str, Any]:
-        """
-        Executa o fluxo automático: Texto Bruto -> Secções -> JSON Estruturado.
-        """
         try:
             clean_text = self.cleaner.clean_diary(raw_diary_text)
 

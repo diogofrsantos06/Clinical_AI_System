@@ -21,8 +21,6 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], serializer_class=DiaryUploadSerializer)
     def upload_diary(self, request):
-
-        # 1. Delegar a receção dos dados
         patient_id = request.data.get("patient_id") or request.POST.get("patient_id")
         file = request.FILES.get("file")
 
@@ -32,21 +30,23 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
         try:
             patient = Patient.objects.get(id=patient_id)
             
-            # 2. Delegar a extração do PDF (gera a string full_text)
+            # Inicializa o cliente Groq para reutilização em ambas as fases
+            client_groq = get_client()
+            
+            # 1. Escrita temporária do ficheiro multipart enviado pelo frontend
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
                 for chunk in file.chunks(): 
                     tmp.write(chunk)
                 temp_path = tmp.name
             
-            full_text = extract_full_pdf_text(temp_path)
-            os.remove(temp_path) # Limpeza imediata
+            # 2. Executa a Fase 1: Extração + OCR + Purificação por página + Injeção de Tags
+            full_text_limpo = extract_full_pdf_text(temp_path, client_groq)
+            os.remove(temp_path)  # Descarte imediato e seguro do ficheiro temporário
 
-            # 3. Executar a Pipeline de Segmentação
-            client_groq = get_client()
-            lista_diarios = run_smart_segmentation(full_text, client_groq)
+            # 3. Executa a Fase 2: Divisão exata por tags e pós-processamento de regras de negócio
+            lista_diarios = run_smart_segmentation(full_text_limpo, client_groq)
 
-            # 4. Gravação Final
-            # Cada pedaço gera um diário novo para este paciente
+            # 4. Gravação atómica dos blocos gerados na base de dados
             for diario_obj in lista_diarios:
                 ClinicalDiary.objects.create(
                     patient=patient, 
@@ -54,6 +54,7 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
                     original_text=diario_obj.get("texto") 
                 )
             
+            # Invalidação do cache de resumos e regeneração automática
             Summary.objects.filter(patient_id=patient_id).delete()
             print("Resumo antigo apagado porque entraram novos diários!", flush=True)
 
@@ -68,4 +69,4 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
         except Exception as e:
             import traceback
             traceback.print_exc() 
-            return Response({"error": f"Falha: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": f"Falha na Pipeline: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -1,0 +1,161 @@
+[NOVO DIARIO]  
+10-Ago-2023 02:52:00 Dr. JOSE FILIPE MELO / HUC-URG CIRURGIA GERAL  
+Homem, 56 anos  
+Homem com episódio de vários vómitos tipo água, sem tolerância alimentar. Dor abdominal desde hoje pelas 11h muito intensa e em crescendo. Nega alteração do trânsito.  
+MH:  
+Lantus  
+Dulaglutida  
+Rosuvastatina+Ezetimibe  
+Candersartan  
+Ramipril  
+EO:Doente muito queixoso  
+T 37.3ºC  
+Abdomen distendido com pequena hérnia umbilical redutivel indolor presente, abdomen doloroso nos quadrantes direitos principalmente no hipocôndrio esboçando SIP  
+Murphy Renal negativo  
+GSA aa: pH 7.528; pCO2 28.1; pO2 86,4; HCO3 22.8; Na 131,8; K 4.18; Lac 1,6; Hb 15,5  
+Plano:  
+Peço análises  
+Faz analgesia + fluidoterapia  
+Peço Eco + Rx
+
+[--- MUDANÇA DE PÁGINA ---]
+
+[NOVO DIARIO]  
+10-Ago-2023 10:27:00 Dr. INES PRIOR / HUC-URG CIRURGIA GERAL  
+AN: Cr 0.89 Na 130 PCr 1.59 Leuc 14.3 coag ok  
+Eco abd:  
+Vesícula biliar distendida e com múltiplos ecos em suspensão e na região do fundo um aspecto hiperecogénico, admitindo-se a  
+hipótese de colecistite enfisematosa. Há discreto espessamento parietal. Presença de pequenos focos litiásicos. Fígado sem  
+alterações ecográficas. Não há dilatação das vias biliares nem da veia porta. Pâncreas não visualizado. Baço sem alterações  
+ecográficas. Rins sem sinais de uropatia obstrutiva. Não é evidente derrame peritoneal.  
+Rx Abd:  
+Distensão colica aparente no hipocondrio esquerdo.  
+Sem NHA, fezes dispersas no colon.  
+REAVALIAÇAO.  
+TA 171/100mmHg  
+FC 111bpm  
+Sat 97% em aa  
+Dor abdominal + hipocondrio direito, com Murphy vesicular duvidoso, dor a descompressao.  
+Doente refere moinha no hipocondrio direito que cessou no fim desse dia. Dor recomeçou novamente ontem.  
+Nega alergias medicamentosas.  
+Portanto:  
+# Suspeita de Colecistite Aguda em doente diabetico  
+Inicia ATB  
+Peço rotinas pre op.  
+Peço classificação.  
+Reforço analgesia e fluidoterapia.  
+
+[NOVO DIARIO]  
+10-Ago-2023 11:18:23 Dr. INES PRIOR / HUC-URG CIRURGIA GERAL  
+Vaga de internamento na enfermaria C  
+Assino consentimento informado para cirurgia.  
+Aguarda tempo cirurgico para intervenção.  
+Glicemia de 300 cetonemia  
+Contacto endocrinologia para ajuste terapeutico.  
+Inicia insulina rapida.  
+
+[NOVO DIARIO]  
+10-Ago-2023 12:03:35 Dr. INES HENRIQUES VIEIRA / HUC-URG ENDOCRINOLOGIA  
+ENDOCRINOLOGIA  
+Pedido de colaboração por hiperglicemia com cetonémia elevada em doente proposto para colecistectomia urgente.  
+Trata-se de doente com diabetes mellitus tipo 2, previamente medicado com lantus e iGLP1 Refere ainda fazer outros fármacos para  
+a DM, ms que não estão no verbete de urgência e não sabe referir, encontro prescrição de Empagliflozina.  
+Veio por "vários vómitos tipo água, sem tolerância alimentar. Dor abdominal desde hoje pelas 11h muito intensa e em crescendo.  
+Nega alteração do trânsito."  
+GSA aa à entrada: pH 7.528; pCO2 28.1; pO2 86,4; HCO3 22.8; Na 131,8; K 4.18; Lac 1,6; Hb 15,5  
+analiticamente 2023-08-10  
+hb 15.4; leuc 14.3; plaq 230  
+glic 375; cr 0.89; Na 130; k 4.4; CK 94; prot tt 7.6; Alb 4.4; Ca 9.9; Osm 278; provas hepáticas ok, mas BRB 1.5; PCR 1.59  
+prescritas já 10U de rápida  
+à minha obs
+
+[--- MUDANÇA DE PÁGINA ---]
+
+- glic 340; cetonémia 3.2  
+
+Contexto de vómitos a contribuir para valor de cetonémia, mas doente para cirurgia de urgência, a aguardar sala. Previamente sob  
+empagliflozina que idealmente deve ser suspensa 4 dias antes de procedimentos, não tendo sido possível neste caso.  
+Opto por iniciar perfusão.  
+Aviso equipa de enfermagem e deixo esquema impresso. Deixo tb na tabela de internamento para o pós-op imediato a menos que  
+alterações que impliquem mudança  
+
+Notas de Enfermagem  
+
+Diagnósticos  
+
+(K8000) - Litíase vesícula biliar, c/colecistite aguda, s/obstrução Diagnostico Principal  
+
+Dr(a). Ines Prior 10-08-2023  
+
+Medicação  
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco  
+10/08/2023 | 10/08/2023 | 10/08/2023 | Metamizol magnésico 2000 mg/5 ml Sol inj Fr 5 ml IM IV  
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco  
+10/08/2023 | 10/08/2023 | 10/08/2023 | Metoclopramida 10 mg/2 ml Sol inj Fr 2 ml IM IV  
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco  
+10/08/2023 | 10/08/2023 | 10/08/2023 | Cloreto de sódio 9 mg/ml Sol inj Fr 500/1000 ml IV  
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco  
+10/08/2023 | 10/08/2023 | 10/08/2023 | Ondansetrom 8 mg/4 ml Sol inj Fr 4 ml IV  
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco  
+10/08/2023 |  | 10/08/2023 | CIPROfloxacina 200 mg/100 mL Sol inj Fr 100 mL IV  
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco  
+10/08/2023 |  | 10/08/2023 | Paracetamol 10 mg/ml Sol inj Fr 100 ml IV  
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco  
+10/08/2023 | 10/08/2023 | 10/08/2023 | Pantoprazol 40 mg Pó sol inj Fr IV  
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco  
+10/08/2023 |  | 10/08/2023 | Cloreto de sódio 9 mg/ml Sol inj Fr/Sac 1000 ml IV
+
+[--- MUDANÇA DE PÁGINA ---]
+
+Medicação
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco
+10/08/2023 | | 10/08/2023 | Insulina humana (solúvel) 100 U.I./ml Acção curta Sol inj Cartu 3 ml IM IV SC
+
+MCDT Requisitados / Procedimentos Efectuados
+
+Código Descrição Código Descrição
+Z99240 2 DETERMINAC?O GLICEMIA CAPILAR Z99220 2 AVALIAC?O DE SINAIS VITAIS (PULSO, TEMPERATURA
+E TENSAO ARTERIAL)
+Z99320 1 COLOCACAO DE SONDA NASOGASTRICA I80270 1 OXIMETRIA DE PULSO
+M10405 1 TORAX 1 INCIDENCIA C40301 1 ECG SIMPLES DE 12 DERIVACOES COM
+INTERPRETACAO E RELATORIO
+M11010 1 ABDOMEN SIMPLES 1 INCIDENCIA M17130 1 ECOGRAFIA ABDOMINAL SUPERIOR
+A21513 1 CLORETOS, S/U/L A24359 1 TEMPO DE TROMBOPLASTINA PARCIAL ACTIVADO
+(APTT), S
+A88888 1 OUTRAS A21340 1 BILIRRUBINA TOTAL, S/L
+A21220 1 AMINOTRANSFERASE DO ASPARTATO (AST), S A22035 1 GAMAGLUTAMIL TRANSFERASE (GGT), S
+A21609 1 CREATINAQUINASE (CK), S A22679 1 PROTEINAS TOTAIS, S/U/L
+A55025 1 FENOTIPAGEM ERITROCITARIA RH E KELL A22671 1 PROTEINA C REACTIVA ULTRASENSIVEL, S
+A24347 1 TEMPO DE PROTROMBINA, S A55056 1 PESQUISA DE ANTICORPOS IRREGULARES, ANTI-
+ERITROCITO (EM MEIO ENZIMATICO)
+A21344 1 BILIRRUBINA DIRETA, S/L A22949 1 UREIA, S/U
+A55010 2 TIPAGEM ABO E RH A21665 1 DESIDROGENASE LACTICA (LDH), S/U/L
+A21935 1 FOSFATASE ALCALINA, S A21396 1 CALCIO TOTAL, S/U
+A21140 1 ALBUMINA, S A55057 1 PESQUISA DE ANTICORPOS IRREGULARES, ANTI-
+ERITROCITO (MEIO DE ANTIGLOBULINA HUMANA), EM
+DOE
+A22617 1 POTASSIO, S/U A22076 1 GLUCOSE, DOSEAMENTO, S/U/L
+A21620 1 CREATININA, S/U A24209 1 HEMOGRAMA COM FORMULA LEUCOCITARIA
+A21344 1 BILIRRUBINA DIRETA, S/L A22949 1 UREIA, S/U
+A55010 2 TIPAGEM ABO E RH A21665 1 DESIDROGENASE LACTICA (LDH), S/U/L
+A21935 1 FOSFATASE ALCALINA, S A21396 1 CALCIO TOTAL, S/U
+A21140 1 ALBUMINA, S A55057 1 PESQUISA DE ANTICORPOS IRREGULARES, ANTI-
+ERITROCITO (MEIO DE ANTIGLOBULINA HUMANA), EM
+DOE
+A22617 1 POTASSIO, S/U A22076 1 GLUCOSE, DOSEAMENTO, S/U/L
+A21620 1 CREATININA, S/U A24209 1 HEMOGRAMA COM FORMULA LEUCOCITARIA
+
+Destino do Doente
+Data: 10/08/2023
+Destino: Internamento
+
+Médico : 68112 - DR. INES PRIOR Assinatura : _
