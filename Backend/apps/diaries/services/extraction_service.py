@@ -60,3 +60,55 @@ def process_clinical_diary(diary_id):
         logger.error(f"Erro crítico no extraction_service: {str(e)}")
         print(f"Erro detalhado: {e}") 
         return False
+
+def process_all_diaries_parallel(patient, lista_diarios_segmentados):
+    """
+    Pega nas consultas da segmentação, corre as extrações estruturadas
+    todas ao mesmo tempo via Threads e grava-as de uma só vez no Django.
+    """
+    try:
+        pipeline = ExtractionPipeline()
+        logger.info(f"Iniciando extração em LOTE PARALELO para o paciente ID: {patient.id}")
+
+        start_total = time.perf_counter()
+        
+        # Executa a extração concorrente através do método paralelo da pipeline
+        resultados_lote = pipeline.run_parallel(lista_diarios_segmentados)
+        
+        total_duration = time.perf_counter() - start_total
+
+        # Gravação em Bloco Segura na Base de Dados
+        with transaction.atomic():
+            for i, res in enumerate(resultados_lote):
+                texto_original = lista_diarios_segmentados[i].get("texto")
+                clean_text = pipeline.cleaner.clean_diary(texto_original)
+
+                if res.get("status") == "success":
+                    # CRIAMOS O REGISTO JÁ COM OS DADOS EXTRAÍDOS PREENCHIDOS!
+                    diary = ClinicalDiary.objects.create(
+                        patient=patient,
+                        title=res.get("titulo"),
+                        original_text=texto_original,
+                        cleaned_text=clean_text,
+                        extracted_data=res.get("dados")  # O JSON entra aqui direto
+                    )
+
+                    # Criar a métrica de performance individual correspondente
+                    PerformanceMetric.objects.create(
+                        operation_type='EXTRACTION',
+                        duration_seconds=total_duration / len(resultados_lote), # Tempo médio por diário
+                        inference_duration=res.get("tempo_llm", 0.0), 
+                        is_retry=res.get("houve_retry", False),   
+                        input_size=len(texto_original), 
+                        patient=patient,
+                        diary=diary
+                    )
+                else:
+                    logger.error(f"Falha na estruturação do diário '{res.get('titulo')}': {res.get('message')}")
+
+        logger.info(f"Processamento em lote concluído com sucesso total em {total_duration:.2f}s.")
+        return True
+
+    except Exception as e:
+        logger.error(f"Erro crítico no lote paralelo do extraction_service: {e}")
+        return False

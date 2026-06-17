@@ -8,6 +8,8 @@ import re
 from PIL import Image
 from pathlib import Path
 
+from concurrent.futures import ThreadPoolExecutor 
+
 #pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 caminho_tesseract = os.getenv('TESSERACT_PATH', 'tesseract')
@@ -113,45 +115,61 @@ def clean_clinical_text(text):
 
 def extract_full_pdf_text(pdf_path, client_llm, debug=True):
     """
-    Extrai o texto por página, aplica OCR se necessário e submete cada página à LLM. Retorna uma string única.
+    Extrai o texto bruto localmente e purifica todas as páginas em paralelo via LLM,
+    garantindo que a ordem original do documento é preservada.
     """
-    paginas_processadas = []
-    
+    paginas_brutas = []
+
     try:
         doc = fitz.open(pdf_path)
         total_paginas = len(doc)
-
+        
         for page_num, page in enumerate(doc):
             width, height = page.rect.width, page.rect.height
             interest_area = fitz.Rect(0, height * 0.01, width, height * 0.99)
-            
             page_text = page.get_text("text", clip=interest_area, sort=True)
 
-            # Deteta se a página é um scan / imagem
             if not page_text.strip():
-                if debug: 
-                    print(f"[OCR] Página {page_num+1}/{total_paginas}: A processar imagem Tesseract...", flush=True)
+                if debug: print(f"[OCR Local] Extraindo imagem da página {page_num+1}/{total_paginas}...", flush=True)
                 pix = page.get_pixmap(matrix=fitz.Matrix(300/72, 300/72))
                 img = Image.open(io.BytesIO(pix.tobytes("png")))
                 page_text = pytesseract.image_to_string(img, lang='por')
-
+            
             page_text_pre_limpo = clean_clinical_text(page_text)
-
-            if len(page_text_pre_limpo.strip()) > 10:
-                if debug: 
-                    print(f"[LLM] Página {page_num+1}/{total_paginas}: A purificar e injetar marcadores...", flush=True)
-                
-                # Executa a limpeza fina página a página
-                resposta, _, _ = chat(
-                    client=client_llm, 
-                    user_prompt=f"Aqui está o documento:\n\n{page_text_pre_limpo}", 
-                    system_prompt=SYS_PROMPT_PRE_CLEAN
-                )
-                paginas_processadas.append(resposta.strip())
+            
+            paginas_brutas.append((page_num, page_text_pre_limpo))
             
         doc.close()
 
-    except Exception as e:
-        print(f"Erro na extração integral do PDF: {e}", flush=True)
+        def purificar_pagina(par_pagina):
+            num, texto_bruto = par_pagina
+            if len(texto_bruto.strip()) > 10:
+                if debug: print(f"[THREAD-PÁGINA {num+1}] Enviada para purificação LLM...", flush=True)
+                resposta, _, _ = chat(
+                    client=client_llm, 
+                    user_prompt=f"Aqui está o documento:\n\n{texto_bruto}", 
+                    system_prompt=SYS_PROMPT_PRE_CLEAN
+                )
+                if debug: print(f"[THREAD-PÁGINA {num+1}] Concluída!", flush=True)
+                return num, resposta.strip()
+            return num, ""
 
-    return "\n\n".join(paginas_processadas)
+        paginas_limpas_resultado = {}
+        
+        print(f"\n[EXTRAÇÃO] Disparando {len(paginas_brutas)} páginas em paralelo para a LLM...", flush=True)
+        with ThreadPoolExecutor(max_workers=total_paginas) as executor:
+            resultados = executor.map(purificar_pagina, paginas_brutas)
+            
+            for num, texto_limpo in resultados:
+                paginas_limpas_resultado[num] = texto_limpo
+
+        paginas_ordenadas = []
+        for num in sorted(paginas_limpas_resultado.keys()):
+            if paginas_limpas_resultado[num]:
+                paginas_ordenadas.append(paginas_limpas_resultado[num])
+
+        return "\n\n".join(paginas_ordenadas)
+
+    except Exception as e:
+        print(f"Erro na extração integral paralela do PDF: {e}", flush=True)
+        return ""

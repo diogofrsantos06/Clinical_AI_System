@@ -1,6 +1,7 @@
 import json, re
 from pathlib import Path
 from typing import Dict, Any
+import time
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -28,45 +29,66 @@ class Summarizer:
         if not all_extractions:
             return "Nenhum dado disponível para sumarização.", 0.0, False
 
+        print("\n" + "-"*30 + " INÍCIO DA SUMARIZAÇÃO EM PARALELO " + "-"*30)
         sumario_consolidado_dict = {}
         
-        # Funções auxiliares locais para podermos disparar em paralelo
         def executar_antecedentes():
+            start_time = time.perf_counter()
             text = change_data_format(all_extractions, seccao_alvo="diagnosticos")
             if text:
+                print(f"[THREAD - ANTECEDENTES] Disparado! Tamanho do input: {len(text)} caracteres.", flush=True)
                 user_prompt = PROMPT_ANTECEDENTES.format(extracted_data=text)
-                return chat(self.client, user_prompt, self.system_prompt)
+                res = chat(self.client, user_prompt, self.system_prompt)
+                print(f"[THREAD - ANTECEDENTES] Terminou em {time.perf_counter() - start_time:.2f}s", flush=True)
+                return res
+            print("[THREAD - ANTECEDENTES] Cancelado: Sem dados de diagnósticos.", flush=True)
             return None
 
         def executar_medicacao():
+            start_time = time.perf_counter()
             text_med = change_data_format(all_extractions, seccao_alvo="medicacao")
             text_alergias = change_data_format(all_extractions, seccao_alvo="alergias")
             text_med_alergias = f"{text_med}\n\n{text_alergias}".strip()
             if text_med_alergias:
+                print(f"[THREAD - MEDICAÇÃO/ALERGIAS] Disparado! Tamanho do input: {len(text_med_alergias)} caracteres.", flush=True)
                 user_prompt = PROMPT_MEDICACAO.format(extracted_data=text_med_alergias)
-                return chat(self.client, user_prompt, self.system_prompt)
+                res = chat(self.client, user_prompt, self.system_prompt)
+                print(f"[THREAD - MEDICAÇÃO/ALERGIAS] Terminou em {time.perf_counter() - start_time:.2f}s", flush=True)
+                return res
+            print("[THREAD - MEDICAÇÃO/ALERGIAS] Cancelado: Sem dados de medicação/alergias.", flush=True)
             return None
 
         def executar_exames():
+            start_time = time.perf_counter()
             text = change_data_format(all_extractions, seccao_alvo="exames")
             if text:
+                print(f"[THREAD - EXAMES] Disparado! Tamanho do input: {len(text)} caracteres.", flush=True)
                 user_prompt = PROMPT_EXAMES.format(extracted_data=text)
-                return chat(self.client, user_prompt, self.system_prompt)
+                res = chat(self.client, user_prompt, self.system_prompt)
+                print(f"[THREAD - EXAMES] Terminou em {time.perf_counter() - start_time:.2f}s", flush=True)
+                return res
+            print("[THREAD - EXAMES] Cancelado: Sem dados de exames.", flush=True)
             return None
 
         def executar_plano():
+            start_time = time.perf_counter()
             ultimo_titulo = list(all_extractions.keys())[-1]
             ultimo_conteudo = all_extractions[ultimo_titulo]
             payload_recente = {ultimo_titulo: ultimo_conteudo}
             text = change_data_format(payload_recente, seccao_alvo="plano")
             if text:
+                print(f"[THREAD - PLANO] Disparado! Focado apenas no diário: '{ultimo_titulo}'.", flush=True)
                 user_prompt = PROMPT_PLANO.format(extracted_data=text)
-                return chat(self.client, user_prompt, self.system_prompt)
+                res = chat(self.client, user_prompt, self.system_prompt)
+                print(f"[THREAD - PLANO] Terminou em {time.perf_counter() - start_time:.2f}s", flush=True)
+                return res
+            print("[THREAD - PLANO] Cancelado: Sem dados de plano.", flush=True)
             return None
 
         # Disparar as 4 chamadas simultaneamente para a API/Ollama
         total_tempo_llm = 0.0
         algum_retry = False
+        start_pool = time.perf_counter()
 
         with ThreadPoolExecutor(max_workers=4) as executor:
             # Submete as tarefas para correrem ao mesmo tempo
@@ -80,6 +102,9 @@ class Summarizer:
             res_med = futuro_med.result()
             res_ex = futuro_ex.result()
             res_pl = futuro_pl.result()
+        
+        tempo_total_real = time.perf_counter() - start_pool
+        print(f"\n[DEBUG METRICA] Tempo REAL de espera do utilizador (Paralelo): {tempo_total_real:.2f}s")
 
         # Processar os resultados recolhidos
         mapeamento_resultados = [
@@ -89,19 +114,29 @@ class Summarizer:
             (res_pl, "Plano")
         ]
 
+        print("\n" + "-"*20 + " PROCESSANDO RESPOSTAS JSON " + "-"*20)
         for res, nome_fase in mapeamento_resultados:
             if res:
                 summary, tempo, retry = res
-                total_tempo_llm += tempo  # Mantém a métrica de tempo acumulado correta
+                total_tempo_llm += tempo 
                 if retry: algum_retry = True
                 
                 match = re.search(r'\{.*\}', summary, re.DOTALL)
                 if match:
                     try:
-                        sumario_consolidado_dict.update(json.loads(match.group(0)))
+                        json_puro = match.group(0)
+                        dados_fase = json.loads(json_puro)
+                        sumario_consolidado_dict.update(dados_fase)
+                        print(f"[{nome_fase}] JSON válido decodificado e fundido com sucesso. (Inferência individual: {tempo:.2f}s)")
                     except Exception as e:
-                        print(f"[Summarizer] Erro ao fundir {nome_fase}: {e}")
+                        print(f"[{nome_fase}] ERRO DE PARSE! A LLM não devolveu JSON estruturado válido. Detalhe: {e}")
+                        print(f"--- CONTEÚDO BRUTO DO ERRO ({nome_fase}) ---\n{summary}\n--------------------------------------")
+                else:
+                    print(f"[{nome_fase}] ERRO! Nenhum padrão JSON '{{ ... }}' foi encontrado na resposta da LLM.")
 
         summary_final_limpo = json.dumps(sumario_consolidado_dict, ensure_ascii=False)
+        print(f"[DEBUG METRICA] Tempo total somado de processamento da LLM: {total_tempo_llm:.2f}s")
+        print("="*80 + "\n")
+
         return summary_final_limpo.strip(), total_tempo_llm, algum_retry
 

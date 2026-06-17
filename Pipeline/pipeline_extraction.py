@@ -38,3 +38,23 @@ class ExtractionPipeline:
                 "status": "error",
                 "message": f"Erro no processamento do pipeline: {str(e)}"
             }
+    def run_parallel(self, list_of_diaries: list) -> list:
+        """
+        Recebe a lista de diários da segmentação: [{"titulo": "...", "texto": "..."}].
+        Limpa o texto localmente de cada um e aciona o extrator multi-thread.
+        """
+        try:
+            diarios_pre_limpos = []
+            for item in list_of_diaries:
+                # Limpeza Regex local (demora menos de 1 milissegundo)
+                clean_text = self.cleaner.clean_diary(item.get("texto", ""))
+                diarios_pre_limpos.append({
+                    "titulo": item.get("titulo"),
+                    "texto": clean_text
+                })
+            
+            # Chama as Threads que criaste no teu extraction.py
+            return self.extractor.extract_diaries_parallel(diarios_pre_limpos)
+        except Exception as e:
+            print(f"[ExtractionPipeline] Erro na execução paralela: {e}")
+            return []

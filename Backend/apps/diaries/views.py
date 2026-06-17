@@ -13,6 +13,8 @@ from ..summaries.services.patient_summary_service import generate_patient_summar
 from Pipeline.pipeline_segmentation import run_smart_segmentation
 from Pipeline.llm import get_client 
 
+from .services.extraction_service import process_all_diaries_parallel
+
 from apps.patients.models import Patient
 
 class ClinicalDiaryViewSet(viewsets.ModelViewSet):
@@ -30,31 +32,21 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
         try:
             patient = Patient.objects.get(id=patient_id)
             
-            # Inicializa o cliente Groq para reutilização em ambas as fases
+            # SUBSTITUIR O NOME
             client_groq = get_client()
             
-            # 1. Escrita temporária do ficheiro multipart enviado pelo frontend
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
                 for chunk in file.chunks(): 
                     tmp.write(chunk)
                 temp_path = tmp.name
             
-            # 2. Executa a Fase 1: Extração + OCR + Purificação por página + Injeção de Tags
             full_text_limpo = extract_full_pdf_text(temp_path, client_groq)
-            os.remove(temp_path)  # Descarte imediato e seguro do ficheiro temporário
+            os.remove(temp_path) 
 
-            # 3. Executa a Fase 2: Divisão exata por tags e pós-processamento de regras de negócio
             lista_diarios = run_smart_segmentation(full_text_limpo, client_groq)
 
-            # 4. Gravação atómica dos blocos gerados na base de dados
-            for diario_obj in lista_diarios:
-                ClinicalDiary.objects.create(
-                    patient=patient, 
-                    title=diario_obj.get("titulo"),       
-                    original_text=diario_obj.get("texto") 
-                )
+            process_all_diaries_parallel(patient, lista_diarios)
             
-            # Invalidação do cache de resumos e regeneração automática
             Summary.objects.filter(patient_id=patient_id).delete()
             print("Resumo antigo apagado porque entraram novos diários!", flush=True)
 
@@ -62,7 +54,7 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
             print(f"Novo sumário gerado automaticamente para o paciente {patient_id}.", flush=True)
 
             return Response({
-                "message": f"Sucesso! {len(lista_diarios)} diários detetados e guardados.",
+                "message": f"Sucesso! {len(lista_diarios)} diários detetados, estruturados e guardados.",
                 "patient": patient.id
             }, status=status.HTTP_201_CREATED)
 

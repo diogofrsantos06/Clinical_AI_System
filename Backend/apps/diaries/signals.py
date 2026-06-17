@@ -8,7 +8,7 @@ from apps.diaries.services.extraction_service import process_clinical_diary
 @receiver(post_save, sender=ClinicalDiary)
 def run_diary_pipeline(sender, instance, created, **kwargs):
 
-    if created:
+    if created and not instance.extracted_data:
         process_clinical_diary(instance.id)
 
         
