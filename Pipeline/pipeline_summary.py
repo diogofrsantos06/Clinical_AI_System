@@ -15,7 +15,7 @@ class SummaryPipeline:
     def run_summary(self, list_of_extractions: list) -> tuple:
         """
         Entrada: Lista de DIÁRIOS EXTRAÍDOS (JSON) vindos da BD.
-        Saída: Texto do sumário final.
+        Saída: Tuplo (summary_text, tempo_llm, houve_retry) para o serviço do Django.
         """
         try:
             structured_payload = {}
@@ -26,18 +26,13 @@ class SummaryPipeline:
                 
                 structured_payload[diary_label] = item["dados"]
 
-            result = self.summarizer.generate_summary(structured_payload)
+            # Executa a chamada ao summarizer (que agora corre as 4 fases internamente)
+            summary_text, tempo_llm, houve_retry = self.summarizer.generate_summary(structured_payload)
 
-            if isinstance(result, str): 
-                return result, 0.0, False
-
-            summary_text, tempo_llm, houve_retry = result
-
-            # Validação de erros
+            # Validação de segurança para tratamento de erros da API da Groq/Ollama
             if not summary_text or "Error code:" in str(summary_text) or "limit" in str(summary_text).lower():
                 return None, 0.0, False
 
-            # Mudança 3: Passamos o tuplo completo para o serviço
             return summary_text, tempo_llm, houve_retry
 
         except Exception as e:
