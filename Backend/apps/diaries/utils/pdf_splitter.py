@@ -1,12 +1,10 @@
 import os
-import sys
 import fitz  # PyMuPDF
 import pytesseract
 import io
 import re 
 
 from PIL import Image
-from pathlib import Path
 
 from concurrent.futures import ThreadPoolExecutor 
 
@@ -115,8 +113,8 @@ def clean_clinical_text(text):
 
 def extract_full_pdf_text(pdf_path, client_llm, debug=True):
     """
-    Extrai o texto bruto localmente e purifica todas as páginas em paralelo via LLM,
-    garantindo que a ordem original do documento é preservada.
+    Força o OCR em 100% das páginas do PDF para garantir que textos mistos
+    (selecionáveis e imagens) são integralmente extraídos.
     """
     paginas_brutas = []
 
@@ -124,41 +122,46 @@ def extract_full_pdf_text(pdf_path, client_llm, debug=True):
         doc = fitz.open(pdf_path)
         total_paginas = len(doc)
         
+        print(f"\n[OCR GLOBAL] Iniciando renderização e OCR para {total_paginas} páginas...", flush=True)
+        
         for page_num, page in enumerate(doc):
-            width, height = page.rect.width, page.rect.height
-            interest_area = fitz.Rect(0, height * 0.01, width, height * 0.99)
-            page_text = page.get_text("text", clip=interest_area, sort=True)
-
-            if not page_text.strip():
-                if debug: print(f"[OCR Local] Extraindo imagem da página {page_num+1}/{total_paginas}...", flush=True)
-                pix = page.get_pixmap(matrix=fitz.Matrix(300/72, 300/72))
-                img = Image.open(io.BytesIO(pix.tobytes("png")))
-                page_text = pytesseract.image_to_string(img, lang='por')
+            if debug: 
+                print(f"[OCR Local] Convertendo e aplicando OCR na página {page_num+1}/{total_paginas}...", flush=True)
             
-            page_text_pre_limpo = clean_clinical_text(page_text)
+            pix = page.get_pixmap(matrix=fitz.Matrix(300/72, 300/72))
+            img = Image.open(io.BytesIO(pix.tobytes("png")))
+            
+            page_text_ocr = pytesseract.image_to_string(img, lang='por')
+            
+            page_text_pre_limpo = clean_clinical_text(page_text_ocr)
             
             paginas_brutas.append((page_num, page_text_pre_limpo))
             
         doc.close()
 
-        def purificar_pagina(par_pagina):
+        def normalizar_pagina(par_pagina):
             num, texto_bruto = par_pagina
             if len(texto_bruto.strip()) > 10:
-                if debug: print(f"[THREAD-PÁGINA {num+1}] Enviada para purificação LLM...", flush=True)
+                if debug: 
+                    print(f"[THREAD-PÁGINA {num+1}] Enviada para purificação LLM...", flush=True)
+                
                 resposta, _, _ = chat(
                     client=client_llm, 
                     user_prompt=f"Aqui está o documento:\n\n{texto_bruto}", 
                     system_prompt=SYS_PROMPT_PRE_CLEAN
                 )
-                if debug: print(f"[THREAD-PÁGINA {num+1}] Concluída!", flush=True)
+                if debug: 
+                    print(f"[THREAD-PÁGINA {num+1}] Concluída!", flush=True)
+                
                 return num, resposta.strip()
             return num, ""
 
         paginas_limpas_resultado = {}
         
         print(f"\n[EXTRAÇÃO] Disparando {len(paginas_brutas)} páginas em paralelo para a LLM...", flush=True)
-        with ThreadPoolExecutor(max_workers=total_paginas) as executor:
-            resultados = executor.map(purificar_pagina, paginas_brutas)
+        
+        with ThreadPoolExecutor(max_workers = min(total_paginas,4)) as executor:
+            resultados = executor.map(normalizar_pagina, paginas_brutas)
             
             for num, texto_limpo in resultados:
                 paginas_limpas_resultado[num] = texto_limpo

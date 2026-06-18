@@ -72,3 +72,47 @@ def chat(client: dict,user_prompt: str,system_prompt: str = None,model: str = DE
             return f"Erro: {str(e)}", 0.0, is_retry
 
         return "Erro: Limite de tentativas", 0.0, is_retry
+    
+
+def ollama_warmup(client: dict, model: str = DEFAULT_MODEL) -> bool:
+    """
+    CHAMADA ZERO: Força o Ollama a carregar o modelo para a memória RAM/VRAM.
+    keep_alive = -1 garante que ele fica persistente durante todo o pipeline.
+    """
+    url = f"{client['base_url']}/api/generate"
+    payload = {
+        "model": model,
+        "keep_alive": -1  
+    }
+    try:
+        print(f"[Ollama] Ativando Chamada Zero para o modelo '{model}'...", flush=True)
+
+        response = requests.post(url, json=payload, timeout=120)
+        if response.status_code == 200:
+            print(f"[Ollama] Modelo '{model}' carregado na memória e pronto para as Threads!", flush=True)
+            return True
+        print(f"[Ollama] Resposta inesperada no aquecimento: {response.status_code}", flush=True)
+    except Exception as e:
+        print(f"[Ollama] Falha ao executar a Chamada Zero: {e}", flush=True)
+    return False
+
+
+def ollama_unload(client: dict, model: str = DEFAULT_MODEL) -> bool:
+    """
+    MANDAR PARAR: Força o Ollama a libertar imediatamente a memória RAM/VRAM
+    descarregando o modelo do sistema (keep_alive = 0).
+    """
+    url = f"{client['base_url']}/api/generate"
+    payload = {
+        "model": model,
+        "keep_alive": 0  
+    }
+    try:
+        print(f"[Ollama] Ativando 'Mandar Parar' para libertar o servidor...", flush=True)
+        response = requests.post(url, json=payload, timeout=10)
+        if response.status_code == 200:
+            print(f"[Ollama] Modelo '{model}' removido da memória com sucesso.", flush=True)
+            return True
+    except Exception as e:
+        print(f"[Ollama] Erro ao descarregar o modelo: {e}", flush=True)
+    return False

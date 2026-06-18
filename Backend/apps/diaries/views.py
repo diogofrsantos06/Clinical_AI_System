@@ -11,7 +11,7 @@ from ..summaries.models import Summary
 from ..summaries.services.patient_summary_service import generate_patient_summary
 
 from Pipeline.pipeline_segmentation import run_smart_segmentation
-from Pipeline.llm import get_client 
+from Pipeline.llm import get_client, ollama_warmup, ollama_unload
 
 from .services.extraction_service import process_all_diaries_parallel
 
@@ -34,6 +34,8 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
             
             # SUBSTITUIR O NOME
             client_groq = get_client()
+
+            ollama_warmup(client_groq)
             
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
                 for chunk in file.chunks(): 
@@ -53,12 +55,20 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
             generate_patient_summary(patient_id)
             print(f"Novo sumário gerado automaticamente para o paciente {patient_id}.", flush=True)
 
+            ollama_unload(client_groq)
+
             return Response({
                 "message": f"Sucesso! {len(lista_diarios)} diários detetados, estruturados e guardados.",
                 "patient": patient.id
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
+            try:
+                from Pipeline.llm import ollama_unload
+                ollama_unload(client_groq)
+            except:
+                pass
+
             import traceback
             traceback.print_exc() 
             return Response({"error": f"Falha na Pipeline: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
