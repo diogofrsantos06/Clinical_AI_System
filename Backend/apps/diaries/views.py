@@ -29,6 +29,8 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
         if not patient_id or not file:
             return Response({"error": "Dados incompletos"}, status=status.HTTP_400_BAD_REQUEST)
 
+        client_groq = None
+
         try:
             patient = Patient.objects.get(id=patient_id)
             
@@ -63,11 +65,15 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            try:
-                ollama_unload(client_groq)
-            except:
-                pass
-
             import traceback
             traceback.print_exc() 
             return Response({"error": f"Falha na Pipeline: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        finally:
+            if client_groq:
+                try:
+                    from Pipeline.llm import ollama_unload
+                    print("[FINALLY] Garantindo a libertação do modelo no servidor...", flush=True)
+                    ollama_unload(client_groq) 
+                except Exception as unload_err:
+                    print(f"Erro ao tentar forçar o unload no finally: {unload_err}", flush=True)

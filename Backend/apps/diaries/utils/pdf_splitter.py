@@ -129,10 +129,12 @@ def extract_full_pdf_text(pdf_path, client_llm, debug=True):
         for page_num, page in enumerate(doc):
             start_p = time.perf_counter()
             
-            pix = page.get_pixmap(matrix=fitz.Matrix(150/72, 150/72))
-            img = Image.open(io.BytesIO(pix.tobytes("png")))
+            pix = page.get_pixmap(matrix=fitz.Matrix(120/72, 120/72))
+            img = Image.open(io.BytesIO(pix.tobytes("png"))).convert('L')
+
+            custom_config = r'--psm 3 --oem 1'
             
-            page_text_ocr = pytesseract.image_to_string(img, lang='por')
+            page_text_ocr = pytesseract.image_to_string(img, lang='por', config=custom_config)
             texto_pre_limpo = clean_clinical_text(page_text_ocr)
             
             paginas_brutas.append((page_num, texto_pre_limpo))
@@ -157,8 +159,7 @@ def extract_full_pdf_text(pdf_path, client_llm, debug=True):
             return num, ""
 
         paginas_limpas_resultado = {}
-        LIMITE_SEGURO_WORKERS = 4
-        workers_finais = min(total_paginas, LIMITE_SEGURO_WORKERS)
+        workers_finais = min(total_paginas, 4)
         
         print(f"\n[LLM PARALELO] Enviando as páginas em simultâneo para o modelo quente...", flush=True)
         with ThreadPoolExecutor(max_workers=workers_finais) as executor:
