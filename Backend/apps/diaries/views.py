@@ -64,7 +64,6 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             try:
-                from Pipeline.llm import ollama_unload
                 ollama_unload(client_groq)
             except:
                 pass

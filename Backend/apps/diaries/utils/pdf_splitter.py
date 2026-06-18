@@ -9,10 +9,10 @@ from PIL import Image
 
 from concurrent.futures import ThreadPoolExecutor 
 
-#pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-caminho_tesseract = os.getenv('TESSERACT_PATH', 'tesseract')
-pytesseract.pytesseract.tesseract_cmd = caminho_tesseract
+#caminho_tesseract = os.getenv('TESSERACT_PATH', 'tesseract')
+#pytesseract.pytesseract.tesseract_cmd = caminho_tesseract
 
 from Pipeline.llm import chat
 
@@ -146,7 +146,7 @@ def extract_full_pdf_text(pdf_path, client_llm, debug=True):
         def refinar_pagina_llm(par_pagina):
             num, texto_bruto = par_pagina
             if len(texto_bruto.strip()) > 10:
-                if debug: print(f"🚀 [THREAD-LLM] Refinando página {num+1}/{total_paginas}...", flush=True)
+                if debug: print(f"[THREAD-LLM] Refinando página {num+1}/{total_paginas}...", flush=True)
                 
                 resposta, _, _ = chat(
                     client=client_llm, 
