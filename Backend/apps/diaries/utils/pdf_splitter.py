@@ -3,6 +3,7 @@ import fitz  # PyMuPDF
 import pytesseract
 import io
 import re 
+import time
 
 from PIL import Image
 
@@ -113,58 +114,58 @@ def clean_clinical_text(text):
 
 def extract_full_pdf_text(pdf_path, client_llm, debug=True):
     """
-    Força o OCR em 100% das páginas do PDF para garantir que textos mistos
-    (selecionáveis e imagens) são integralmente extraídos.
+    Executa o OCR sequencial em baixa resolução (leve em RAM/ultra rápido) 
+    e paraleliza apenas as chamadas à LLM para evitar o erro SIGKILL (Out Of Memory).
     """
     paginas_brutas = []
 
     try:
+        start_ocr_global = time.perf_counter()
         doc = fitz.open(pdf_path)
         total_paginas = len(doc)
         
-        print(f"\n[OCR GLOBAL] Iniciando renderização e OCR para {total_paginas} páginas...", flush=True)
+        print(f"\n[OCR SEGURO] Iniciando leitura local de {total_paginas} páginas...", flush=True)
         
         for page_num, page in enumerate(doc):
-            if debug: 
-                print(f"[OCR Local] Convertendo e aplicando OCR na página {page_num+1}/{total_paginas}...", flush=True)
+            start_p = time.perf_counter()
             
-            pix = page.get_pixmap(matrix=fitz.Matrix(300/72, 300/72))
+            pix = page.get_pixmap(matrix=fitz.Matrix(150/72, 150/72))
             img = Image.open(io.BytesIO(pix.tobytes("png")))
             
             page_text_ocr = pytesseract.image_to_string(img, lang='por')
+            texto_pre_limpo = clean_clinical_text(page_text_ocr)
             
-            page_text_pre_limpo = clean_clinical_text(page_text_ocr)
+            paginas_brutas.append((page_num, texto_pre_limpo))
             
-            paginas_brutas.append((page_num, page_text_pre_limpo))
-            
+            if debug:
+                print(f"[OCR Local] Página {page_num+1}/{total_paginas} lida em {time.perf_counter() - start_p:.2f}s", flush=True)
+                
         doc.close()
+        print(f"[OCR SEGURO] Fim do OCR de todas as páginas. Tempo total: {time.perf_counter() - start_ocr_global:.2f}s")
 
-        def normalizar_pagina(par_pagina):
+        def refinar_pagina_llm(par_pagina):
             num, texto_bruto = par_pagina
             if len(texto_bruto.strip()) > 10:
-                if debug: 
-                    print(f"[THREAD-PÁGINA {num+1}] Enviada para purificação LLM...", flush=True)
+                if debug: print(f"🚀 [THREAD-LLM] Refinando página {num+1}/{total_paginas}...", flush=True)
                 
                 resposta, _, _ = chat(
                     client=client_llm, 
                     user_prompt=f"Aqui está o documento:\n\n{texto_bruto}", 
                     system_prompt=SYS_PROMPT_PRE_CLEAN
                 )
-                if debug: 
-                    print(f"[THREAD-PÁGINA {num+1}] Concluída!", flush=True)
-                
                 return num, resposta.strip()
             return num, ""
 
         paginas_limpas_resultado = {}
+        LIMITE_SEGURO_WORKERS = 4
+        workers_finais = min(total_paginas, LIMITE_SEGURO_WORKERS)
         
-        print(f"\n[EXTRAÇÃO] Disparando {len(paginas_brutas)} páginas em paralelo para a LLM...", flush=True)
-        
-        with ThreadPoolExecutor(max_workers = min(total_paginas,4)) as executor:
-            resultados = executor.map(normalizar_pagina, paginas_brutas)
+        print(f"\n[LLM PARALELO] Enviando as páginas em simultâneo para o modelo quente...", flush=True)
+        with ThreadPoolExecutor(max_workers=workers_finais) as executor:
+            resultados = executor.map(refinar_pagina_llm, paginas_brutas)
             
-            for num, texto_limpo in resultados:
-                paginas_limpas_resultado[num] = texto_limpo
+            for num, texto_final in resultados:
+                paginas_limpas_resultado[num] = texto_final
 
         paginas_ordenadas = []
         for num in sorted(paginas_limpas_resultado.keys()):
@@ -174,5 +175,5 @@ def extract_full_pdf_text(pdf_path, client_llm, debug=True):
         return "\n\n".join(paginas_ordenadas)
 
     except Exception as e:
-        print(f"Erro na extração integral paralela do PDF: {e}", flush=True)
+        print(f"Erro crítico no pipeline de extração de texto: {e}", flush=True)
         return ""

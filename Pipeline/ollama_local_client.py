@@ -76,17 +76,17 @@ def chat(client: dict,user_prompt: str,system_prompt: str = None,model: str = DE
 
 def ollama_warmup(client: dict, model: str = DEFAULT_MODEL) -> bool:
     """
-    CHAMADA ZERO: Força o Ollama a carregar o modelo para a memória RAM/VRAM.
-    keep_alive = -1 garante que ele fica persistente durante todo o pipeline.
+    CHAMADA ZERO: Força o Ollama a carregar o modelo para a memória RAM/VRAM
+    utilizando a rota /api/chat (evitando bloqueios de proxy 404).
     """
-    url = f"{client['base_url']}/api/generate"
+    url = f"{client['base_url']}/api/chat"
     payload = {
         "model": model,
-        "keep_alive": -1  
+        "messages": [],  # Lista vazia força o Ollama apenas a carregar o modelo
+        "keep_alive": -1 # Fica permanente até mandarmos parar
     }
     try:
-        print(f"[Ollama] Ativando Chamada Zero para o modelo '{model}'...", flush=True)
-
+        print(f"[Ollama] Ativando Chamada Zero para o modelo '{model}' via /api/chat...", flush=True)
         response = requests.post(url, json=payload, timeout=120)
         if response.status_code == 200:
             print(f"[Ollama] Modelo '{model}' carregado na memória e pronto para as Threads!", flush=True)
@@ -99,16 +99,17 @@ def ollama_warmup(client: dict, model: str = DEFAULT_MODEL) -> bool:
 
 def ollama_unload(client: dict, model: str = DEFAULT_MODEL) -> bool:
     """
-    MANDAR PARAR: Força o Ollama a libertar imediatamente a memória RAM/VRAM
-    descarregando o modelo do sistema (keep_alive = 0).
+    MANDAR PARAR: Força o Ollama a descarregar o modelo da memória RAM/VRAM
+    utilizando a rota /api/chat (keep_alive = 0).
     """
-    url = f"{client['base_url']}/api/generate"
+    url = f"{client['base_url']}/api/chat"
     payload = {
         "model": model,
-        "keep_alive": 0  
+        "messages": [],
+        "keep_alive": 0  # 0 descarrega o modelo imediatamente
     }
     try:
-        print(f"[Ollama] Ativando 'Mandar Parar' para libertar o servidor...", flush=True)
+        print(f"[Ollama] Ativando 'Mandar Parar' via /api/chat para libertar o servidor...", flush=True)
         response = requests.post(url, json=payload, timeout=10)
         if response.status_code == 200:
             print(f"[Ollama] Modelo '{model}' removido da memória com sucesso.", flush=True)
