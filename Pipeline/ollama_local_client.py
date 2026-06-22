@@ -7,7 +7,7 @@ DEFAULT_BASE_URL = "http://172.30.2.225:11434"
 #DEFAULT_MODEL = "qwen2.5:14b-instruct" 
 DEFAULT_MODEL = "qwen3:14b-q4_K_M"  #qwen2.5:0.5b
 
-
+CONTEXT_WINDOW = 32768
 
 def get_client(base_url: str = DEFAULT_BASE_URL) -> dict:
     """Inicializa o cliente com o URL do servidor local."""
@@ -25,10 +25,11 @@ def chat(client: dict,user_prompt: str,system_prompt: str = None,model: str = DE
         "model": model,
         "messages": messages,
         "stream": False,
-        "kepp_alive": keep_alive,
+        "keep_alive": keep_alive,
         "options": {
             "temperature": 0.0,
             "top_p": 1.0,
+            "num_ctx": CONTEXT_WINDOW,
         },
     }
 
@@ -52,7 +53,7 @@ def chat(client: dict,user_prompt: str,system_prompt: str = None,model: str = DE
             with requests.Session() as session:
                 start_inference = time.perf_counter()
 
-                response = session.post(url, json=payload, headers=headers, timeout=1800)
+                response = session.post(url, json=payload, headers=headers, timeout=None)
 
                 if response.status_code == 200:
                     duration = time.perf_counter() - start_inference
@@ -89,7 +90,8 @@ def ollama_warmup(client: dict, model: str = DEFAULT_MODEL) -> bool:
         "messages": [{"role": "user", "content": "Olá"}], 
         "keep_alive": -1,
         "options": {
-            "num_predict": 1  
+            "num_predict": 1,
+            "num_ctx": CONTEXT_WINDOW,
         }
     }
     headers = {

@@ -8,6 +8,10 @@ Não te limites a extrair listas. Deves realizar uma análise semântica profund
 Sintomas NÃO são diagnósticos.
 DATA: Formato DD/MM/YYYY. PROIBIDO: "hoje", "ontem", "agora", horas. Se não houver data, usa "Sem informação".
 MEDICACAO: Se o texto listar 'X+Y', cria dois objetos JSON distintos (um para X, outro para Y).
+DEVES distinguir de forma ABSOLUTAMENTE CLARA o campo 'dosagem' do campo 'posologia':
+- DOSAGEM (Massa/Concentração): Refere-se exclusivamente à quantidade física do princípio ativo por unidade (ex: 5mg, 160mg, 1g, 50mcg).
+- POSOLOGIA (Regime de Administração): Refere-se à frequência, quantidade de unidades e duração (ex: 1id, 3 comp/dia, de 12h em 12h, 1 vez por semana).
+NUNCA mistures os dois dados no mesmo campo. Se o texto disser 'Amlodipina 5mg 1x/dia', '5mg' vai para dosagem e '1x/dia' vai para posologia.
 
 FORMATO DE SAÍDA (JSON obrigatório):
 

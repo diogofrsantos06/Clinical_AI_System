@@ -30,7 +30,7 @@ def chat(client, user_prompt, system_prompt=None, model=DEFAULT_MODEL):
     }
 
     try:
-        response = requests.post(url, json=payload, timeout=1800)
+        response = requests.post(url, json=payload, timeout=3600)
         response.raise_for_status()
         data = response.json()
         return data["message"]["content"]

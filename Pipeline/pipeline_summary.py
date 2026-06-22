@@ -1,12 +1,12 @@
-import json
 import sys
 from pathlib import Path
+
+from Pipeline.Summary_Codes.Summarization import Summarizer
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
 SUMMARY_SYSTEM_PROMPT_PATH = BASE_DIR / "Pipeline" / "System_Prompts" / "Summary.txt"
 
-from Pipeline.Summary_Codes.Summarization import Summarizer
 
 class SummaryPipeline:
     def __init__(self):
