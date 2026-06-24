@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "apps.diaries",
     "apps.summaries",
     "apps.metrics",
+    "apps.notifications",
     "rest_framework",   
 ]
 

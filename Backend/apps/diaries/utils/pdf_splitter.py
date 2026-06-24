@@ -4,10 +4,10 @@ from PIL import Image, ImageEnhance, ImageOps
 
 from Pipeline.llm import chat
     
-#pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-caminho_tesseract = os.getenv('TESSERACT_PATH', 'tesseract')
-pytesseract.pytesseract.tesseract_cmd = caminho_tesseract
+#caminho_tesseract = os.getenv('TESSERACT_PATH', 'tesseract')
+#pytesseract.pytesseract.tesseract_cmd = caminho_tesseract
 
 SYS_PROMPT_PRE_CLEAN = """A tua ÚNICA tarefa é transcrever o texto fornecido, linha a linha, limpando APENAS o lixo institucional e dados pessoais, mantendo 100% da informação clínica e notas médicas intactas, na sua exata ordem original.
 
@@ -23,12 +23,10 @@ O texto enviado pertence a fatias de páginas de diários clínicos. Aplica as s
 
 Devolve APENAS o resultado final limpo, mantendo estritamente a estrutura de linhas. Não adiciones notas, resumos ou justificações."""
 
-
 def clean_clinical_text(text):
-    text = re.sub(r'[ \t]+', ' ', text)
-    text = re.sub(r'\n\s*\n+', '\n\n', text)
-    text = "\n".join([line.strip() for line in text.split('\n')])
-    text = re.sub(r'([^a-zA-Z0-9\s])\1+', r'\1', text)    
+    text = re.sub(r'\n\s*\n+', '\n\n', text)    
+    text = "\n".join([line.rstrip() for line in text.split('\n')])
+    text = re.sub(r'([^a-zA-Z0-9\s])\1{4,}', r'\1', text)  
     return text.strip()
 
 
@@ -57,7 +55,7 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
             img = ImageEnhance.Contrast(img).enhance(2.0)
             img = ImageOps.autocontrast(img)
             
-            custom_config = r'--psm 6 --oem 1 -c preserve_interword_spaces=1'
+            custom_config = r'--psm 4 --oem 1 -c preserve_interword_spaces=1'
             texto_bruto_ocr = pytesseract.image_to_string(img, lang='por', config=custom_config)
             texto_pre_limpo = clean_clinical_text(texto_bruto_ocr)
             
@@ -79,19 +77,45 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
                 print(f"Enviando Bloco: Páginas {i+1} até {min(i + chunk_size, total_paginas)}...", flush=True)
             
             texto_do_chunk = "\n\n".join(bloco_paginas)
+                
+            if debug:
+                print(f"[DEBUG OCR] TEXTO BRUTO ANTES DA LLM (BLOCO {i+1}):", flush=True)
+                print(texto_do_chunk, flush=True)
             
-            resultado_chat = chat(
-                client=client_llm, 
-                user_prompt=f"Aqui está o bloco de páginas para limpar:\n\n{texto_do_chunk}", 
-                system_prompt=SYS_PROMPT_PRE_CLEAN
-            )
+            # --- Mecanismo de Retry (3 Tentativas) com Proteção 504 ---
+            max_tentativas = 3
+            texto_bloco_limpo = texto_do_chunk # Fallback (Se falhar tudo, guarda o bruto)
             
-            if resultado_chat and isinstance(resultado_chat, (tuple, list)):
-                texto_bloco_limpo = resultado_chat[0].strip()
-                if texto_bloco_limpo:
-                    blocos_limpos.append(texto_bloco_limpo)
-            else:
-                if debug: print(f"[LLM] Falha ao obter resposta no bloco {i+1}.", flush=True)
+            for tentativa in range(1, max_tentativas + 1):
+                try:
+                    resultado_chat = chat(
+                        client=client_llm, 
+                        user_prompt=f"Aqui está o bloco de páginas para limpar:\n\n{texto_do_chunk}", 
+                        system_prompt=SYS_PROMPT_PRE_CLEAN
+                    )
+                    
+                    resposta_texto = resultado_chat[0] if isinstance(resultado_chat, (tuple, list)) else str(resultado_chat)
+                    
+                    if "504 Server Error" in resposta_texto or "Gateway Timeout" in resposta_texto:
+                        raise ValueError("A LLM devolveu um erro de Timeout disfarçado de texto.")
+                        
+                    texto_bloco_limpo = resposta_texto.strip()
+                    break # Sucesso!
+                    
+                except Exception as e:
+                    print(f"[LLM PRE-CLEAN] Falha na tentativa {tentativa}/{max_tentativas}: {str(e)}", flush=True)
+                    if tentativa < max_tentativas:
+                        print("[LLM PRE-CLEAN] A aguardar 5 segundos...", flush=True)
+                        time.sleep(5)
+                    else:
+                        print("[LLM PRE-CLEAN] Limite atingido! A devolver o texto OCR bruto para evitar perda de dados.", flush=True)
+
+            if debug:
+                print(f"[DEBUG LLM] TEXTO LIMPO DEVOLVIDO (BLOCO {i+1}):", flush=True)
+                print(texto_bloco_limpo, flush=True)
+
+            if texto_bloco_limpo:
+                blocos_limpos.append(texto_bloco_limpo)
 
         texto_total_limpo = "\n\n".join(blocos_limpos)
         

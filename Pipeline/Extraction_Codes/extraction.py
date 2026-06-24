@@ -1,4 +1,4 @@
-import json, re
+import json, re, time
 
 from typing import Dict, Any
 
@@ -51,23 +51,48 @@ class DiaryExtractor:
     def extract_full_diary(self, diary_text: str) -> Dict[str, Any]:
         """
         Extrai um único diário num formato JSON estruturado.
+        Inclui mecanismo de Retry (3 tentativas) para tolerância a falhas (ex: 504 Timeout).
         """
+        
         user_prompt = get_prompt_for_diary_extraction(diary_text)
+        max_tentativas = 3
 
-        try:
-            response, tempo_llm, houve_retry = chat(self.client, user_prompt, self.system_prompt)
-            json_str = self.clean_json_response(response)
-            dados = json.loads(json_str)
+        for tentativa in range(1, max_tentativas + 1):
+            try:
+                response, tempo_llm, houve_retry = chat(self.client, user_prompt, self.system_prompt)
+                
+                json_str = self.clean_json_response(response)
+                dados = json.loads(json_str)
 
-            return {
-                "dados": dados,
-                "tempo_llm": tempo_llm,
-                "houve_retry": houve_retry,
-                "status": "success"
-            }
+                if not isinstance(dados, dict):
+                    raise ValueError("A resposta da LLM não é um objeto JSON válido.")
+                
+                chaves_lista = ["diagnosticos", "medicacao", "alergias", "exames", "sintomas", "plano"]
+                for chave in chaves_lista:
+                    if chave in dados and not isinstance(dados[chave], list):
+                        raise ValueError(f"Formato quebrado: A secção '{chave}' devia ser uma lista, mas a LLM devolveu {type(dados[chave]).__name__}.")
 
-        except Exception as e:
-            print(f"Erro na extração do diário: {e}")
-            return {"status": "error", "message": str(e)}
+                return {
+                    "dados": dados,
+                    "tempo_llm": tempo_llm,
+                    "houve_retry": houve_retry or (tentativa > 1),
+                    "status": "success"
+                }
+
+            except Exception as e:
+                print(f"[EXTRAÇÃO] Falha na tentativa {tentativa}/{max_tentativas}: {str(e)}", flush=True)
+                
+                if tentativa < max_tentativas:
+                    print("[EXTRAÇÃO] A aguardar 5 segundos para arrefecer o servidor antes de tentar novamente...", flush=True)
+                    time.sleep(5)  
+                else:
+                    print("[EXTRAÇÃO] Limite de tentativas atingido! A criar registo vazio para não bloquear o pipeline.", flush=True)
+                    
+                    return {
+                        "dados": {}, 
+                        "tempo_llm": 0.0,
+                        "houve_retry": True,
+                        "status": "success" 
+                    }
         
     

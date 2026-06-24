@@ -19,133 +19,154 @@ class Summarizer:
             self.system_prompt = "És um médico sénior. Resume o histórico clínico com precisão."     
             print(f"Aviso: Não foi possível ler o System Prompt em {system_prompt_path}: {e}")
 
+    def process_llm_section(self, user_prompt: str, section_name: str, schema: dict, fallbacks: dict) -> tuple:
+        """
+        Gere as 3 tentativas, valida o JSON contra o schema esperado e, em caso de falha total,
+        tenta resgatar partes da resposta que estejam corretas (Resgate Parcial).
+        """
+        max_tentativas = 3
+        
+        for tentativa in range(1, max_tentativas + 1):
+            try:
+                resposta_raw, tempo, retry_llm = chat(self.client, user_prompt, self.system_prompt)
+                resposta = resposta_raw[0] if isinstance(resposta_raw, (tuple, list)) else str(resposta_raw)
+                
+                if "504 Server Error" in resposta or "Gateway Timeout" in resposta:
+                    raise ValueError("Timeout 504 detetado.")
+                    
+                match = re.search(r'\{.*\}', resposta, re.DOTALL)
+                if not match:
+                    raise ValueError("Nenhum bloco JSON válido encontrado na resposta.")
+                    
+                dados = json.loads(match.group(0))
+                
+                # VALIDAÇÃO DE SCHEMA ESTRUTURAL
+                if not isinstance(dados, dict):
+                    raise ValueError("O JSON retornado não é um Dicionário de base.")
+                    
+                for key, expected_type in schema.items():
+                    if key not in dados:
+                        raise ValueError(f"Chave obrigatória '{key}' está em falta.")
+                    if not isinstance(dados[key], expected_type):
+                        raise ValueError(f"A chave '{key}' tem o tipo errado. Esperado: {expected_type.__name__}.")
+                
+                # SUCESSO ABSOLUTO
+                return dados, tempo, (retry_llm or tentativa > 1)
+
+            except Exception as e:
+                print(f"[{section_name}] Falha na tentativa {tentativa}/{max_tentativas}: {e}", flush=True)
+                
+                if tentativa < max_tentativas:
+                    print(f"[{section_name}] A aguardar 5 segundos para recuperar...", flush=True)
+                    time.sleep(5)
+                else:
+                    print(f"[{section_name}] Limite atingido! A aplicar resgate de dados parciais...", flush=True)
+                    salvaged_data = {}
+                    dados_parciais = {}
+                    
+                    # Tenta ler o que a LLM cuspiu na última tentativa, mesmo com erros
+                    if 'resposta' in locals():
+                        match_salvage = re.search(r'\{.*\}', resposta, re.DOTALL)
+                        if match_salvage:
+                            try:
+                                dados_parciais = json.loads(match_salvage.group(0))
+                            except:
+                                pass # JSON totalmente ilegível, dados_parciais fica vazio
+                    
+                    for key, expected_type in schema.items():
+                        if isinstance(dados_parciais, dict) and key in dados_parciais and isinstance(dados_parciais[key], expected_type):
+                            salvaged_data[key] = dados_parciais[key]
+                            print(f"[{section_name}] -> Chave '{key}' estava correta e foi resgatada!")
+                        else:
+                            salvaged_data[key] = fallbacks[key]
+                            print(f"[{section_name}] -> Chave '{key}' corrompida. Substituída por mensagem segura de erro.")
+                            
+                    return salvaged_data, 0.0, True
+
+
     def generate_summary(self, all_extractions: Dict[str, Any]) -> tuple:
         if not all_extractions:
             return "Nenhum dado disponível para sumarização.", 0.0, False
 
-        print("\n" + "-"*30 + " INÍCIO DA SUMARIZAÇÃO " + "-"*30)
+        print("\n" + "-"*30 + " INÍCIO DA SUMARIZAÇÃO COM SCHEMA " + "-"*30)
         sumario_consolidado_dict = {}
-        
-        def executar_antecedentes():
-            start_time = time.perf_counter()
-            text = change_data_format(all_extractions, seccao_alvo="diagnosticos")
-
-            if text:
-                print(f"[ANTECEDENTES] Iniciado! Tamanho do input: {len(text)} caracteres.", flush=True)
-
-                user_prompt = PROMPT_ANTECEDENTES.format(extracted_data=text)
-                res = chat(self.client, user_prompt, self.system_prompt)
-
-                print(f"[ANTECEDENTES] Terminou em {time.perf_counter() - start_time:.2f}s", flush=True)
-                return res
-            
-            print("[ANTECEDENTES] Ignorado: Sem dados de diagnósticos.", flush=True)
-            return None
-
-        def executar_medicacao():
-            start_time = time.perf_counter()
-            text_med = change_data_format(all_extractions, seccao_alvo="medicacao")
-            text_alergias = change_data_format(all_extractions, seccao_alvo="alergias")
-
-            text_med_alergias = f"{text_med}\n\n{text_alergias}".strip()
-
-            if text_med_alergias:
-                print(f"[MEDICAÇÃO/ALERGIAS] Iniciado! Tamanho do input: {len(text_med_alergias)} caracteres.", flush=True)
-                
-                user_prompt = PROMPT_MEDICACAO.format(extracted_data=text_med_alergias)
-                res = chat(self.client, user_prompt, self.system_prompt)
-                
-                print(f"[MEDICAÇÃO/ALERGIAS] Terminou em {time.perf_counter() - start_time:.2f}s", flush=True)
-                return res
-            
-            print("[MEDICAÇÃO/ALERGIAS] Cancelado: Sem dados de medicação/alergias.", flush=True)
-            return None
-
-        def executar_exames():
-            start_time = time.perf_counter()
-            text = change_data_format(all_extractions, seccao_alvo="exames")
-
-            if text:
-                print(f"[EXAMES] Iniciado! Tamanho do input: {len(text)} caracteres.", flush=True)
-                
-                user_prompt = PROMPT_EXAMES.format(extracted_data=text)
-                res = chat(self.client, user_prompt, self.system_prompt)
-                
-                print(f"[EXAMES] Terminou em {time.perf_counter() - start_time:.2f}s", flush=True)
-                return res
-            
-            print("[EXAMES] Ignorado: Sem dados de exames.", flush=True)
-            return None
-
-        def executar_plano():
-            start_time = time.perf_counter()
-            ultimo_titulo = list(all_extractions.keys())[-1]
-            ultimo_conteudo = all_extractions[ultimo_titulo]
-            payload_recente = {ultimo_titulo: ultimo_conteudo}
-
-            text = change_data_format(payload_recente, seccao_alvo="plano")
-            
-            if text:
-                print(f"[PLANO] Iniciado! Focado apenas no diário: '{ultimo_titulo}'.", flush=True)
-                
-                user_prompt = PROMPT_PLANO.format(extracted_data=text)
-                res = chat(self.client, user_prompt, self.system_prompt)
-                
-                print(f"[PLANO] Terminou em {time.perf_counter() - start_time:.2f}s", flush=True)
-                return res
-            
-            print("[PLANO] Ignorado: Sem dados de plano.", flush=True)
-            return None
-
-        # Disparar as 4 chamadas simultaneamente para a API/Ollama
         total_tempo_llm = 0.0
         algum_retry = False
         start_global = time.perf_counter()
 
-        res_ant = executar_antecedentes()
-        res_med = executar_medicacao()
-        res_ex = executar_exames()
-        res_pl = executar_plano()
+        text_ant = change_data_format(all_extractions, seccao_alvo="diagnosticos")
+        if text_ant:
+            print(f"[ANTECEDENTES] Iniciado. Input: {len(text_ant)} chars.", flush=True)
+            user_prompt = PROMPT_ANTECEDENTES.format(extracted_data=text_ant)
+            
+            schema = {"antecedentes": list}
+            fallback = {"antecedentes": [{"diagnostico": "Erro: Não foi possível gerar o sumário de antecedentes.", "tipo": "N/A", "temporalidade": "N/A", "desde": "N/A"}]}
+            
+            dados, tempo, retry = self.process_llm_section(user_prompt, "ANTECEDENTES", schema, fallback)
+            sumario_consolidado_dict.update(dados)
+            total_tempo_llm += tempo
+            if retry: algum_retry = True
+        else:
+            print("[ANTECEDENTES] Ignorado: Sem dados.", flush=True)
+
+        text_med = change_data_format(all_extractions, seccao_alvo="medicacao")
+        text_alergias = change_data_format(all_extractions, seccao_alvo="alergias")
+        text_med_alergias = f"{text_med}\n\n{text_alergias}".strip()
+
+        if text_med_alergias:
+            print(f"[MEDICAÇÃO/ALERGIAS] Iniciado. Input: {len(text_med_alergias)} chars.", flush=True)
+            user_prompt = PROMPT_MEDICACAO.format(extracted_data=text_med_alergias)
+            
+            schema = {"medicacao": list, "alergias": list}
+            fallback = {
+                "medicacao": [{"farmaco": "Erro: Não foi possível gerar o sumário de medicação.", "dosagem": "N/A", "posologia": "N/A", "indicacao": "N/A", "observacoes": "N/A"}],
+                "alergias": ["Erro: Não foi possível gerar o sumário de alergias."]
+            }
+            
+            dados, tempo, retry = self.process_llm_section(user_prompt, "MEDICAÇÃO/ALERGIAS", schema, fallback)
+            sumario_consolidado_dict.update(dados)
+            total_tempo_llm += tempo
+            if retry: algum_retry = True
+        else:
+            print("[MEDICAÇÃO/ALERGIAS] Ignorado: Sem dados.", flush=True)
+
+        text_ex = change_data_format(all_extractions, seccao_alvo="exames")
+        if text_ex:
+            print(f"[EXAMES] Iniciado. Input: {len(text_ex)} chars.", flush=True)
+            user_prompt = PROMPT_EXAMES.format(extracted_data=text_ex)
+            
+            schema = {"exames": list}
+            fallback = {"exames": [{"nome": "Erro de Processamento", "data": "N/A", "tipo_exame": "N/A", "resultado": "Erro: Não foi possível gerar o sumário de exames."}]}
+            
+            dados, tempo, retry = self.process_llm_section(user_prompt, "EXAMES", schema, fallback)
+            sumario_consolidado_dict.update(dados)
+            total_tempo_llm += tempo
+            if retry: algum_retry = True
+        else:
+            print("[EXAMES] Ignorado: Sem dados.", flush=True)
+
+        ultimo_titulo = list(all_extractions.keys())[-1]
+        payload_recente = {ultimo_titulo: all_extractions[ultimo_titulo]}
+        text_pl = change_data_format(payload_recente, seccao_alvo="plano")
         
-        tempo_total_real = time.perf_counter() - start_global
-        print(f"\n[DEBUG METRICA] Tempo REAL de espera do utilizador (Sequencial): {tempo_total_real:.2f}s")
-
-        mapeamento_resultados = [
-            (res_ant, "Antecedentes"),
-            (res_med, "Medicação"),
-            (res_ex, "Exames"),
-            (res_pl, "Plano")
-        ]
-
-        print("\n" + "-"*20 + " PROCESSANDO RESPOSTAS JSON " + "-"*20)
-
-        for res, nome_fase in mapeamento_resultados:
-            if res:
-                summary, tempo, retry = res
-                total_tempo_llm += tempo 
-                
-                if retry: 
-                    algum_retry = True
-                
-                match = re.search(r'\{.*\}', summary, re.DOTALL)
-
-                if match:
-                    try:
-                        json_puro = match.group(0)
-                        dados_fase = json.loads(json_puro)
-                        sumario_consolidado_dict.update(dados_fase)
-
-                        print(f"[{nome_fase}] JSON válido decodificado e fundido com sucesso. (Inferência isolada: {tempo:.2f}s)")
-                    
-                    except Exception as e:
-                        print(f"[{nome_fase}] ERRO DE PARSE! Detalhe: {e}")
-                        print(f"--- CONTEÚDO BRUTO DO ERRO ({nome_fase}) ---\n{summary}\n---")
-                else:
-                    print(f"[{nome_fase}] ERRO! Nenhum padrão JSON '{{ ... }}' foi encontrado na resposta.")
+        if text_pl:
+            print(f"[PLANO] Iniciado. Focado em: '{ultimo_titulo}'.", flush=True)
+            user_prompt = PROMPT_PLANO.format(extracted_data=text_pl)
+            
+            schema = {"plano": str} # Nota: O plano é a única string solta
+            fallback = {"plano": "Erro: Não foi possível gerar o sumário para o plano terapêutico."}
+            
+            dados, tempo, retry = self.process_llm_section(user_prompt, "PLANO", schema, fallback)
+            sumario_consolidado_dict.update(dados)
+            total_tempo_llm += tempo
+            if retry: algum_retry = True
+        else:
+            print("[PLANO] Ignorado: Sem dados.", flush=True)
 
         summary_final_limpo = json.dumps(sumario_consolidado_dict, ensure_ascii=False)
-        print(f"[DEBUG METRICA] Tempo total de processamento sequencial somado: {total_tempo_llm:.2f}s")
-        print("-"*30 + "\n")
+        
+        print(f"\n[DEBUG METRICA] Tempo REAL global de sumarização: {time.perf_counter() - start_global:.2f}s")
+        print(f"[DEBUG METRICA] Tempo LLM somado: {total_tempo_llm:.2f}s")
+        print("-" * 30 + "\n")
 
         return summary_final_limpo.strip(), total_tempo_llm, algum_retry
-

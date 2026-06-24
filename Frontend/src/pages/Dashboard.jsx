@@ -58,12 +58,32 @@ export default function Dashboard({ patient: propPatient, onNewSearch }) {
   const [summaryInvalidated, setSummaryInvalidated] = useState(patient?.new_diaries_added || false);
   const [activeSection, setActiveSection] = useState('triagem');
   const [showUploadModal, setShowUploadModal] = useState(null);
-
   const [resultadoTriagem, setResultadoTriagem] = useState(null);
-  
+  const [notifications, setNotifications] = useState([]);
   const patientId = patient?.id;
 
   const sectionStyle = { scrollMarginTop: '100px' };
+
+  useEffect(() => {
+    if (patientId) {
+      api.get(`/api/notifications/?patient_id=${patientId}`)
+        .then(res => setNotifications(res.data))
+        .catch(err => console.error("Erro ao carregar notificações:", err));
+    }
+  }, [patientId]);
+
+  const handleMarkAsRead = async () => {
+    // Só faz o pedido à API se existirem notificações não lidas
+    if (notifications.some(n => !n.is_read)) {
+      try {
+        await api.post(`/api/notifications/mark_as_read/`, { patient_id: patientId });
+        // Atualiza o ecrã instantaneamente sem recarregar a página
+        setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+      } catch (err) {
+        console.error("Erro ao marcar notificações como lidas:", err);
+      }
+    }
+  };
 
   const refreshData = async () => {
       const proc = patient?.numero_processo || numero_processo;
@@ -182,6 +202,8 @@ export default function Dashboard({ patient: propPatient, onNewSearch }) {
             patient={patient} 
             onBack={onNewSearch} 
             onSearch={(term) => console.log("Pesquisar:", term)} 
+            notifications={notifications}        
+            onMarkAsRead={handleMarkAsRead}
           />
         </div>
         

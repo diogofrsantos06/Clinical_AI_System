@@ -1,13 +1,12 @@
 import json
 
 def change_data_format(dados_json, seccao_alvo=None):
-    # 1. Garante que os dados são um dicionário Python
+
     if isinstance(dados_json, str):
         dados_json = json.loads(dados_json)
 
     texto_final = ""
     
-    # 2. Dicionário de tradução/mapeamento de secções
     seccoes_mapeamento = {
         "diagnosticos": "Diagnósticos",
         "medicacao": "Medicação Habitual",
@@ -17,36 +16,54 @@ def change_data_format(dados_json, seccao_alvo=None):
         "plano": "Plano Terapêutico"
     }
 
-    # 3. LINHA SIMPLIFICADA: Decisão de qual secção filtrar
     if seccao_alvo:
-        # Se escolheste uma secção, criamos um mini-mapeamento apenas com ela
         seccoes_a_processar = {seccao_alvo: seccoes_mapeamento[seccao_alvo]}
     else:
-        # Se não escolheste nenhuma, processamos todas as secções por defeito
         seccoes_a_processar = seccoes_mapeamento
 
-    # 4. Loop principal: Varre cada diário clínico (a chave 'nome_diario' contém a Data)
+    diagnosticos_vistos = set()
+    termos_vazios = {"sem informação", "n/a", "desconhecido", "não aplicável", "nenhum", "nenhuma"}
+
+    # 3. Loop principal: Varre cada diário clínico
     for nome_diario, conteudo in dados_json.items():
         bloco_diario_texto = ""
         
-        # 5. Loop secundário: Varre as secções que decidimos processar
+        # 4. Loop secundário: Varre as secções
         for chave, titulo in seccoes_a_processar.items():
             lista_dados = conteudo.get(chave, [])
             
-            # Se esta secção estiver vazia neste diário, passa à frente
             if not lista_dados:
                 continue 
             
-            # Adiciona o título da secção (ex: "Medicação Habitual")
-            bloco_diario_texto += f"{titulo}\n"
+            linhas_sec_texto = ""
             
-            # 6. Loop terciário: Transforma a lista de objetos JSON em linhas de texto
             for item in lista_dados:
-                detalhes = [f"{k.replace('_', ' ').capitalize()}: {v}" for k, v in item.items() if v]
-                bloco_diario_texto += f"- {' | '.join(detalhes)}\n"
-            bloco_diario_texto += "\n"
+                detalhes = []
+                
+                for k, v in item.items():
+                    if v:
+                        valor_str = str(v).strip()
+                        
+                        if chave == "diagnosticos" and valor_str.lower() in termos_vazios:
+                            continue
+                            
+                        detalhes.append(f"{k.replace('_', ' ').capitalize()}: {valor_str}")
+                
+                if not detalhes:
+                    continue
+                
+                if chave == "diagnosticos":
+                    assinatura_item = " | ".join(detalhes).lower()
+                    if assinatura_item not in diagnosticos_vistos:
+                        diagnosticos_vistos.add(assinatura_item)
+                        linhas_sec_texto += f"- {' | '.join(detalhes)}\n"
+                
+                else:
+                    linhas_sec_texto += f"- {' | '.join(detalhes)}\n"
             
-        # 7. Junção final: Se o diário tinha dados, cola tudo e destaca a DATA no topo
+            if linhas_sec_texto:
+                bloco_diario_texto += f"{titulo}\n{linhas_sec_texto}\n"
+                
         if bloco_diario_texto:
             texto_final += f"--- IDENTIFICAÇÃO E DATA DO REGISTO: {nome_diario} ---\n{bloco_diario_texto}\n"
 

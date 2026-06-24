@@ -8,6 +8,7 @@ from ..models import Summary
 
 from Pipeline.pipeline_summary import SummaryPipeline
 from apps.metrics.models import PerformanceMetric
+from apps.notifications.models import SystemNotification  # <-- IMPORT NOVO AQUI
 
 logger = logging.getLogger(__name__)
 
@@ -39,9 +40,19 @@ def generate_patient_summary(patient_id):
         summary_text, tempo_llm, houve_retry = summary_pipeline.run_summary(all_information)
 
         if not summary_text or "Error code:" in summary_text or "rate_limit" in summary_text:
-            
             logger.error(f"Falha na IA. O retorno foi um erro: {summary_text}")
             return None 
+
+        # ---------------------------------------------------------
+        # GATILHO DE NOTIFICAÇÃO DA SUMARIZAÇÃO
+        # Deteta se o JSON do sumário contém as mensagens de fallback
+        # ---------------------------------------------------------
+        if "Erro: Não foi possível" in summary_text:
+            SystemNotification.objects.create(
+                patient=patient,
+                message="Necessária intervenção do administrador devido a erro na geração de partes do Sumário Clínico (Recuperação Parcial ativada)."
+            )
+            logger.warning(f"🔔 [NOTIFICAÇÃO] Alarme de Sumário disparado para o paciente {patient.id}.")
         
         duration_total = time.perf_counter() - start_total
         
