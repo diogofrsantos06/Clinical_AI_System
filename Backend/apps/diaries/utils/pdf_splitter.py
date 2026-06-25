@@ -17,8 +17,9 @@ O texto enviado pertence a fatias de páginas de diários clínicos. Aplica as s
 - Se o texto contiver a expressão 'Observações Médicas' imediatamente seguida de uma linha com Data, Hora e Médico/Serviço (ex: 'DD-Mes-AAAA HH:MM:SS Dr. ... / ...'), deves ELIMINAR TUDO o que aparece ANTES dessa linha específica no topo do texto. Esse é o início real do documento.
 
 --- REGRA DE CABEÇALHOS E DADOS PESSOAIS (TIPO 2 - CRÍTICO) ---
-- Ao longo do texto, tu vais encontrar blocos de cabeçalhos repetitivos de mudança de página. Identifica o bloco exato que COMEÇA em 'Processado por computador - SClínico' e TERMINA na expressão 'Diário Clínico Consulta Externa' (ou 'Diário Clínico Consulta').
+- Ao longo do texto, tu vais encontrar blocos de cabeçalhos repetitivos de mudança de página. Identifica o bloco exato que COMEÇA em 'Processado por computador - SClínico' e TERMINA na expressão 'Diário Clínico Consulta Externa'.
 - Deves APAGAR APENAS esse bloco de cabeçalho e todas as informações pessoais contidas DENTRO dele (Nome do paciente, morada, idade, data de nascimento, número de processo, utente, sexo, etc.).
+- REGRA DE OURO (NÃO VIOLAR): A linha imediatamente a seguir à expressão 'Diário Clínico Consulta Externa' contém informação clínica importante. É ESTRITAMENTE PROIBIDO apagar ou alterar essa linha! 
 - ATENÇÃO MÁXIMA: Tudo o que estiver ABAIXO ou DEPOIS da expressão 'Diário Clínico Consulta Externa' é texto clínico, relatórios, exames ou continuação do diário anterior. Deves TRANSCREVER ESSE TEXTO NA ÍNTEGRA. Nunca apagues linhas médicas, mesmo que a página não tenha um novo nome de médico ou data!
 
 Devolve APENAS o resultado final limpo, mantendo estritamente a estrutura de linhas. Não adiciones notas, resumos ou justificações."""
