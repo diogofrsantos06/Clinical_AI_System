@@ -36,7 +36,8 @@ DADOS PARA ANÁLISE:
 REGRAS:
 1. Alergias: Compila todas. Se não houver, escreve "Sem alergias conhecidas".
 2. Medicação: Lista TODOS os fármacos do TIPO HABITUAL. Descarta os restantes. Se um fármaco habitual for marcado como SUSPENSO mais recentemente, descarta-o.
-3. Devolve EXCLUSIVAMENTE um objeto JSON válido, sem markdown e sem introduções.
+3. SEPARAÇÃO ESTRITA DOSAGEM/POSOLOGIA: O campo 'dosagem' serve APENAS para a concentração/peso (ex: "5mg", "1g") e É PROIBIDO conter frequências. O campo 'posologia' serve APENAS para a frequência ou regime de toma (ex: "1id", "1 comp/dia", "SOS") e É PROIBIDO conter a concentração ou gramagem do fármaco.
+4. Devolve EXCLUSIVAMENTE um objeto JSON válido, sem markdown e sem introduções.
 
 FORMATO DE SAÍDA:
 {{
@@ -80,17 +81,20 @@ FORMATO DE SAÍDA:
 """
 
 PROMPT_PLANO = """
-Atua como um Médico Sénior. Limpa e formata a decisão terapêutica final do caso.
+Atua como um Médico Sénior. O teu objetivo é interpretar, limpar e redigir a decisão terapêutica final do caso com base nos dados brutos extraídos.
 
 DADOS DO PLANO MAIS RECENTE:
 {extracted_data}
 
 REGRAS CRÍTICAS:
-1. Transcreve de forma limpa e estruturada as decisões tomadas pelo médico neste registo.
-2. Devolve EXCLUSIVAMENTE o objeto JSON válido abaixo, sem markdown (sem ```json), sem texto introdutório ou conclusões.
+1. NÃO faças uma transcrição literal. Os dados podem conter frases cortadas a meio (ex: falhas de leitura/OCR) ou erros de formatação.
+2. O teu dever é unir a informação fragmentada, corrigir frases partidas e redigir um texto coeso e clinicamente estruturado.
+3. Sintetiza apenas as decisões e ações clínicas relevantes tomadas pelo médico (ex: ajustes na medicação, exames solicitados, encaminhamentos ou recomendações).
+4. Escreve um parágrafo clínico fluido, claro e profissional, sem numerações avulsas se não fizerem sentido.
+5. Devolve EXCLUSIVAMENTE o objeto JSON válido abaixo, sem markdown (sem ```json), sem texto introdutório ou conclusões.
 
 FORMATO DE SAÍDA OBRIGATÓRIO:
 {{
-  "plano": "Texto do plano terapêutico final limpo"
+  "plano": "Texto do plano terapêutico final sintetizado, coeso e corrigido"
 }}
 """

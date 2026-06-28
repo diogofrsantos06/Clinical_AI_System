@@ -53,7 +53,11 @@ export default function Sidebar({ activeSection, onNavigate, hasAllergies, patie
                 style={{
                   display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.75rem',
                   borderRadius: '0.6rem', width: '100%', border: 'none', cursor: 'pointer',
-                  background: isActive ? 'rgba(255, 255, 255, 0.15)' : (isAllergyAlert ? '#fbbf24' : 'transparent'),
+                  
+                 background: isAllergyAlert 
+                              ? (isActive ? '#f59e0b' : '#fbbf24') 
+                              : (isActive ? 'rgba(255, 255, 255, 0.15)' : 'transparent'),
+                              
                   transition: 'all 0.2s', textAlign: 'left', fontFamily: 'Alice, serif'
                 }}
               >
@@ -63,7 +67,7 @@ export default function Sidebar({ activeSection, onNavigate, hasAllergies, patie
             <span style={{ 
               flex: 1, 
               fontSize: '0.95rem', 
-              color: isAllergyAlert ? '#000' : '#e2e8f0', 
+              color: isAllergyAlert ? '#000' : '#e2e8f0', // Mantém o texto preto no botão amarelo para ler-se bem
               fontWeight: isActive ? 600 : 500 
             }}>
               {label}

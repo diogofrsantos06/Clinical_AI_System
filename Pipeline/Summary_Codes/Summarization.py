@@ -1,10 +1,23 @@
 import json, re, time
 from pathlib import Path
 from typing import Dict, Any
+from datetime import datetime
 
 from Pipeline.llm import chat, get_client
 from Pipeline.Prompts.Summary_Prompt import PROMPT_ANTECEDENTES, PROMPT_MEDICACAO, PROMPT_EXAMES, PROMPT_PLANO
 from Pipeline.Summary_Codes.json_to_text import change_data_format
+
+def extract_date_from_title(title: str) -> datetime:
+    match = re.search(r'(\d{1,2})[-/]([a-zA-Z]{3}|\d{1,2})[-/](\d{2,4})', title)
+    if not match: return datetime.min 
+    dia, mes_str, ano_str = match.groups()
+    ano = int(ano_str)
+    if ano < 100: ano += 2000 
+    dia = int(dia)
+    meses = {'jan': 1, 'fev': 2, 'mar': 3, 'abr': 4, 'mai': 5, 'jun': 6, 'jul': 7, 'ago': 8, 'set': 9, 'out': 10, 'nov': 11, 'dez': 12}
+    mes = meses.get(mes_str.lower(), 1)
+    try: return datetime(ano, mes, dia)
+    except ValueError: return datetime.min
 
 class Summarizer:
     def __init__(self, system_prompt_path: Path):
@@ -90,10 +103,12 @@ class Summarizer:
 
         print("\n" + "-"*30 + " INÍCIO DA SUMARIZAÇÃO COM SCHEMA " + "-"*30)
         sumario_consolidado_dict = {}
-        total_tempo_llm = 0.0
+        tempos_seccoes = {}
         algum_retry = False
         start_global = time.perf_counter()
 
+        # 1. ANTECEDENTES
+        start_sec = time.perf_counter()
         text_ant = change_data_format(all_extractions, seccao_alvo="diagnosticos")
         if text_ant:
             print(f"[ANTECEDENTES] Iniciado. Input: {len(text_ant)} chars.", flush=True)
@@ -104,11 +119,13 @@ class Summarizer:
             
             dados, tempo, retry = self.process_llm_section(user_prompt, "ANTECEDENTES", schema, fallback)
             sumario_consolidado_dict.update(dados)
-            total_tempo_llm += tempo
             if retry: algum_retry = True
+            tempos_seccoes["MEDICAÇÃO"] = {"duration": time.perf_counter() - start_sec, "inference": tempo}
         else:
             print("[ANTECEDENTES] Ignorado: Sem dados.", flush=True)
 
+        # 2. MEDICAÇÃO E ALERGIAS
+        start_sec = time.perf_counter()
         text_med = change_data_format(all_extractions, seccao_alvo="medicacao")
         text_alergias = change_data_format(all_extractions, seccao_alvo="alergias")
         text_med_alergias = f"{text_med}\n\n{text_alergias}".strip()
@@ -125,11 +142,13 @@ class Summarizer:
             
             dados, tempo, retry = self.process_llm_section(user_prompt, "MEDICAÇÃO/ALERGIAS", schema, fallback)
             sumario_consolidado_dict.update(dados)
-            total_tempo_llm += tempo
             if retry: algum_retry = True
+            tempos_seccoes["MEDICAÇÃO"] = {"duration": time.perf_counter() - start_sec, "inference": tempo}
         else:
             print("[MEDICAÇÃO/ALERGIAS] Ignorado: Sem dados.", flush=True)
 
+        # 3. EXAMES
+        start_sec = time.perf_counter()
         text_ex = change_data_format(all_extractions, seccao_alvo="exames")
         if text_ex:
             print(f"[EXAMES] Iniciado. Input: {len(text_ex)} chars.", flush=True)
@@ -140,33 +159,35 @@ class Summarizer:
             
             dados, tempo, retry = self.process_llm_section(user_prompt, "EXAMES", schema, fallback)
             sumario_consolidado_dict.update(dados)
-            total_tempo_llm += tempo
             if retry: algum_retry = True
+            tempos_seccoes["EXAMES"] = {"duration": time.perf_counter() - start_sec, "inference": tempo}
         else:
             print("[EXAMES] Ignorado: Sem dados.", flush=True)
 
-        ultimo_titulo = list(all_extractions.keys())[-1]
-        payload_recente = {ultimo_titulo: all_extractions[ultimo_titulo]}
+        # 4. PLANO TERAPÊUTICO
+        start_sec = time.perf_counter()
+        titulo_mais_recente = max(all_extractions.keys(), key=extract_date_from_title)        
+        payload_recente = {titulo_mais_recente: all_extractions[titulo_mais_recente]}
         text_pl = change_data_format(payload_recente, seccao_alvo="plano")
         
         if text_pl:
-            print(f"[PLANO] Iniciado. Focado em: '{ultimo_titulo}'.", flush=True)
+            print(f"[PLANO] Iniciado via LLM. Focado no mais recente: '{titulo_mais_recente}'.", flush=True)
             user_prompt = PROMPT_PLANO.format(extracted_data=text_pl)
             
-            schema = {"plano": str} # Nota: O plano é a única string solta
+            schema = {"plano": str} 
             fallback = {"plano": "Erro: Não foi possível gerar o sumário para o plano terapêutico."}
             
             dados, tempo, retry = self.process_llm_section(user_prompt, "PLANO", schema, fallback)
             sumario_consolidado_dict.update(dados)
-            total_tempo_llm += tempo
             if retry: algum_retry = True
+            tempos_seccoes["PLANO"] = {"duration": time.perf_counter() - start_sec, "inference": tempo}
         else:
-            print("[PLANO] Ignorado: Sem dados.", flush=True)
+            print(f"[PLANO] Ignorado: Sem dados no diário '{titulo_mais_recente}'.", flush=True)
 
         summary_final_limpo = json.dumps(sumario_consolidado_dict, ensure_ascii=False)
         
         print(f"\n[DEBUG METRICA] Tempo REAL global de sumarização: {time.perf_counter() - start_global:.2f}s")
-        print(f"[DEBUG METRICA] Tempo LLM somado: {total_tempo_llm:.2f}s")
+        print(f"[DEBUG METRICA] Tempo LLM somado: {tempos_seccoes:.2f}s")
         print("-" * 30 + "\n")
 
-        return summary_final_limpo.strip(), total_tempo_llm, algum_retry
+        return summary_final_limpo.strip(), tempos_seccoes, algum_retry

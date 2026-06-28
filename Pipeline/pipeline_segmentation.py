@@ -62,7 +62,7 @@ def get_diary_start_indices(text):
     """Mapeia os índices de início reais de cada registo clínico por expressão regular."""
     date_part = r'\d{1,2}[-/](?:[A-Za-z]{3}|\d{1,2})[-/]\d{2,4}'
     time_part = r'(?:\s+\d{2}:\d{2}(?::\d{2})?)?'
-    doctor_part = r'.*?(?:Dr\(?a?\)?\.?\s|Drª\s|Médico:)' 
+    doctor_part = r'.*?(?:Dr\(?a?\)?\.?\s|Dr(a).\s|Médico:)' 
     
     full_pattern = f'{date_part}{time_part}{doctor_part}'
     return [m.start() for m in re.finditer(full_pattern, text, re.IGNORECASE)]

@@ -65,7 +65,7 @@ def process_diary_batch(patient, lista_diarios_segmentados):
 
                     PerformanceMetric.objects.create(
                         operation_type='EXTRACTION',
-                        duration_seconds=total_duration / len(resultados_lote), 
+                        duration_seconds=res.get("tempo_total_extracao", 0.0), 
                         inference_duration=res.get("tempo_llm", 0.0), 
                         is_retry=res.get("houve_retry", False),   
                         input_size=len(res.get("texto_original", "")), 

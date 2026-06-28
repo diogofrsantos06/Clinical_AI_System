@@ -27,13 +27,13 @@ class SummaryPipeline:
                 structured_payload[diary_label] = item["dados"]
 
             # Executa a chamada ao summarizer (que agora corre as 4 fases internamente)
-            summary_text, tempo_llm, houve_retry = self.summarizer.generate_summary(structured_payload)
+            summary_text, tempos_seccoes, houve_retry = self.summarizer.generate_summary(structured_payload)
 
             # Validação de segurança para tratamento de erros da API da Groq/Ollama
             if not summary_text or "Error code:" in str(summary_text) or "limit" in str(summary_text).lower():
                 return None, 0.0, False
 
-            return summary_text, tempo_llm, houve_retry
+            return summary_text, tempos_seccoes, houve_retry
 
         except Exception as e:
             print(f"[Pipeline] Erro crítico na geração: {str(e)}")

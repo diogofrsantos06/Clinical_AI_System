@@ -16,6 +16,7 @@ from Pipeline.llm import get_client, ollama_warmup, ollama_unload
 from .services.extraction_service import process_diary_batch
 
 from apps.patients.models import Patient
+from apps.metrics.models import PerformanceMetric
 
 class ClinicalDiaryViewSet(viewsets.ModelViewSet):
     queryset = ClinicalDiary.objects.all()
@@ -43,10 +44,23 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
                     tmp.write(chunk)
                 temp_path = tmp.name
             
-            full_text_limpo = extract_full_pdf_text(temp_path, client)
+            full_text_limpo, metricas_recolhidas = extract_full_pdf_text(temp_path, client)
 
             if os.path.exists(temp_path):
                 os.remove(temp_path) 
+
+            if metricas_recolhidas:
+                for metrica in metricas_recolhidas:
+                    PerformanceMetric.objects.create(
+                        operation_type=metrica["operation_type"],
+                        section_name=metrica["section_name"],
+                        duration_seconds=metrica["duration_seconds"],
+                        inference_duration=metrica["inference_duration"],
+                        input_size=metrica["input_size"],
+                        is_retry=metrica["is_retry"],
+                        patient=patient
+                    )
+                print(f"[METRICAS] Guardadas {len(metricas_recolhidas)} métricas de OCR e Limpeza.", flush=True)
 
             if not full_text_limpo.strip():
                 return Response({"error": "O texto extraído do documento está vazio."}, status=status.HTTP_400_BAD_REQUEST)

@@ -16,19 +16,24 @@ class ExtractionPipeline:
         self.extractor = DiaryExtractor(self.extraction_prompt)
 
     def run(self, raw_diary_text: str) -> Dict[str, Any]:
+        start_diary = time.perf_counter()
+
         try:
             clean_text = self.cleaner.clean_diary(raw_diary_text) #ELIMINAR A PARTE DO CLEAN_DIARY; IMPLICA MUDAR OU A BD OU METER O RAW TEXT PARA A BD
             extraction_result = self.extractor.extract_full_diary(clean_text)
 
+            tempo_total_extracao = time.perf_counter() - start_diary
+
             if "erro" in extraction_result:
-                return {"status": "error", "message": "Falha na extração"}
+                return {"status": "error", "message": "Falha na extração", "tempo_total_extracao": tempo_total_extracao}
 
             return {
                 "status": "success",
                 "cleaned_text": clean_text,
                 "extracted_data": extraction_result.get("dados",[]), 
                 "tempo_llm": extraction_result.get("tempo_llm", 0.0), 
-                "houve_retry": extraction_result.get("houve_retry", False)
+                "houve_retry": extraction_result.get("houve_retry", False),
+                "tempo_total_extracao": tempo_total_extracao 
             }
             
         except Exception as e:

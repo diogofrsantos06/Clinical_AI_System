@@ -36,6 +36,7 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
     Executa o OCR sequencial e usa a LLM para limpar informação de cabeçalhos e numeração de páginas
     """
     paginas_brutas = []
+    metricas_recolhidas = []
 
     try:
         start_global = time.perf_counter()
@@ -61,6 +62,18 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
             texto_pre_limpo = clean_clinical_text(texto_bruto_ocr)
             
             paginas_brutas.append(texto_pre_limpo)
+
+            duracao_ocr = time.perf_counter() - start_p
+            
+            metricas_recolhidas.append({
+                "operation_type": "OCR_PAGE",
+                "section_name": f"Página {idx+1}",
+                "duration_seconds": duracao_ocr,
+                "inference_duration": 0.0, 
+                "input_size": len(texto_pre_limpo),
+                "is_retry": False
+            })
+
             if debug: 
                 print(f"[OCR] Página {idx+1}/{total_paginas} processada em {time.perf_counter() - start_p:.2f}s", flush=True)
         
@@ -72,20 +85,16 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
         blocos_limpos = []
         
         for i in range(0, total_paginas, chunk_size):
+            start_chunk = time.perf_counter()
             bloco_paginas = paginas_brutas[i:i + chunk_size]
+            texto_do_chunk = "\n\n".join(bloco_paginas)
 
             if debug: 
                 print(f"Enviando Bloco: Páginas {i+1} até {min(i + chunk_size, total_paginas)}...", flush=True)
             
-            texto_do_chunk = "\n\n".join(bloco_paginas)
-                
-            if debug:
-                print(f"[DEBUG OCR] TEXTO BRUTO ANTES DA LLM (BLOCO {i+1}):", flush=True)
-                print(texto_do_chunk, flush=True)
-            
-            # --- Mecanismo de Retry (3 Tentativas) com Proteção 504 ---
             max_tentativas = 3
-            texto_bloco_limpo = texto_do_chunk # Fallback (Se falhar tudo, guarda o bruto)
+            texto_bloco_limpo = texto_do_chunk 
+            houve_retry = False
             
             for tentativa in range(1, max_tentativas + 1):
                 try:
@@ -101,6 +110,7 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
                         raise ValueError("A LLM devolveu um erro de Timeout disfarçado de texto.")
                         
                     texto_bloco_limpo = resposta_texto.strip()
+                    houve_retry = (tentativa > 1)
                     break # Sucesso!
                     
                 except Exception as e:
@@ -110,18 +120,26 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
                         time.sleep(5)
                     else:
                         print("[LLM PRE-CLEAN] Limite atingido! A devolver o texto OCR bruto para evitar perda de dados.", flush=True)
-
-            if debug:
-                print(f"[DEBUG LLM] TEXTO LIMPO DEVOLVIDO (BLOCO {i+1}):", flush=True)
-                print(texto_bloco_limpo, flush=True)
-
+                        houve_retry = True
+            
+            duracao_chunk = time.perf_counter() - start_chunk
+            
+            metricas_recolhidas.append({
+                "operation_type": "PRE_CLEAN_CHUNK",
+                "section_name": f"Bloco {int(i/chunk_size)+1}",
+                "duration_seconds": duracao_chunk,
+                "inference_duration": duracao_chunk, 
+                "input_size": len(texto_do_chunk),
+                "is_retry": houve_retry
+            })
+            
             if texto_bloco_limpo:
                 blocos_limpos.append(texto_bloco_limpo)
 
         texto_total_limpo = "\n\n".join(blocos_limpos)
         
         if debug: print(f"\nFASE EXTRAÇÃO DOS DIÁRIOS CONCLUÍDA COM SUCESSO EM {time.perf_counter() - start_global:.2f}s!")
-        return texto_total_limpo
+        return texto_total_limpo, metricas_recolhidas
 
     except Exception as e:
         print(f"Erro crítico no pipeline de extração de texto: {e}", flush=True)

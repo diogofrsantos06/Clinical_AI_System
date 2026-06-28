@@ -159,7 +159,20 @@ export default function Dashboard({ patient: propPatient, onNewSearch }) {
     return () => mainElement?.removeEventListener('scroll', handleScroll);
   }, [loading]);
 
-  const temAlergiasReais = patient?.alergias && patient.alergias.length > 0 && !["Sem alergias conhecidas", "N/A", "Nenhum"].includes(patient.alergias[0]);
+  const valoresNulosAlergias = ["Sem alergias conhecidas", "N/A", "Nenhum", ""];
+  const listaAlergias = summary?.alergias || [];
+  
+  // Agora verificamos no summary (tal como a section faz) e não no patient
+  const temAlergiasReais = listaAlergias.length > 0 && !valoresNulosAlergias.includes(listaAlergias[0]);
+  // --- FIM DA CORREÇÃO ---
+
+  useEffect(() => {
+    if (patient) {
+      setSummary(patient?.summary?.dados_estruturados || patient?.summary || {});
+      setDiaries(patient?.diaries || []);
+      setSummaryInvalidated(patient?.new_diaries_added || false);
+    }
+  }, [patient]);
 
   useEffect(() => {
     if (patient) {
