@@ -1,8 +1,8 @@
 export default function AlergiasSection({ alergias }) {
   const valoresNulos = ["Sem alergias conhecidas", "N/A", "Nenhum", ""];
-  const temAlergias = alergias && 
-                      alergias.length > 0 && 
-                      !valoresNulos.includes(alergias[0]);
+  const primeiraAlergiaStr = alergias && alergias.length > 0 ? (alergias[0].substancia || alergias[0]) : "";
+  const temAlergias = alergias && alergias.length > 0 && !valoresNulos.includes(primeiraAlergiaStr);
+  
   return (
     <div className="w-full mb-8">
       <div className="flex items-center gap-3 mb-6">
@@ -32,6 +32,13 @@ export default function AlergiasSection({ alergias }) {
                 <div>
                   <div className="font-bold text-slate-900">{item.substancia || item}</div>
                   <div className="text-sm text-slate-600">{item.reacao || 'Sem descrição da reação'}</div>
+
+                  {item.registo_origem && item.registo_origem !== "N/A" && (
+                    <div className="text-xs text-slate-400 mt-2 italic font-medium">
+                      Identificado pela 1ª vez em: {item.registo_origem}
+                    </div>
+                  )}
+                  
                 </div>
                 <span className="bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Grave</span>
               </div>

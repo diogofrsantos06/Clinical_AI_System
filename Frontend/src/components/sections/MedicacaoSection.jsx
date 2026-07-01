@@ -1,5 +1,4 @@
-export default function MedicacaoSection({ medicacao }) {
-  console.log("Dados de medicação recebidos:", medicacao);
+export default function MedicacaoSection({ medicacao = [] }) {
   return (
     <div className="w-full mb-8">
       <div className="flex items-center gap-3 mb-6">
@@ -22,6 +21,7 @@ export default function MedicacaoSection({ medicacao }) {
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        {/* Header original */}
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: '1.5fr 0.8fr 1fr 1fr 1fr', 
@@ -37,7 +37,7 @@ export default function MedicacaoSection({ medicacao }) {
           <div>Dosagem</div>
           <div>Posologia</div>
           <div>Indicação</div>
-          <div>Observações</div>
+          <div>Origem</div>
         </div>
 
         <div className="text-slate-800">
@@ -59,7 +59,16 @@ export default function MedicacaoSection({ medicacao }) {
               <div className="text-slate-600">{med.dosagem || 'N/A'}</div>
               <div className="text-slate-600">{med.posologia || 'N/A'}</div>
               <div className="text-slate-600">{med.indicacao || 'N/A'}</div>
-              <div className="text-slate-500">{med.observacoes || '-'}</div>
+              <div className="text-slate-500 leading-tight">
+                <div className="font-semibold text-[11px] text-slate-700">
+                  {/* Pega no texto até ao primeiro ' - ' (o nome da especialidade) */}
+                  {med.diario_origem ? med.diario_origem.split(' - ')[0] : 'N/A'}
+                </div>
+                <div className="text-[10px]">
+                  {/* Pega na parte central que contém a data, removendo o Registo no final */}
+                  {med.diario_origem ? med.diario_origem.split(' - ')[1].split('(')[0].trim() : ''}
+                </div>
+              </div>
             </div>
           ))}
         </div>

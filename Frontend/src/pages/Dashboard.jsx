@@ -190,6 +190,7 @@ export default function Dashboard({ patient: propPatient, onNewSearch }) {
     return <div className="p-10 text-center">Paciente não encontrado.</div>;
   }
 
+  console.log("DEBUG SUMMARY NO REACT:", patient?.summary);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -219,17 +220,25 @@ export default function Dashboard({ patient: propPatient, onNewSearch }) {
             onMarkAsRead={handleMarkAsRead}
           />
         </div>
-        
 
-        {/* Conteúdo scrollável */}
         <div className="p-8 flex-1">
           <div className="max-w-5xl mx-auto w-full flex flex-col gap-8">
+            
+            {patient?.summary?.updated_at && (
+              <div className="flex justify-end -mb-4 mt-[-10px]">
+                <span className="text-xs text-slate-400 italic">
+                  Última atualização do sumário a: {new Date(patient.summary.updated_at).toLocaleDateString('pt-PT')}
+                </span>
+              </div>
+            )}
+
             <div id="triagem" style={sectionStyle}><TriagemSection processNumber={patientId} onSave={handleSaveTriagem} /></div>
             <div id="antecedentes" style={sectionStyle}><AntecedentesSection antecedentes={summary?.antecedentes || []} /></div>
             <div id="medicacao" style={sectionStyle}><MedicacaoSection medicacao={summary?.medicacao || []} /></div>
             <div id="alergias" style={sectionStyle}><AlergiasSection alergias={summary?.alergias || []} /></div>
             <div id="exames" style={sectionStyle}><ExamesSection exames={summary?.exames || []} examesTriagem={resultadoTriagem?.dados_estruturados?.exames || []} /></div>
-            <div id="plano" style={sectionStyle}><PlanoSection plano={summary?.plano_ultima_consulta || summary?.plano || ""} /></div>
+            
+            <div id="plano" style={sectionStyle}><PlanoSection plano={summary?.plano || ""} /></div>
             
             <div id="upload" style={sectionStyle}>
               <UploadSection patientId={patientId} onUploadSuccess={refreshData} />

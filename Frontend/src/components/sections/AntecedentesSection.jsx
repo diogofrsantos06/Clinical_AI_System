@@ -1,23 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 export default function AntecedentesSection({ antecedentes = [] }) {
-  const [filtro, setFiltro] = useState('cronico');
-
-  // 1. Separar os dados dinamicamente com base na temporalidade
-  const cronicos = antecedentes.filter(item => 
-    item.temporalidade && item.temporalidade.toLowerCase().includes('crónic') || item.temporalidade?.toLowerCase().includes('cronic')
-  );
+  // Como a LLM agora só devolve crónicos/ativos, usamos a lista diretamente
+  const diagnosticos = antecedentes || [];
   
-  const agudos = antecedentes.filter(item => 
-    item.temporalidade && item.temporalidade.toLowerCase().includes('agud')
-  );
-
-  // 2. Determinar qual a lista a exibir na tabela
-  const dadosExibidos = filtro === 'cronico' ? cronicos : agudos;
+  // Verifica se alguma das datas contém o asterisco para acionar a legenda no fundo
+  const temAsterisco = diagnosticos.some(item => item.desde && item.desde.includes('*'));
 
   return (
     <div className="w-full mb-8">
-      {/* Header com Titulo e Filtro (Copiado da lógica de Exames) */}
+      {/* Header com Titulo */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         
         {/* Lado Esquerdo: Título */}
@@ -32,33 +24,9 @@ export default function AntecedentesSection({ antecedentes = [] }) {
               Antecedentes Pessoais e Diagnósticos
             </h3>
             <p style={{ color: 'var(--ink-500)', fontSize: '13px', marginTop: '3px', margin: 0 }}>
-              {dadosExibidos.length} registos exibidos
+              {diagnosticos.length} registos exibidos
             </p>
           </div>
-        </div>
-
-        {/* Lado Direito: Botões de Alternância (Toggle) */}
-        <div className="flex bg-gray-100 p-1 rounded-lg self-start md:self-auto">
-          <button
-            onClick={() => setFiltro('cronico')}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
-              filtro === 'cronico' 
-                ? 'bg-white text-[#2d6a4f] shadow-sm' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Crónicos
-          </button>
-          <button
-            onClick={() => setFiltro('agudo')}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
-              filtro === 'agudo' 
-                ? 'bg-white text-[#2d6a4f] shadow-sm' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Agudos
-          </button>
         </div>
       </div>
 
@@ -72,8 +40,8 @@ export default function AntecedentesSection({ antecedentes = [] }) {
         </div>
 
         <div className="text-slate-800">
-          {dadosExibidos.length > 0 ? (
-            dadosExibidos.map((item, i) => (
+          {diagnosticos.length > 0 ? (
+            diagnosticos.map((item, i) => (
               <div 
                 key={i} 
                 style={{ 
@@ -105,10 +73,17 @@ export default function AntecedentesSection({ antecedentes = [] }) {
             ))
           ) : (
             <div className="text-center py-8 text-gray-400 text-sm">
-              Nenhum diagnóstico {filtro === 'cronico' ? 'crónico' : 'agudo'} encontrado.
+              Nenhum diagnóstico crónico ou ativo encontrado.
             </div>
           )}
         </div>
+        
+        {/* LEGENDA DO ASTERISCO */}
+        {temAsterisco && (
+          <div className="p-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 italic">
+            * Data referente ao registo clínico mais antigo documentado no sistema, não correspondendo obrigatoriamente à data do diagnóstico inicial.
+          </div>
+        )}
       </div>
     </div>
   );
