@@ -9,7 +9,7 @@ SUMMARY_SYSTEM_PROMPT_PATH = BASE_DIR / "Pipeline" / "System_Prompts" / "Summary
 
 
 class SummaryPipeline:
-    def __init__(self):
+    def __init__(self, client=None):
         self.summarizer = Summarizer(system_prompt_path=SUMMARY_SYSTEM_PROMPT_PATH)
 
     def run_summary(self, list_of_extractions: list) -> tuple:

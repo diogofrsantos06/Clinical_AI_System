@@ -1,7 +1,7 @@
 import json, re, time
 from pathlib import Path
 from typing import Dict, Any
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from Pipeline.llm import chat, get_client
 from Pipeline.Prompts.Summary_Prompt import PROMPT_ANTECEDENTES, PROMPT_MEDICACAO, PROMPT_EXAMES, PROMPT_PLANO
@@ -20,9 +20,9 @@ def extract_date_from_title(title: str) -> datetime:
     except ValueError: return datetime.min
 
 class Summarizer:
-    def __init__(self, system_prompt_path: Path):
+    def __init__(self, system_prompt_path: Path,client=None):
         """Inicializa o cliente e carrega o System Prompt do ficheiro."""
-        self.client = get_client()
+        self.client = client if client else get_client()
         
         try:
             with open(system_prompt_path, 'r', encoding='utf-8') as f:  
@@ -44,14 +44,17 @@ class Summarizer:
                 resposta_raw, tempo, retry_llm = chat(self.client, user_prompt, self.system_prompt)
                 resposta = resposta_raw[0] if isinstance(resposta_raw, (tuple, list)) else str(resposta_raw)
                 
+
                 if "504 Server Error" in resposta or "Gateway Timeout" in resposta:
                     raise ValueError("Timeout 504 detetado.")
                     
                 match = re.search(r'\{.*\}', resposta, re.DOTALL)
+                
                 if not match:
-                    raise ValueError("Nenhum bloco JSON válido encontrado na resposta.")
-                    
-                dados = json.loads(match.group(0))
+                    raise ValueError(f"Formato JSON não encontrado. Resposta recebida: {resposta[:50]}...")
+                
+                json_str = match.group(0)
+                dados = json.loads(json_str)
                 
                 # VALIDAÇÃO DE SCHEMA ESTRUTURAL
                 if not isinstance(dados, dict):
@@ -126,8 +129,31 @@ class Summarizer:
 
         # 2. MEDICAÇÃO E ALERGIAS
         start_sec = time.perf_counter()
-        text_med = change_data_format(all_extractions, seccao_alvo="medicacao")
-        text_alergias = change_data_format(all_extractions, seccao_alvo="alergias")
+        data_limite = datetime.now() - timedelta(days=547) # 1.5 anos
+        
+        temp_especialidades = {} 
+
+        for titulo, conteudo in all_extractions.items():
+            data_consulta = extract_date_from_title(titulo)
+            if data_consulta < data_limite: continue
+            
+            meds = conteudo.get("medicacao", [])
+            if not meds: continue 
+                
+            esp = titulo.split(" - ")[0].strip()
+            if esp not in temp_especialidades: temp_especialidades[esp] = []
+            temp_especialidades[esp].append({'data': data_consulta, 'titulo': titulo, 'meds': meds})
+
+        medicacao_filtrada = {}
+        for esp, lista_consultas in temp_especialidades.items():
+            lista_consultas.sort(key=lambda x: x['data'], reverse=True)
+            melhor_consulta = lista_consultas[0]
+            medicacao_filtrada[esp] = {'titulo': melhor_consulta['titulo'], 'dados': melhor_consulta['meds']}
+
+        dataset_med_filtrado = {info['titulo']: {"medicacao": info['dados']} for info in medicacao_filtrada.values()}
+        
+        text_med = change_data_format(dataset_med_filtrado, seccao_alvo="medicacao")
+        text_alergias = change_data_format(all_extractions, seccao_alvo="alergias") # Alergias mantém-se completo
         text_med_alergias = f"{text_med}\n\n{text_alergias}".strip()
 
         if text_med_alergias:
@@ -136,8 +162,8 @@ class Summarizer:
             
             schema = {"medicacao": list, "alergias": list}
             fallback = {
-                "medicacao": [{"farmaco": "Erro: Não foi possível gerar o sumário de medicação.", "dosagem": "N/A", "posologia": "N/A", "indicacao": "N/A", "observacoes": "N/A"}],
-                "alergias": ["Erro: Não foi possível gerar o sumário de alergias."]
+                "medicacao": [{"farmaco": "N/A", "dosagem": "N/A", "posologia": "N/A", "indicacao": "N/A", "diario_origem": "N/A"}],
+                "alergias": [{"substancia": "N/A", "reacao": "N/A", "registo_origem": "N/A"}]
             }
             
             dados, tempo, retry = self.process_llm_section(user_prompt, "MEDICAÇÃO/ALERGIAS", schema, fallback)
@@ -147,47 +173,98 @@ class Summarizer:
         else:
             print("[MEDICAÇÃO/ALERGIAS] Ignorado: Sem dados.", flush=True)
 
+            
+
         # 3. EXAMES
         start_sec = time.perf_counter()
-        text_ex = change_data_format(all_extractions, seccao_alvo="exames")
-        if text_ex:
-            print(f"[EXAMES] Iniciado. Input: {len(text_ex)} chars.", flush=True)
+        today = datetime.now()
+        year_ago = today - timedelta(days=365)
+        
+        dados_exames_para_formatar = {}
+        for titulo, dados in all_extractions.items():
+            data_consulta = extract_date_from_title(titulo)
+            if data_consulta >= year_ago:
+                exames_filtrados = [e for e in dados.get("exames", []) if e.get("categoria") != "exame_objetivo"]
+                
+                if exames_filtrados:
+                    dados_exames_para_formatar[titulo] = {"exames": exames_filtrados}
+                    print(f"[DEBUG EXAMES] {len(exames_filtrados)} exames complementares em: {titulo}")
+            
+
+        if dados_exames_para_formatar:
+
+            print(f"[EXAMES] Iniciado. Processando exames do último ano.", flush=True)
+            text_ex = change_data_format(dados_exames_para_formatar, seccao_alvo="exames")
+            if not text_ex: 
+                print("[DEBUG EXAMES] change_data_format retornou vazio!")
+            
             user_prompt = PROMPT_EXAMES.format(extracted_data=text_ex)
             
             schema = {"exames": list}
-            fallback = {"exames": [{"nome": "Erro de Processamento", "data": "N/A", "tipo_exame": "N/A", "resultado": "Erro: Não foi possível gerar o sumário de exames."}]}
+            fallback = {"exames": [{"nome": "Sem exames realizados no último ano", "data": "N/A", "tipo_exame": "N/A", "resultado": "N/A"}]}
             
             dados, tempo, retry = self.process_llm_section(user_prompt, "EXAMES", schema, fallback)
-            sumario_consolidado_dict.update(dados)
+            
+            if dados and isinstance(dados.get("exames"), list) and len(dados["exames"]) > 0:
+                if dados["exames"][0].get("nome") != "Sem exames realizados no último ano":
+                    sumario_consolidado_dict.update({"exames": dados["exames"]})
+                            
             if retry: algum_retry = True
             tempos_seccoes["EXAMES"] = {"duration": time.perf_counter() - start_sec, "inference": tempo}
         else:
-            print("[EXAMES] Ignorado: Sem dados.", flush=True)
+            print("[EXAMES] Ignorado: Sem exames no último ano.", flush=True)
+            sumario_consolidado_dict.update({"exames": [{"nome": "N/A", "data": "N/A", "tipo_exame": "N/A", "resultado": "Sem exames registados no último ano."}]})
+            tempos_seccoes["EXAMES"] = {"duration": time.perf_counter() - start_sec, "inference": 0.0}
+
+
+
 
         # 4. PLANO TERAPÊUTICO
         start_sec = time.perf_counter()
-        titulo_mais_recente = max(all_extractions.keys(), key=extract_date_from_title)        
-        payload_recente = {titulo_mais_recente: all_extractions[titulo_mais_recente]}
-        text_pl = change_data_format(payload_recente, seccao_alvo="plano")
+        today = datetime.now()
+        year_ago = today - timedelta(days=365)
         
-        if text_pl:
-            print(f"[PLANO] Iniciado via LLM. Focado no mais recente: '{titulo_mais_recente}'.", flush=True)
-            user_prompt = PROMPT_PLANO.format(extracted_data=text_pl)
+        planos_por_especialidade = {}
+        dados_para_formatar = {}
+
+        for titulo, dados in all_extractions.items():
+            data_consulta = extract_date_from_title(titulo)
+            if data_consulta < year_ago: continue
             
-            schema = {"plano": str} 
-            fallback = {"plano": "Erro: Não foi possível gerar o sumário para o plano terapêutico."}
+            # Normalização estrita: apenas letras e números, minúsculas
+            esp_raw = titulo.split(" - ")[0].strip()
+            esp_key = re.sub(r'[^a-zA-Z0-9]', '', esp_raw).lower()
+            
+            # Verifica se já existe, se a data for mais recente, substitui
+            if esp_key not in planos_por_especialidade or data_consulta > planos_por_especialidade[esp_key]['data']:
+                planos_por_especialidade[esp_key] = {'data': data_consulta, 'titulo': titulo}
+                
+        # Agora, apenas os títulos selecionados vão para o formatador
+        for esp_key, info in planos_por_especialidade.items():
+            titulo_selecionado = info['titulo']
+            dados_para_formatar[titulo_selecionado] = all_extractions[titulo_selecionado]
+
+        text_pl_combined = change_data_format(dados_para_formatar, seccao_alvo="plano")
+
+        if text_pl_combined.strip():
+            user_prompt = PROMPT_PLANO.format(extracted_data=text_pl_combined.strip())
+            
+            schema = {"plano": list}
+            fallback = {"plano": [{"especialidade": "N/A", "data": "N/A", "conteudo": "Erro ao gerar plano."}]}
             
             dados, tempo, retry = self.process_llm_section(user_prompt, "PLANO", schema, fallback)
             sumario_consolidado_dict.update(dados)
-            if retry: algum_retry = True
-            tempos_seccoes["PLANO"] = {"duration": time.perf_counter() - start_sec, "inference": tempo}
-        else:
-            print(f"[PLANO] Ignorado: Sem dados no diário '{titulo_mais_recente}'.", flush=True)
 
-        summary_final_limpo = json.dumps(sumario_consolidado_dict, ensure_ascii=False)
+            if retry: 
+                algum_retry = True
+            tempos_seccoes["PLANO"] = {"duration": time.perf_counter() - start_sec, "inference": tempo}
+
+      
         
+        summary_final_limpo = json.dumps(sumario_consolidado_dict, ensure_ascii=False)
+        total_llm = sum(sec["inference"] for sec in tempos_seccoes.values())
+
         print(f"\n[DEBUG METRICA] Tempo REAL global de sumarização: {time.perf_counter() - start_global:.2f}s")
-        print(f"[DEBUG METRICA] Tempo LLM somado: {tempos_seccoes:.2f}s")
-        print("-" * 30 + "\n")
+        print(f"[DEBUG METRICA] Tempo LLM somado: {total_llm:.2f}s")
 
         return summary_final_limpo.strip(), tempos_seccoes, algum_retry

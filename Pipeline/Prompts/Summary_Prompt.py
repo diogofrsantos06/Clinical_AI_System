@@ -27,74 +27,129 @@ FORMATO DE SAÍDA:
 }}
 """
 
-PROMPT_MEDICACAO = """
-Atua como um Médico Sénior. O teu objetivo é isolar a medicação habitual e alergias.
+PROMPT_ANTECEDENTES = """
+Atua como um Médico Sénior. O teu objetivo é consolidar a lista de Antecedentes Pessoais e Diagnósticos do paciente.
 
-DADOS PARA ANÁLISE:
+DADOS EXTRAÍDOS:
 {extracted_data}
 
-REGRAS:
-1. Alergias: Compila todas. Se não houver, escreve "Sem alergias conhecidas".
-2. Medicação: Lista TODOS os fármacos do TIPO HABITUAL. Descarta os restantes. Se um fármaco habitual for marcado como SUSPENSO mais recentemente, descarta-o.
-3. SEPARAÇÃO ESTRITA DOSAGEM/POSOLOGIA: O campo 'dosagem' serve APENAS para a concentração/peso (ex: "5mg", "1g") e É PROIBIDO conter frequências. O campo 'posologia' serve APENAS para a frequência ou regime de toma (ex: "1id", "1 comp/dia", "SOS") e É PROIBIDO conter a concentração ou gramagem do fármaco.
-4. Devolve EXCLUSIVAMENTE um objeto JSON válido, sem markdown e sem introduções.
+REGRAS CRÍTICAS:
+1. FOCO CRÓNICO: Extrai APENAS diagnósticos crónicos e patologias ativas relevantes. IGNORA completamente diagnósticos agudos ou resolvidos.
+2. DESDUPLICAÇÃO E INFERÊNCIA CLÍNICA: É estritamente proibido listar a mesma doença mais do que uma vez. Deves analisar, inferir e fundir diagnósticos sinónimos, siglas, abreviaturas ou variações de escrita. Escolhe sempre fundi-los na nomenclatura médica mais completa e atualizada. Se houver evolução clínica (ex: "Nódulo" -> "Carcinoma"), mantém APENAS o diagnóstico evoluído.
+3. REGRA DA DATA ('desde'):
+   - Se o texto indicar claramente quando a doença foi diagnosticada (ex: "diagnosticado em 2015", "há 5 anos" ou "hoje"), calcula e escreve essa data exata/ano.
+   - Se a data exata do diagnóstico não for mencionada, mas a patologia constar no histórico, usa a data do cabeçalho mais antigo onde ela aparece e ADICIONA OBRIGATORIAMENTE um asterisco no final (ex: "14-Jul-2023*").
+4. Devolve EXCLUSIVAMENTE o objeto JSON válido abaixo.
 
-FORMATO DE SAÍDA:
+FORMATO DE SAÍDA OBRIGATÓRIO:
+{{
+  "antecedentes": [
+    {{
+      "diagnostico": "Nome da Doença",
+      "tipo": "Confirmado ou Suspeita",
+      "temporalidade": "Crónico",
+      "desde": "Data exata calculada OU Data do registo com asterisco*"
+    }}
+  ]
+}}
+"""
+
+PROMPT_MEDICACAO = """
+Atua como um Médico Sénior. O teu objetivo é consolidar a Medicação Habitual e as Alergias do paciente.
+
+DADOS EXTRAÍDOS:
+{extracted_data}
+
+REGRAS CRÍTICAS PARA MEDICAÇÃO:
+1. FUSÃO INTELIGENTE: Cria uma única entrada por fármaco.
+2. PRIORIDADE: A Dosagem e Posologia devem vir do registo mais recente.
+3. HERANÇA TEMPORAL: Se o registo mais recente tiver campos vazios (Dosagem ou Posologia), herda o valor do registo anterior mais próximo que contenha essa informação (dentro do limite de 1.5 anos).
+4. INFERÊNCIA DE INDICAÇÃO: Se 'indicacao' estiver vazia, infere o motivo com base no contexto clínico. Não deixes vazio.
+5. Regra de Rastreabilidade: O campo 'diario_origem' deve conter estritamente o formato: "NOME DA ESPECIALIDADE - DATA".
+6. PROIBIÇÃO DE SOBREPOSIÇÃO: É estritamente proibido incluir qualquer valor de dosagem (mg, g, ml, mcg) no campo 'posologia'. .
+   - DOSAGEM: Deve conter APENAS valores de concentração/quantidade seguidos de unidade de medida (ex: "5mg", "500mg", "10ml"). 
+   - POSOLOGIA: Deve conter APENAS regime de toma/frequência (ex: "1 comp/dia", "ao deitar", "3 comp/dia").
+7. AVALIAÇÃO DE ERRO: 
+  - Se o campo 'dosagem' contiver palavras como "comp", "dia", "toma", "jejum" ou "vezes", o conteúdo desse campo é, na verdade, POSOLOGIA.
+  - Deves mover automaticamente esse conteúdo para o campo 'posologia' e deixar o campo 'dosagem' vazio (ou "N/A") se não existir uma concentração real.
+8.  É terminantemente proibido manter instruções de toma (ex: "3 comp/dia" ou "3 gotas/dia") no campo 'dosagem'.
+
+
+REGRAS CRÍTICAS PARA ALERGIAS (RASTREABILIDADE):
+4. Lista todas as alergias ou reações adversas medicamentosas.
+5. DESDUPLICAÇÃO CLÍNICA: Se a mesma alergia (ou alergia à mesma substância) for referida em vários registos, deves fundi-la numa única entrada na lista final (NÃO repitas alergias).
+6. REGISTO DE ORIGEM: Identifica o cabeçalho ("--- IDENTIFICAÇÃO E DATA DO REGISTO ---") onde a alergia aparece. Se a mesma alergia aparecer em vários registos de datas diferentes, guarda OBRIGATORIAMENTE o registo com a data mais ANTIGA no campo 'registo_origem', pois esse é o diagnóstico original.
+
+FORMATO DE SAÍDA OBRIGATÓRIO (JSON VÁLIDO):
 {{
   "medicacao": [
     {{
       "farmaco": "Nome",
-      "dosagem": "Valor ou N/A",
-      "posologia": "Informação ou N/A",
-      "indicacao": "Indicação",
-      "observacoes": "Observações"
+      "dosagem": "Dosagem",
+      "posologia": "Posologia",
+      "indicacao": "Motivo",
+      "diario_origem": "Nome do diário de origem"
     }}
   ],
-  "alergias": ["Substância e reação"]
+  "alergias": [
+    {{
+      "substancia": "Nome da substância ou alergia",
+      "reacao": "Descrição da reação",
+      "registo_origem": "Nome do diário com a data mais antiga onde foi referida"
+    }}
+  ]
 }}
 """
 
 PROMPT_EXAMES = """
-Atua como um Médico Sénior. O teu objetivo é transcrever todos os exames e resultados médicos.
+Atua como um Médico Sénior. O teu objetivo é consolidar os Meios Complementares de Diagnóstico (MCDT).
 
-DADOS PARA ANÁLISE:
+DADOS RECEBIDOS:
 {extracted_data}
 
+REGRAS DE OURO:
 REGRAS:
-1. Inclui todos os exames laboratoriais (análises) e imagiológicos (Rx, Eco, TC). Proibido omitir.
-2. RESULTADO / ACHADOS (REGRA DIFERENCIADA):
-- SE FOR UMA ANÁLISE CLÍNICA/LABORATORIAL: Transcreve TODOS os parâmetros e valores na ÍNTEGRA. Nunca resumas, omitas ou apagues valores analíticos (ex: Hemograma, glicémia, PCR, etc. devem vir completos com os respetivos valores).
-- SE FOR UM EXAME DE IMAGEM / RELATÓRIO EXTENSO (ex: Ecografia, TAC, RM, Raio-X): Nunca transcrevas o relatório longo na íntegra. Transcreve apenas um resumo sintetizado referindo os achados clínicos patológicos ou mais relevantes para o acompanhamento do paciente.
-3. Devolve EXCLUSIVAMENTE um objeto JSON válido, sem markdown e sem introduções.
+1. FILTRAGEM: A tua entrada contém exames classificados como 'exame_objetivo' e 'exame_complementar'. Deves ignorar COMPLETAMENTE qualquer exame cuja categoria seja 'exame_objetivo'. Mantém apenas os classificados como 'exame_complementar'.
+2. VAZIO: Se o diário não contiver exames complementares (apenas objetivos ou nada), deves responder estritamente "SEM_DADOS" e não gerar nenhum objeto JSON.
+3. VALORES (Análises/Numéricos): Devem ser copiados na íntegra, sem omissões. Mantém a precisão dos números, unidades e referência (se houver).
+4. RELATÓRIOS (Texto/Imagem): Deves ler o texto completo, INFERIR o que é clinicamente relevante (achados patológicos, alterações, conclusões do radiologista/especialista) e escrever um resumo sucinto. 
+   - Objetivo: Extrair a conclusão clínica (o que importa para o tratamento).
+   - Proibido: Transcrever relatórios inteiros com descrições anatómicas normais que não contribuem para a decisão clínica.
+5. INTEGRIDADE: Se um exame for 'exame_complementar', ele DEVE aparecer no JSON final.
 
 FORMATO DE SAÍDA:
 {{
   "exames": [
     {{
-      "nome": "Título do diário de origem",
-      "data": "Data da consulta",
-      "tipo_exame": "Tipo de Exame (ex: Análises Clínicas ou Ecografia Abdominal)",
-      "resultado": "Valores completos das análises OU texto sintetizado com os achados mais relevantes do relatório de imagem"    
-      }}
+      "nome": "Data e Especialidade original",
+      "data": "DD/MM/YYYY",
+      "tipo_exame": "Ex: Hemograma ou Ecografia Abdominal",
+      "resultado": "VALORES COMPLETOS OU SÍNTESE CLÍNICA DO RELATÓRIO"
+    }}
   ]
 }}
 """
 
 PROMPT_PLANO = """
-Atua como um Médico Sénior. O teu objetivo é interpretar, limpar e redigir a decisão terapêutica final do caso com base nos dados brutos extraídos.
+Atua como um Médico Sénior. O teu objetivo é interpretar e redigir o plano terapêutico ativo do paciente com base na última consulta de CADA especialidade no último ano.
 
-DADOS DO PLANO MAIS RECENTE:
+DADOS EXTRAÍDOS (Agrupados por Especialidade):
 {extracted_data}
 
 REGRAS CRÍTICAS:
-1. NÃO faças uma transcrição literal. Os dados podem conter frases cortadas a meio (ex: falhas de leitura/OCR) ou erros de formatação.
-2. O teu dever é unir a informação fragmentada, corrigir frases partidas e redigir um texto coeso e clinicamente estruturado.
-3. Sintetiza apenas as decisões e ações clínicas relevantes tomadas pelo médico (ex: ajustes na medicação, exames solicitados, encaminhamentos ou recomendações).
-4. Escreve um parágrafo clínico fluido, claro e profissional, sem numerações avulsas se não fizerem sentido.
-5. Devolve EXCLUSIVAMENTE o objeto JSON válido abaixo, sem markdown (sem ```json), sem texto introdutório ou conclusões.
+1. PROCESSAMENTO TOTAL: Deves ler CADA bloco identificado por ###ESPECIALIDADE.
+2. Não podes ignorar nenhuma especialidade presente nos dados.
+3. Para cada especialidade, extrai a data e sintetiza o plano.
+4. Devolve EXCLUSIVAMENTE um JSON com uma lista de planos (um objeto por especialidade).
 
 FORMATO DE SAÍDA OBRIGATÓRIO:
 {{
-  "plano": "Texto do plano terapêutico final sintetizado, coeso e corrigido"
+  "plano": [
+    {{
+      "especialidade": "Nome da Especialidade",
+      "data": "DD/MM/YYYY",
+      "conteudo": "Síntese do plano."
+    }}
+  ]
 }}
 """

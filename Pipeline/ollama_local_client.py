@@ -3,9 +3,10 @@ import uuid
 import requests
 
 DEFAULT_BASE_URL = "http://172.30.2.225:11434" 
-#DEFAULT_MODEL = "gemma3:27b" 
+DEFAULT_MODEL = "gemma3:27b" 
 #DEFAULT_MODEL = "qwen2.5:14b-instruct" 
-DEFAULT_MODEL = "qwen3:14b-q4_K_M"  #qwen2.5:0.5b
+#DEFAULT_MODEL = "qwen3:14b-q4_K_M"  #qwen2.5:0.5b
+#DEFAULT_MODEL = "medgemma:27b-it-q4_K_M"
 
 CONTEXT_WINDOW = 32768
 

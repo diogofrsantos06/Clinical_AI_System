@@ -9,6 +9,7 @@ class PerformanceMetric(models.Model):
         ('EXTRACTION', 'Extração de Diário'),
         ('SUMM_SECTION', 'Sumarização por Secção (LLM)'),
         ('SUMMARIZATION_TOTAL', 'Geração de Sumário Global'),
+        ('TRIAGE_ANALYSIS', 'Análise de Triagem'),
     ]
 
     operation_type = models.CharField(max_length=25, choices=OPERATION_CHOICES)
@@ -16,6 +17,8 @@ class PerformanceMetric(models.Model):
     # Se aplicável, a que secção do sumário pertence (Ex: 'ANTECEDENTES', 'MEDICACAO')
     section_name = models.CharField(max_length=50, null=True, blank=True) 
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    
     # Tempos
     duration_seconds = models.FloatField(help_text="Tempo total da operação (inclui código Python + LLM)")
     inference_duration = models.FloatField(default=0.0, help_text="Tempo exclusivo de inferência da LLM")

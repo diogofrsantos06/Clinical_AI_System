@@ -12,6 +12,8 @@ class SummaryAdmin(admin.ModelAdmin):
     list_display = ('id', 'patient', 'updated_at')
     readonly_fields = ('dados_estruturados_view',) 
 
+    actions = ['regenerar_sumario']
+
     def dados_estruturados_view(self, obj):
         serializer = SummarySerializer(obj)
         data = serializer.data.get('dados_estruturados')
@@ -24,34 +26,15 @@ class SummaryAdmin(admin.ModelAdmin):
 
     dados_estruturados_view.short_description = "Dados Estruturados (JSON Legível)"
 
-    @admin.action(description='🧠 Forçar Regeração do Sumário Clínico via IA')
+    @admin.action(description='Gerar Sumário Clínico')
     def regenerar_sumario(self, request, queryset):
+        ids_pacientes = queryset.values_list('patient_id', flat=True)
+        
         sucessos = 0
         falhas = 0
         
-        for summary in queryset:
-            try:
-                # Vamos buscar o ID do paciente associado a este sumário selecionado
-                # e passamos ao serviço de sumarização
-                resultado = generate_patient_summary(summary.patient.id)
-                
-                if resultado:
-                    sucessos += 1
-                else:
-                    falhas += 1
-            except Exception as e:
+        for pid in ids_pacientes:
+            if generate_patient_summary(pid, client=None) is not None:
+                sucessos += 1
+            else:
                 falhas += 1
-                
-        # 3. Damos feedback visual ao administrador (Avisos verdes ou vermelhos no topo)
-        if sucessos > 0:
-            self.message_user(
-                request, 
-                f"Sumário regenerado com sucesso para {sucessos} paciente(s).", 
-                messages.SUCCESS
-            )
-        if falhas > 0:
-            self.message_user(
-                request, 
-                f"Falha ao regenerar sumário para {falhas} paciente(s). Verifica se a IA está a responder.", 
-                messages.WARNING
-            )

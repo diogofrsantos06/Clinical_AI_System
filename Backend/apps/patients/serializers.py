@@ -26,7 +26,8 @@ class PatientSerializer(serializers.ModelSerializer):
             print(f"DEBUG: Sumário encontrado! Texto: {summary.summary_text[:50]}...")
             return {
                 "summary_text": summary.summary_text,
-                "dados_estruturados": summary.dados_estruturados 
+                "dados_estruturados": summary.dados_estruturados,
+                "updated_at": summary.updated_at 
             }
         print("DEBUG: NENHUM sumário encontrado para este paciente.")
         return None

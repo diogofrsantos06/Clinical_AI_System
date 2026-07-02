@@ -6,13 +6,22 @@ from apps.patients.models import Patient
 from apps.diaries.models import ClinicalDiary
 from ..models import Summary
 
+from Pipeline.llm import get_client, ollama_warmup, ollama_unload
 from Pipeline.pipeline_summary import SummaryPipeline
 from apps.metrics.models import PerformanceMetric
 from apps.notifications.models import SystemNotification  
 
 logger = logging.getLogger(__name__)
 
-def generate_patient_summary(patient_id):
+def generate_patient_summary(patient_id, client=None):
+    client_local = client
+    geriu_cliente = False
+
+    if client_local is None:
+        client_local = get_client()
+        ollama_warmup(client_local)
+        geriu_cliente = True
+
     try:
         patient = Patient.objects.get(id=patient_id)
         
@@ -56,7 +65,6 @@ def generate_patient_summary(patient_id):
         total_llm_inferencia = 0.0
         
         if isinstance(tempos_seccoes, dict):
-
             for nome_seccao, metricas_sec in tempos_seccoes.items():
                 total_llm_inferencia += metricas_sec["inference"]
                 
@@ -65,7 +73,7 @@ def generate_patient_summary(patient_id):
                     section_name=nome_seccao,
                     duration_seconds=metricas_sec["duration"],
                     inference_duration=metricas_sec["inference"],
-                    input_size=0, # Dinâmico ou opcional
+                    input_size=0, 
                     is_retry=False, 
                     patient=patient
                 )
@@ -89,3 +97,8 @@ def generate_patient_summary(patient_id):
     except Exception as e:
         logger.error(f"Erro ao gerar resumo: {e}")
         return None
+    
+    finally:
+        if geriu_cliente and client_local:
+            ollama_unload(client_local)
+    
