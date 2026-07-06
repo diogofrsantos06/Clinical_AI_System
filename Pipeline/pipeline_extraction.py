@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Dict, Any
 
 from Pipeline.Extraction_Codes.extraction import DiaryExtractor
-from Pipeline.Extraction_Codes.diary_cleaner import DiaryCleaner
 
 BASE_DIR = Path(__file__).resolve().parent.parent 
 sys.path.append(str(BASE_DIR))
@@ -12,62 +11,54 @@ sys.path.append(str(BASE_DIR))
 class ExtractionPipeline:
     def __init__(self):
         self.extraction_prompt = BASE_DIR / "Pipeline" / "System_Prompts" / "Extraction.txt"
-        self.cleaner = DiaryCleaner()
         self.extractor = DiaryExtractor(self.extraction_prompt)
 
     def run(self, raw_diary_text: str) -> Dict[str, Any]:
-        start_diary = time.perf_counter()
+        start_time = time.perf_counter()
 
         try:
-            clean_text = self.cleaner.clean_diary(raw_diary_text) #ELIMINAR A PARTE DO CLEAN_DIARY; IMPLICA MUDAR OU A BD OU METER O RAW TEXT PARA A BD
-            extraction_result = self.extractor.extract_full_diary(clean_text)
+            extraction_result = self.extractor.extract_full_diary(raw_diary_text)
 
-            tempo_total_extracao = time.perf_counter() - start_diary
-
-            if "erro" in extraction_result:
-                return {"status": "error", "message": "Falha na extração", "tempo_total_extracao": tempo_total_extracao}
+            total_duration = time.perf_counter() - start_time
 
             return {
                 "status": "success",
-                "cleaned_text": clean_text,
-                "extracted_data": extraction_result.get("dados",[]), 
-                "tempo_llm": extraction_result.get("tempo_llm", 0.0), 
-                "houve_retry": extraction_result.get("houve_retry", False),
-                "tempo_total_extracao": tempo_total_extracao 
+                "extracted_data": extraction_result.get("data", []),
+                "llm_duration": extraction_result.get("llm_duration", 0.0),
+                "had_retry": extraction_result.get("had_retry", False),
+                "total_duration": total_duration
             }
-            
+
         except Exception as e:
             return {
                 "status": "error",
-                "message": f"Erro no processamento do pipeline: {str(e)}"
+                "message": f"Error while running the extraction pipeline: {str(e)}"
             }
-        
-    def process_batch(self, list_of_diaries: list) -> list:
-        """
-        Processa um lote de diários de forma estritamente sequencial.
-        Reutiliza o método 'run' para garantir a mesma limpeza e extração.
-        """
-        if not list_of_diaries:
+
+    def process_batch(self, diary_list: list) -> list:
+        """Runs extraction sequentially over a batch of diaries, reusing run() for consistency."""
+        if not diary_list:
             return []
 
-        print(f"\n[PIPELINE] Iniciando processamento sequencial de {len(list_of_diaries)} diários...", flush=True)
-        resultados_finais = []
+        print(f"\n[PIPELINE] Starting sequential processing of {len(diary_list)} diaries...", flush=True)
+        results = []
 
-        for i, item in enumerate(list_of_diaries):
-            titulo = item.get("titulo", f"Diário_{i}")
-            texto_bruto = item.get("texto", "")
+        for i, item in enumerate(diary_list):
+            title = item.get("title", f"Diary_{i}")
+            raw_text = item.get("text", "")
 
-            if not texto_bruto.strip():
-                resultados_finais.append({"titulo": titulo, "status": "error", "message": "Texto vazio", "texto_original": texto_bruto})
+            if not raw_text.strip():
+                results.append({"index":i,"title": title, "status": "error", "message": "Empty text", "original_text": raw_text})
                 continue
 
-            print(f"[{i+1}/{len(list_of_diaries)}] A extrair: '{titulo}'", flush=True)
-            
-            resultado = self.run(texto_bruto)
-            
-            resultado["titulo"] = titulo
-            resultado["texto_original"] = texto_bruto
-            resultados_finais.append(resultado)
-            
-        print("[PIPELINE] Processamento do lote concluído!\n", flush=True)
-        return resultados_finais
+            print(f"[{i+1}/{len(diary_list)}] Extracting: '{title}'", flush=True)
+
+            result = self.run(raw_text)
+
+            result["index"] = i
+            result["title"] = title
+            result["original_text"] = raw_text
+            results.append(result)
+
+        print("[PIPELINE] Batch processing complete!\n", flush=True)
+        return results

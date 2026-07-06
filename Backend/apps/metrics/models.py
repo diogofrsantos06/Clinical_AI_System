@@ -13,25 +13,25 @@ class PerformanceMetric(models.Model):
     ]
 
     operation_type = models.CharField(max_length=25, choices=OPERATION_CHOICES)
-    
-    # Se aplicável, a que secção do sumário pertence (Ex: 'ANTECEDENTES', 'MEDICACAO')
+
+    # Which summary section this metric belongs to, if applicable (e.g. 'ANTECEDENTES', 'MEDICACAO')
     section_name = models.CharField(max_length=50, null=True, blank=True) 
 
     created_at = models.DateTimeField(auto_now_add=True)
-    
-    # Tempos
+
+    # Durations
     duration_seconds = models.FloatField(help_text="Tempo total da operação (inclui código Python + LLM)")
     inference_duration = models.FloatField(default=0.0, help_text="Tempo exclusivo de inferência da LLM")
-    
-    # Tamanho e Velocidade
+
+    # Size and speed
     input_size = models.IntegerField(help_text="Número de caracteres processados (Input)")
     tokens_per_second = models.FloatField(null=True, blank=True, help_text="Velocidade de geração da LLM")
-    
-    # Controlo de Erros
+
+    # Error handling
     is_retry = models.BooleanField(default=False, help_text="Se a LLM falhou a 1ª tentativa e precisou de retry")
     fallback_used = models.BooleanField(default=False, help_text="Se falhou as 3x e aplicou dados parciais/erros")
 
-    # Relações
+    # Relations
     patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True, blank=True, related_name='metrics')
     diary = models.ForeignKey(ClinicalDiary, on_delete=models.SET_NULL, null=True, blank=True)
 

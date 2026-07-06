@@ -1,17 +1,17 @@
 import json
 
-def change_data_format(dados_json, seccao_alvo=None):
-    # Se for uma string (caso raro), converte para dict
-    if isinstance(dados_json, str):
+def change_data_format(extracted_json, target_section=None):
+    """Flattens the per-diary extracted JSON into a plain-text block the LLM can read for one summary section."""
+    if isinstance(extracted_json, str):
         try:
-            dados_json = json.loads(dados_json)
-        except:
+            extracted_json = json.loads(extracted_json)
+        except Exception:
             return ""
 
-    texto_final = ""
-    
-    # Mapeamento para os títulos que aparecem no sumário
-    seccoes_mapeamento = {
+    final_text = ""
+
+    # Maps each JSON field to the section title shown in the formatted text
+    section_titles = {
         "diagnosticos": "Diagnósticos",
         "medicacao": "Medicação Habitual",
         "alergias": "Alergias",
@@ -20,62 +20,58 @@ def change_data_format(dados_json, seccao_alvo=None):
         "plano": "Plano Terapêutico"
     }
 
-    if seccao_alvo:
-        seccoes_a_processar = {seccao_alvo: seccoes_mapeamento.get(seccao_alvo, seccao_alvo)}
+    if target_section:
+        sections_to_process = {target_section: section_titles.get(target_section, target_section)}
     else:
-        seccoes_a_processar = seccoes_mapeamento
+        sections_to_process = section_titles
 
-    diagnosticos_vistos = set()
-    termos_vazios = {"sem informação", "n/a", "desconhecido", "não aplicável", "nenhum", "nenhuma"}
+    seen_diagnoses = set()
+    empty_terms = {"sem informação", "n/a", "desconhecido", "não aplicável", "nenhum", "nenhuma"}
 
-    # Loop pelos diários (ex: 'HUC - NEUROLOGIA - 18-Mar-2026 (Registo 16)')
-    for nome_diario, conteudo in dados_json.items():
-        bloco_diario_texto = ""
-        
-        for chave, titulo in seccoes_a_processar.items():
-            lista_dados = conteudo.get(chave, [])
-            
-            if not lista_dados:
-                continue 
-            
-            linhas_sec_texto = ""
-            
-            for item in lista_dados:
-                detalhes = []
-                
-                # Caso especial para o PLANO ou outras secções de texto longo:
-                # Se o item não for um dicionário (ex: string), tratamos diretamente
+    # Loop over each diary 
+    for diary_name, content in extracted_json.items():
+        diary_block_text = ""
+
+        for field, title in sections_to_process.items():
+            field_items = content.get(field, [])
+
+            if not field_items:
+                continue
+
+            section_lines = ""
+
+            for item in field_items:
+                details = []
+
+                # PLANO (and other long free-text sections) may come as plain strings instead of dicts
                 if isinstance(item, str):
-                    linhas_sec_texto += f"- {item}\n"
+                    section_lines += f"- {item}\n"
                     continue
 
-                # Processamento normal para JSON (Medicação, Diagnósticos, etc)
-                for k, v in item.items():
-                    if v:
-                        valor_str = str(v).strip()
-                        
-                        # Filtro de termos vazios (exceto para plano)
-                        if chave != "plano" and valor_str.lower() in termos_vazios:
+                for key, value in item.items():
+                    if value:
+                        value_str = str(value).strip()
+
+                        if field != "plano" and value_str.lower() in empty_terms:
                             continue
-                            
-                        # Formatamos a chave para ficar bonita (snake_case -> Title Case)
-                        detalhes.append(f"{k.replace('_', ' ').capitalize()}: {valor_str}")
-                
-                if not detalhes:
-                    continue
-                
-                if chave == "diagnosticos":
-                    assinatura_item = " | ".join(detalhes).lower()
-                    if assinatura_item not in diagnosticos_vistos:
-                        diagnosticos_vistos.add(assinatura_item)
-                        linhas_sec_texto += f"- {' | '.join(detalhes)}\n"
-                else:
-                    linhas_sec_texto += f"- {' | '.join(detalhes)}\n"
-            
-            if linhas_sec_texto:
-                bloco_diario_texto += f"{titulo}\n{linhas_sec_texto}\n"
-                
-        if bloco_diario_texto:
-            texto_final += f"--- IDENTIFICAÇÃO E DATA DO REGISTO: {nome_diario} ---\n{bloco_diario_texto}\n"
 
-    return texto_final.strip()
+                        details.append(f"{key.replace('_', ' ').capitalize()}: {value_str}")
+
+                if not details:
+                    continue
+
+                if field == "diagnosticos":
+                    item_signature = " | ".join(details).lower()
+                    if item_signature not in seen_diagnoses:
+                        seen_diagnoses.add(item_signature)
+                        section_lines += f"- {' | '.join(details)}\n"
+                else:
+                    section_lines += f"- {' | '.join(details)}\n"
+
+            if section_lines:
+                diary_block_text += f"{title}\n{section_lines}\n"
+
+        if diary_block_text:
+            final_text += f"--- IDENTIFICAÇÃO E DATA DO REGISTO: {diary_name} ---\n{diary_block_text}\n"
+
+    return final_text.strip()

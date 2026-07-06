@@ -2,7 +2,7 @@ import os, fitz, io, re, time, pytesseract
 
 from PIL import Image, ImageEnhance, ImageOps
 
-from Pipeline.llm import chat
+from Pipeline.ollama_local_client import chat
     
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
@@ -25,122 +25,121 @@ O texto enviado pertence a fatias de páginas de diários clínicos. Aplica as s
 Devolve APENAS o resultado final limpo, mantendo estritamente a estrutura de linhas. Não adiciones notas, resumos ou justificações."""
 
 def clean_clinical_text(text):
-    text = re.sub(r'\n\s*\n+', '\n\n', text)    
+    text = re.sub(r'\n\s*\n+', '\n\n', text)
     text = "\n".join([line.rstrip() for line in text.split('\n')])
-    text = re.sub(r'([^a-zA-Z0-9\s])\1{4,}', r'\1', text)  
+    text = re.sub(r'([^a-zA-Z0-9\s])\1{4,}', r'\1', text)
     return text.strip()
 
 
 def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
-    """
-    Executa o OCR sequencial e usa a LLM para limpar informação de cabeçalhos e numeração de páginas
-    """
-    paginas_brutas = []
-    metricas_recolhidas = []
+    """Runs OCR page-by-page, then uses the LLM to strip repeated headers/page-numbering from each chunk."""
+    raw_pages = []
+    collected_metrics = []
 
     try:
         start_global = time.perf_counter()
-        if debug: 
-            print(f"\nExecutando OCR em todas as páginas...", flush=True)
+        if debug:
+            print("\nRunning OCR on every page...", flush=True)
 
         doc = fitz.open(pdf_path)
-        total_paginas = len(doc)
+        total_pages = len(doc)
 
-        for idx in range(total_paginas):
-            start_p = time.perf_counter()
+        for idx in range(total_pages):
+            start_page = time.perf_counter()
             page = doc[idx]
-            
+
             matrix = fitz.Matrix(300/72, 300/72)
             pix = page.get_pixmap(matrix=matrix)
-            
+
             img = Image.open(io.BytesIO(pix.tobytes("png"))).convert('L')
             img = ImageEnhance.Contrast(img).enhance(2.0)
             img = ImageOps.autocontrast(img)
-            
-            custom_config = r'--psm 4 --oem 1 -c preserve_interword_spaces=1'
-            texto_bruto_ocr = pytesseract.image_to_string(img, lang='por', config=custom_config)
-            texto_pre_limpo = clean_clinical_text(texto_bruto_ocr)
-            
-            paginas_brutas.append(texto_pre_limpo)
 
-            duracao_ocr = time.perf_counter() - start_p
-            
-            metricas_recolhidas.append({
+            custom_config = r'--psm 4 --oem 1 -c preserve_interword_spaces=1'
+            raw_ocr_text = pytesseract.image_to_string(img, lang='por', config=custom_config)
+            pre_cleaned_text = clean_clinical_text(raw_ocr_text)
+
+            raw_pages.append(pre_cleaned_text)
+
+            ocr_duration = time.perf_counter() - start_page
+
+            collected_metrics.append({
                 "operation_type": "OCR_PAGE",
                 "section_name": f"Página {idx+1}",
-                "duration_seconds": duracao_ocr,
-                "inference_duration": 0.0, 
-                "input_size": len(texto_pre_limpo),
+                "duration_seconds": ocr_duration,
+                "inference_duration": 0.0,
+                "input_size": len(pre_cleaned_text),
                 "is_retry": False
             })
 
-            if debug: 
-                print(f"[OCR] Página {idx+1}/{total_paginas} processada em {time.perf_counter() - start_p:.2f}s", flush=True)
-        
+            if debug:
+                print(f"[OCR] Page {idx+1}/{total_pages} processed in {time.perf_counter() - start_page:.2f}s", flush=True)
+
         doc.close()
 
-        if debug: 
-            print(f"\nProcessando blocos de {chunk_size} páginas sequencialmente na LLM...", flush=True)
+        if debug:
+            print(f"\nSending {chunk_size}-page chunks to the LLM sequentially...", flush=True)
 
-        blocos_limpos = []
-        
-        for i in range(0, total_paginas, chunk_size):
+        cleaned_chunks = []
+
+        for i in range(0, total_pages, chunk_size):
             start_chunk = time.perf_counter()
-            bloco_paginas = paginas_brutas[i:i + chunk_size]
-            texto_do_chunk = "\n\n".join(bloco_paginas)
+            page_chunk = raw_pages[i:i + chunk_size]
+            chunk_text = "\n\n".join(page_chunk)
 
-            if debug: 
-                print(f"Enviando Bloco: Páginas {i+1} até {min(i + chunk_size, total_paginas)}...", flush=True)
-            
-            max_tentativas = 3
-            texto_bloco_limpo = texto_do_chunk 
-            houve_retry = False
-            
-            for tentativa in range(1, max_tentativas + 1):
+            if debug:
+                print(f"Sending chunk: pages {i+1} to {min(i + chunk_size, total_pages)}...", flush=True)
+
+            max_attempts = 3
+            cleaned_chunk_text = chunk_text
+            had_retry = False
+
+            for attempt in range(1, max_attempts + 1):
                 try:
-                    resultado_chat = chat(
-                        client=client_llm, 
-                        user_prompt=f"Aqui está o bloco de páginas para limpar:\n\n{texto_do_chunk}", 
+                    chat_result = chat(
+                        client=client_llm,
+                        user_prompt=f"Aqui está o bloco de páginas para limpar:\n\n{chunk_text}",
                         system_prompt=SYS_PROMPT_PRE_CLEAN
                     )
-                    
-                    resposta_texto = resultado_chat[0] if isinstance(resultado_chat, (tuple, list)) else str(resultado_chat)
-                    
-                    if "504 Server Error" in resposta_texto or "Gateway Timeout" in resposta_texto:
-                        raise ValueError("A LLM devolveu um erro de Timeout disfarçado de texto.")
-                        
-                    texto_bloco_limpo = resposta_texto.strip()
-                    houve_retry = (tentativa > 1)
-                    break # Sucesso!
-                    
+
+                    response_text = chat_result[0] if isinstance(chat_result, (tuple, list)) else str(chat_result)
+
+                    if "504 Server Error" in response_text or "Gateway Timeout" in response_text:
+                        raise ValueError("The LLM returned a timeout error disguised as text.")
+
+                    cleaned_chunk_text = response_text.strip()
+                    had_retry = (attempt > 1)
+                    break  # success!
+
                 except Exception as e:
-                    print(f"[LLM PRE-CLEAN] Falha na tentativa {tentativa}/{max_tentativas}: {str(e)}", flush=True)
-                    if tentativa < max_tentativas:
-                        print("[LLM PRE-CLEAN] A aguardar 5 segundos...", flush=True)
+                    print(f"[LLM PRE-CLEAN] Attempt {attempt}/{max_attempts} failed: {str(e)}", flush=True)
+                    if attempt < max_attempts:
+                        print("[LLM PRE-CLEAN] Waiting 5 seconds...", flush=True)
                         time.sleep(5)
                     else:
-                        print("[LLM PRE-CLEAN] Limite atingido! A devolver o texto OCR bruto para evitar perda de dados.", flush=True)
-                        houve_retry = True
-            
-            duracao_chunk = time.perf_counter() - start_chunk
-            
-            metricas_recolhidas.append({
+                        print("[LLM PRE-CLEAN] Retry limit reached! Falling back to the raw OCR text to avoid data loss.", flush=True)
+                        had_retry = True
+
+            chunk_duration = time.perf_counter() - start_chunk
+
+            collected_metrics.append({
                 "operation_type": "PRE_CLEAN_CHUNK",
                 "section_name": f"Bloco {int(i/chunk_size)+1}",
-                "duration_seconds": duracao_chunk,
-                "inference_duration": duracao_chunk, 
-                "input_size": len(texto_do_chunk),
-                "is_retry": houve_retry
+                "duration_seconds": chunk_duration,
+                "inference_duration": chunk_duration,
+                "input_size": len(chunk_text),
+                "is_retry": had_retry
             })
-            
-            if texto_bloco_limpo:
-                blocos_limpos.append(texto_bloco_limpo)
 
-        texto_total_limpo = "\n\n".join(blocos_limpos)
-        
-        if debug: print(f"\nFASE EXTRAÇÃO DOS DIÁRIOS CONCLUÍDA COM SUCESSO EM {time.perf_counter() - start_global:.2f}s!")
-        return texto_total_limpo, metricas_recolhidas
+            if cleaned_chunk_text:
+                cleaned_chunks.append(cleaned_chunk_text)
+
+        full_clean_text = "\n\n".join(cleaned_chunks)
+
+        if debug:
+            print(f"\nDIARY EXTRACTION PHASE COMPLETED SUCCESSFULLY IN {time.perf_counter() - start_global:.2f}s!")
+        return full_clean_text, collected_metrics
 
     except Exception as e:
-        print(f"Erro crítico no pipeline de extração de texto: {e}", flush=True)
-        return ""
+        print(f"Critical error in text extraction pipeline: {e}", flush=True)
+        return "", []

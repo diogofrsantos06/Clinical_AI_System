@@ -1,22 +1,19 @@
-import time
-import uuid
-import requests
+import time, uuid, requests
 
 DEFAULT_BASE_URL = "http://172.30.2.225:11434" 
 DEFAULT_MODEL = "gemma3:27b" 
 #DEFAULT_MODEL = "qwen2.5:14b-instruct" 
-#DEFAULT_MODEL = "qwen3:14b-q4_K_M"  #qwen2.5:0.5b
-#DEFAULT_MODEL = "medgemma:27b-it-q4_K_M"
+#DEFAULT_MODEL = "qwen3:14b-q4_K_M"  
 
 CONTEXT_WINDOW = 32768
 
 def get_client(base_url: str = DEFAULT_BASE_URL) -> dict:
-    """Inicializa o cliente com o URL do servidor local."""
+    """Wraps the Ollama server URL in a simple client dict."""
     return {"base_url": base_url}
 
-
-def chat(client: dict,user_prompt: str,system_prompt: str = None,model: str = DEFAULT_MODEL,retries: int = 20,retry_delay: float = 1.0, keep_alive: int = -1) -> tuple:
-    
+def chat(client: dict, user_prompt: str, system_prompt: str = None, model: str = DEFAULT_MODEL,
+         retries: int = 20, retry_delay: float = 1.0, keep_alive: int = -1) -> tuple:
+    """Sends a chat request to Ollama, retrying on 404/503/network errors."""
     messages = []
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
@@ -38,8 +35,8 @@ def chat(client: dict,user_prompt: str,system_prompt: str = None,model: str = DE
     session_id = str(uuid.uuid4())
 
     headers = {
-        "Connection": "close",          
-        "Cache-Control": "no-cache",     
+        "Connection": "close",
+        "Cache-Control": "no-cache",
         "Pragma": "no-cache",
         "X-Session-ID": session_id,
         "X-Request-ID": session_id
@@ -48,8 +45,6 @@ def chat(client: dict,user_prompt: str,system_prompt: str = None,model: str = DE
     is_retry = False
 
     for attempt in range(1, retries + 1):
-        wait = retry_delay  
-
         try:
             with requests.Session() as session:
                 start_inference = time.perf_counter()
@@ -61,34 +56,36 @@ def chat(client: dict,user_prompt: str,system_prompt: str = None,model: str = DE
                     data = response.json()
                     return data["message"]["content"], duration, is_retry
 
+                # Ollama returns 404 right after loading a new model into memory, and 503 when busy
                 if response.status_code in [404, 503]:
-                    is_retry = True 
+                    is_retry = True
                     if attempt < retries:
-                        print(f"[{session_id}] {response.status_code} — Aguarda {wait:.0f}s...")
-                        time.sleep(wait)
+                        print(f"[{session_id}] {response.status_code} - waiting {retry_delay:.0f}s before retrying...")
+                        time.sleep(retry_delay)
                         continue
-                    return f"Erro: {response.status_code} após {retries} tentativas", 0.0, is_retry
+                    return f"Error: {response.status_code} after {retries} attempts", 0.0, is_retry
 
                 response.raise_for_status()
+
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
             is_retry = True
             if attempt < retries:
-                print(f"[{session_id}] Erro de rede, aguarda {wait:.0f}s...")
-                time.sleep(wait)
+                print(f"[{session_id}] Network error, waiting {retry_delay:.0f}s before retrying...")
+                time.sleep(retry_delay)
                 continue
-                    
-            return f"Erro: {str(e)}", 0.0, is_retry
+
+            return f"Error: {str(e)}", 0.0, is_retry
 
         except requests.exceptions.RequestException as e:
-            return f"Erro: {str(e)}", 0.0, is_retry
+            return f"Error: {str(e)}", 0.0, is_retry
 
-        return "Erro: Limite de tentativas", 0.0, is_retry
-    
+
 def ollama_warmup(client: dict, model: str = DEFAULT_MODEL) -> bool:
+    """Sends a throwaway 1-token request so the model is already loaded when real work arrives."""
     url = f"{client['base_url']}/api/chat"
     payload = {
         "model": model,
-        "messages": [{"role": "user", "content": "Olá"}], 
+        "messages": [{"role": "user", "content": "Hi"}],
         "keep_alive": -1,
         "options": {
             "num_predict": 1,
@@ -96,34 +93,32 @@ def ollama_warmup(client: dict, model: str = DEFAULT_MODEL) -> bool:
         }
     }
     headers = {
-        "Connection": "close",  
+        "Connection": "close",
         "Cache-Control": "no-cache"
     }
     try:
-        print(f"[Ollama] Ativando Chamada Zero rápida para '{model}'...", flush=True)
+        print(f"[Ollama] Warming up model '{model}'...", flush=True)
         response = requests.post(url, json=payload, headers=headers, timeout=60)
         return response.status_code == 200
     except Exception as e:
-        print(f"[Ollama] Falha no warm-up: {e}", flush=True)
+        print(f"[Ollama] Warmup failed: {e}", flush=True)
     return False
 
+
 def ollama_unload(client: dict, model: str = DEFAULT_MODEL) -> bool:
-    """
-    MANDAR PARAR: Força o Ollama a descarregar o modelo da memória RAM/VRAM
-    utilizando a rota /api/chat (keep_alive = 0).
-    """
+    """Forces Ollama to unload the model from RAM/VRAM (keep_alive=0) to free the shared server."""
     url = f"{client['base_url']}/api/chat"
     payload = {
         "model": model,
         "messages": [],
-        "keep_alive": 0  # 0 descarrega o modelo imediatamente
+        "keep_alive": 0
     }
     try:
-        print(f"[Ollama] Ativando 'Mandar Parar' via /api/chat para libertar o servidor...", flush=True)
+        print("[Ollama] Requesting model unload to free up the server...", flush=True)
         response = requests.post(url, json=payload, timeout=10)
         if response.status_code == 200:
-            print(f"[Ollama] Modelo '{model}' removido da memória com sucesso.", flush=True)
+            print(f"[Ollama] Model '{model}' unloaded successfully.", flush=True)
             return True
     except Exception as e:
-        print(f"[Ollama] Erro ao descarregar o modelo: {e}", flush=True)
+        print(f"[Ollama] Error unloading model: {e}", flush=True)
     return False

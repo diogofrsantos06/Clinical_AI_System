@@ -1,7 +1,8 @@
 import re, sys, time
 from pathlib import Path
+from datetime import date
 
-from Pipeline.llm import chat
+from Pipeline.ollama_local_client import chat
 
 BASE_DIR = Path(__file__).resolve().parent  
 PROJ_ROOT = BASE_DIR.parent                 
@@ -11,108 +12,121 @@ if str(PROJ_ROOT) not in sys.path:
 if str(BASE_DIR) not in sys.path:
     sys.path.append(str(BASE_DIR))
 
-def gerar_titulo_diario(texto_diario, index):
-    """Extrai a data e a especialidade focando estritamente na linha do cabeçalho médico."""
-    if not texto_diario or not texto_diario.strip():
+DATE_PART = r'\d{1,2}[-/](?:[A-Za-z]{3}|\d{1,2})[-/]\d{2,4}'
+TIME_PART = r'(?:\s+\d{2}:\d{2}(?::\d{2})?)?'
+DOCTOR_PART = r'.*?(?:Dr\(?a?\)?\.?\s|Médico:)'
+
+MONTHS_PT = {
+    '01': 'Jan', '02': 'Fev', '03': 'Mar', '04': 'Abr', '05': 'Mai', '06': 'Jun',
+    '07': 'Jul', '08': 'Ago', '09': 'Set', '10': 'Out', '11': 'Nov', '12': 'Dez'
+}
+MONTHS_PT_TO_NUM = {name.lower(): int(num) for num, name in MONTHS_PT.items()}
+
+def parse_diary_date(date_str):
+    """Parses '18-03-2026' or '18-Mar-2026' (day-month-year, 4-digit year) into a date object."""
+
+    match = re.match(r'(\d{1,2})[-/]([A-Za-z]{3}|\d{1,2})[-/](\d{4})', date_str)
+    if not match:
+        return None
+
+    day, month_str, year = match.groups()
+    month = int(month_str) if month_str.isdigit() else MONTHS_PT_TO_NUM.get(month_str.lower())
+    if not month:
+        return None
+
+    try:
+        return date(int(year), month, int(day))
+    except ValueError:
+        return None
+    
+def build_diary_title(diary_text, index):
+    """Derives a short title (specialty + date) from a diary's header line."""
+    if not diary_text or not diary_text.strip():
         return f"Nota_Clinica_{index}"
-        
-    date_part = r'\d{1,2}[-/](?:[A-Za-z]{3}|\d{1,2})[-/]\d{2,4}'
-    time_part = r'(?:\s+\d{2}:\d{2}(?::\d{2})?)?'
-    doctor_part = r'.*?(?:Dr\(?a?\)?\.?\s|Drª\s|Médico:)' 
-    
-    padrao_cabecalho = fr'{date_part}{time_part}{doctor_part}[^\n]*'
-    match_linha = re.search(padrao_cabecalho, texto_diario, re.IGNORECASE)
-    
-    if not match_linha:
-        linhas = [l.strip() for l in texto_diario.split('\n') if l.strip()]
-        if not linhas:
+
+    header_pattern = fr'{DATE_PART}{TIME_PART}{DOCTOR_PART}[^\n]*'
+    header_match = re.search(header_pattern, diary_text, re.IGNORECASE)
+
+    if not header_match:
+        lines = [l.strip() for l in diary_text.split('\n') if l.strip()]
+        if not lines:
             return f"Nota_Clinica_{index}"
-        linha_cabecalho = linhas[0]
+        header_line = lines[0]
     else:
-        linha_cabecalho = match_linha.group(0).strip()
-    
-    match_data = re.search(r'\d{1,2}[-/](?:[A-Za-z]{3}|\d{1,2})[-/]\d{2,4}', linha_cabecalho)
-    data = match_data.group(0) if match_data else "Data_Desconhecida"
-    
-    if re.match(r'\d{2}-\d{2}-\d{4}', data):
-        meses = {
-            '01':'Jan', '02':'Fev', '03':'Mar', '04':'Abr', '05':'Mai', '06':'Jun', 
-            '07':'Jul', '08':'Ago', '09':'Set', '10':'Out', '11':'Nov', '12':'Dez'
-        }
-        partes = data.split('-')
-        if len(partes) == 3:
-            dia, mes, ano = partes
-            data = f"{dia}-{meses.get(mes, mes)}-{ano}"
+        header_line = header_match.group(0).strip()
 
-    especialidade = ""
-    
-    if '/' in linha_cabecalho:
-        especialidade = linha_cabecalho.split('/')[-1].strip()
-    elif '(' in linha_cabecalho and ')' in linha_cabecalho:
-        match_parenteses = re.search(r'\(([^)]+)\)[^()]*$', linha_cabecalho)
-        if match_parenteses:
-            especialidade = match_parenteses.group(1).strip()
+    date_match = re.search(DATE_PART, header_line)
+    raw_date = date_match.group(0) if date_match else None
+    visit_date = parse_diary_date(raw_date) if raw_date else None
+    date_str = raw_date if raw_date else "Data_Desconhecida"
 
-    especialidade = re.sub(r'[\\/*?:"<>|.,;()]', '', especialidade).strip()
-    especialidade = re.sub(r'\s+', '_', especialidade)
+    if re.match(r'\d{2}-\d{2}-\d{4}', date_str):
+        day, month, year = date_str.split('-')
+        date_str = f"{day}-{MONTHS_PT.get(month, month)}-{year}"
 
-    return f"{especialidade} - {data}"
+    specialty = ""
+    if '/' in header_line:
+        specialty = header_line.split('/')[-1].strip()
+    elif '(' in header_line and ')' in header_line:
+        parens_match = re.search(r'\(([^)]+)\)[^()]*$', header_line)
+        if parens_match:
+            specialty = parens_match.group(1).strip()
+
+    specialty = re.sub(r'[\\/*?:"<>|.,;()]', '', specialty).strip()
+    specialty = re.sub(r'\s+', '_', specialty)
+
+    return f"{specialty} - {date_str}", visit_date
+
 
 def get_diary_start_indices(text):
-    """Mapeia os índices de início reais de cada registo clínico por expressão regular."""
-    date_part = r'\d{1,2}[-/](?:[A-Za-z]{3}|\d{1,2})[-/]\d{2,4}'
-    time_part = r'(?:\s+\d{2}:\d{2}(?::\d{2})?)?'
-    doctor_part = r'.*?(?:Dr\(?a?\)?\.?\s|Dr(a).\s|Médico:)' 
-    
-    full_pattern = f'{date_part}{time_part}{doctor_part}'
+    """Maps the start index of every clinical record found via the doctor/date header pattern."""
+    full_pattern = f'{DATE_PART}{TIME_PART}{DOCTOR_PART}'
     return [m.start() for m in re.finditer(full_pattern, text, re.IGNORECASE)]
 
 
 def run_smart_segmentation(full_text, client):
     """
-    Segmenta o texto purificado mapeando os limites via Regex estrutural.
-    Aplica filtro inteligente no último bloco: só invoca a LLM se detetar
-    campos típicos de formulários de Urgência.
+    Splits the OCR'd document into individual diaries using regex-based boundaries.
+    Only the last block goes through the LLM, and only if it looks like an ER form
+    (with sections like "Notas de Enfermagem", "Medicação", etc.) that need cleanup.
     """
-    print("\n" + "#"*60, flush=True)
-    print("[DEBUG SEGMENTAÇÃO] TEXTO FINAL QUE A REGEX VAI TENTAR CORTAR:", flush=True)
-    print(full_text, flush=True)
-    print("#"*60 + "\n", flush=True)
+    print("[SEGMENTATION] Starting regex-based split of the OCR'd document...", flush=True)
+    print(f"[SEGMENTATION] Document length: {len(full_text)} characters.", flush=True)
 
     indices = get_diary_start_indices(full_text)
-    
-    print(f"[DEBUG SEGMENTATION] Regex localizou {len(indices)} inícios de diários clínicos.", flush=True)
-    
-    if not indices:
-        print("[AVISO] Falha ao segmentar: Nenhum padrão detetado. Devolvendo bloco inteiro.", flush=True)
-        return [{"titulo": "Documento Clínico Unificado", "texto": full_text}]
-        
-    indices.append(len(full_text))
-    todos_diarios = []
-    total_esperado = len(indices) - 1
 
-    for i in range(total_esperado):
-        inicio = indices[i]
-        fim = indices[i+1]
-        segmento_bruto = full_text[inicio:fim].strip()
-        
-        if len(segmento_bruto) < 20: 
+    print(f"[SEGMENTATION] Regex found {len(indices)} diary start points.", flush=True)
+
+    if not indices:
+        print("[WARNING] Segmentation failed: no header pattern detected. Returning the whole block.", flush=True)
+        return [{"title": "Documento Clínico Unificado", "text": full_text}]
+
+    indices.append(len(full_text))
+    diaries = []
+    total_expected = len(indices) - 1
+
+    for i in range(total_expected):
+        start = indices[i]
+        end = indices[i + 1]
+        raw_segment = full_text[start:end].strip()
+
+        if len(raw_segment) < 30:
             continue
 
-        e_ultimo = (i == total_esperado - 1)
+        is_last = (i == total_expected - 1)
 
-        segmento_limpo = re.sub(r'Diário\s+Clínico\s*\n*\s*Consulta\s+Externa', '', segmento_bruto, flags=re.IGNORECASE)
-        segmento_limpo = segmento_limpo.replace("Diário Clínico", "").replace("Consulta Externa", "")
-        segmento_limpo = re.sub(r'Pag\.\s*\d+\s*/\s*\d+', '', segmento_limpo, flags=re.IGNORECASE)
-        segmento_limpo = re.sub(r'\n\s*\n+', '\n\n', segmento_limpo).strip()
+        clean_segment = re.sub(r'Diário\s+Clínico\s*\n*\s*Consulta\s+Externa', '', raw_segment, flags=re.IGNORECASE)
+        clean_segment = clean_segment.replace("Diário Clínico", "").replace("Consulta Externa", "")
+        clean_segment = re.sub(r'Pag\.\s*\d+\s*/\s*\d+', '', clean_segment, flags=re.IGNORECASE)
+        clean_segment = re.sub(r'\n\s*\n+', '\n\n', clean_segment).strip()
 
-        if e_ultimo:
-            padrao_urgencia = r'\b(Notas de Enfermagem|Diagnósticos?|Medicação|Medicacao|MCDT Requisitados|Destino do Doente)\b'
-            
-            if re.search(padrao_urgencia, segmento_limpo, re.IGNORECASE):
-                print(f"[{i+1}/{total_esperado}] Documento tipo Urgência detetado. Invocando LLM para limpeza final...", flush=True)
+        if is_last:
+            urgency_pattern = r'\b(Notas de Enfermagem|Diagnósticos?|Medicação|Medicacao|MCDT Requisitados|Destino do Doente)\b'
+
+            if re.search(urgency_pattern, clean_segment, re.IGNORECASE):
+                print(f"[{i+1}/{total_expected}] ER-type document detected. Calling the LLM for final cleanup...", flush=True)
                 
-                sys_prompt = """És um assistente médico especialista em curadoria de registos hospitalares.
+                system_prompt = """És um assistente médico especialista em curadoria de registos hospitalares.
 Este é o último bloco do documento e pode conter secções administrativas e finais.
 Se aparecerem:
 1. DEVES REMOVER completamente as secções: "Notas de Enfermagem", "Medicação", "MCDT Requisitados" e "Destino do Doente".
@@ -120,41 +134,41 @@ Se aparecerem:
 3. Adiciona essa secção de Diagnósticos no final da narrativa clínica do médico.
 4. Devolve exclusivamente o texto resultante limpo, sem comentários ou markdown."""
                     
-                # --- Retry Logic com proteção 504 ---
-                max_tentativas = 3
-                texto_final = segmento_limpo # Fallback
-                
-                for tentativa in range(1, max_tentativas + 1):
+                max_attempts = 3
+                final_text = clean_segment  # fallback if all attempts fail
+
+                for attempt in range(1, max_attempts + 1):
                     try:
-                        resposta_raw = chat(client, user_prompt=segmento_limpo, system_prompt=sys_prompt)
-                        resposta = resposta_raw[0] if isinstance(resposta_raw, (tuple, list)) else str(resposta_raw)
-                        
-                        if "504 Server Error" in resposta or "Gateway Timeout" in resposta:
-                            raise ValueError("Timeout 504 detetado na resposta.")
-                            
-                        texto_final = resposta.strip()
-                        break # Sucesso
-                        
+                        raw_response = chat(client, user_prompt=clean_segment, system_prompt=system_prompt)
+                        response = raw_response[0] if isinstance(raw_response, (tuple, list)) else str(raw_response)
+
+                        if "504 Server Error" in response or "Gateway Timeout" in response:
+                            raise ValueError("504 Timeout detected in the LLM response.")
+
+                        final_text = response.strip()
+                        break
+
                     except Exception as e:
-                        print(f"[LLM URGÊNCIA] Falha na tentativa {tentativa}/{max_tentativas}: {e}", flush=True)
-                        if tentativa < max_tentativas:
+                        print(f"[LLM URGENCY] Attempt {attempt}/{max_attempts} failed: {e}", flush=True)
+                        if attempt < max_attempts:
                             time.sleep(5)
                         else:
-                            print("[LLM URGÊNCIA] Limite atingido. Bypass aplicado. Texto mantido original.", flush=True)
+                            print("[LLM URGENCY] Retry limit reached. Falling back to the original text.", flush=True)
             else:
-                print(f"[{i+1}/{total_esperado}] Documento tipo Consulta detetado. Bypass à LLM aplicado.", flush=True)
-                texto_final = segmento_limpo
+                print(f"[{i+1}/{total_expected}] Consultation-type document detected. Skipping the LLM call.", flush=True)
+                final_text = clean_segment
         else:
-            texto_final = segmento_limpo
+            final_text = clean_segment
 
-        if len(texto_final) > 10:
-            titulo_gerado = gerar_titulo_diario(segmento_bruto, i+1)
-            
-            todos_diarios.append({
+        if len(final_text) > 10:
+            title, visit_date = build_diary_title(raw_segment, i + 1)
+
+            diaries.append({
                 "id": i + 1,
-                "titulo": titulo_gerado,
-                "texto": texto_final
+                "title": title,
+                "text": final_text,
+                "visit_date": visit_date
             })
-            print(f"Diário {i+1}/{total_esperado} Estruturado com Sucesso: {titulo_gerado}", flush=True)
+            print(f"Diary {i+1}/{total_expected} structured successfully: {title}", flush=True)
 
-    return todos_diarios
+    return diaries

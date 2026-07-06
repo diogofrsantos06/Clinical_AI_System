@@ -1,6 +1,7 @@
 import React from 'react';
+import Highlight from '../Highlight';
 
-export default function AntecedentesSection({ antecedentes = [] }) {
+export default function AntecedentesSection({ antecedentes = [], searchTerm = '' }) {
   // Como a LLM agora só devolve crónicos/ativos, usamos a lista diretamente
   const diagnosticos = antecedentes || [];
   
@@ -56,18 +57,18 @@ export default function AntecedentesSection({ antecedentes = [] }) {
                 className="hover:bg-slate-50 transition-colors last:border-0"
               >
                 <div>
-                  <div className="font-medium text-slate-800">{item.diagnostico}</div>
+                  <div className="font-medium text-slate-800"><Highlight text={item.diagnostico} term={searchTerm} /></div>
                   <div className="text-xs text-slate-500 font-normal mt-0.5">
-                    {item.tipo || 'N/A'}
+                    <Highlight text={item.tipo || 'N/A'} term={searchTerm} />
                   </div>
                 </div>
 
                 <div className="text-slate-600">
-                  {item.temporalidade || 'N/A'}
+                  <Highlight text={item.temporalidade || 'N/A'} term={searchTerm} />
                 </div>
 
                 <div className="text-right text-slate-600">
-                  {item.desde || 'Sem informação'}
+                  <Highlight text={item.desde || 'Sem informação'} term={searchTerm} />
                 </div>
               </div>
             ))

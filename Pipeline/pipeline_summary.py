@@ -12,29 +12,29 @@ class SummaryPipeline:
     def __init__(self, client=None):
         self.summarizer = Summarizer(system_prompt_path=SUMMARY_SYSTEM_PROMPT_PATH)
 
-    def run_summary(self, list_of_extractions: list) -> tuple:
+    def run_summary(self, extractions: list) -> tuple:
         """
-        Entrada: Lista de DIÁRIOS EXTRAÍDOS (JSON) vindos da BD.
-        Saída: Tuplo (summary_text, tempo_llm, houve_retry) para o serviço do Django.
+        Input: list of extracted diaries (JSON) coming from the DB.
+        Output: (summary_text, section_timings, had_retry) tuple for the Django service.
         """
         try:
             structured_payload = {}
-            
-            for i, item in enumerate(list_of_extractions, start=1):
+            visit_dates = {}
 
-                diary_label = f"{item['titulo']} (Registo {i})" 
-                
-                structured_payload[diary_label] = item["dados"]
+            for i, item in enumerate(extractions, start=1):
+                diary_label = f"{item['title']} (Registo {i})"
+                structured_payload[diary_label] = item["data"]
+                visit_dates[diary_label] = item.get("visit_date")
 
-            # Executa a chamada ao summarizer (que agora corre as 4 fases internamente)
-            summary_text, tempos_seccoes, houve_retry = self.summarizer.generate_summary(structured_payload)
+            # Runs the summarizer, which internally executes the 4 domain-specific LLM calls
+            summary_text, section_timings, had_retry = self.summarizer.generate_summary(structured_payload, visit_dates)
 
-            # Validação de segurança para tratamento de erros da API da Groq/Ollama
-            if not summary_text or "Error code:" in str(summary_text) or "limit" in str(summary_text).lower():
+            # Sanity check: generate_summary() always returns structured JSON (schema-validated per section, with fallback values), so only an empty result means real failure.
+            if not summary_text:
                 return None, 0.0, False
 
-            return summary_text, tempos_seccoes, houve_retry
+            return summary_text, section_timings, had_retry
 
         except Exception as e:
-            print(f"[Pipeline] Erro crítico na geração: {str(e)}")
+            print(f"[PIPELINE] Critical error during summary generation: {str(e)}")
             return None, 0.0, False

@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -6,6 +8,8 @@ from .models import Summary
 from .serializers import SummarySerializer
 from .services.patient_summary_service import generate_patient_summary
 from .triagem_service.triage_service import handle_triage_request
+
+logger = logging.getLogger(__name__)
 
 
 class SummaryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -31,9 +35,7 @@ class SummaryViewSet(viewsets.ReadOnlyModelViewSet):
     def analyze_triage(self, request):
         patient_id = request.data.get("patient_id")
         triage_text = request.data.get("triage_text")
-        
-        print(f"DEBUG: Pedido de triagem recebido! Paciente: {patient_id}, Texto: {triage_text[:50]}...")
-        
+
         if not patient_id or not triage_text:
             return Response(
                 {"error": "patient_id e triage_text são obrigatórios"}, 
@@ -46,7 +48,8 @@ class SummaryViewSet(viewsets.ReadOnlyModelViewSet):
             return Response(result, status=status.HTTP_200_OK)
             
         except Exception as e:
+            logger.error("Triage analysis failed", exc_info=True)
             return Response(
-                {"error": f"Erro na análise de triagem: {str(e)}"}, 
+                {"error": "Ocorreu um erro interno ao analisar a triagem. Contacte o administrador se o problema persistir."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

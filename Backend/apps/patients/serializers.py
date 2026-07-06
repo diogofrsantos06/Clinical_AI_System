@@ -15,21 +15,14 @@ class PatientSerializer(serializers.ModelSerializer):
             'data_admissao', 'servico', 'medico', 'contacto_urg_nome', 
             'contacto_urg_telefone', 'summary', 'diaries', 'new_diaries_added','nacionalidade','morada']
 
-        extra_kwargs = {
-            'id': {'read_only': False}
-        }
-
     def get_summary(self, obj):
-        print(f"DEBUG: A procurar sumário para o paciente: {obj.nome} (ID: {obj.id})")
         if hasattr(obj, 'clinical_summary'):
             summary = obj.clinical_summary
-            print(f"DEBUG: Sumário encontrado! Texto: {summary.summary_text[:50]}...")
             return {
                 "summary_text": summary.summary_text,
                 "dados_estruturados": summary.dados_estruturados,
                 "updated_at": summary.updated_at 
             }
-        print("DEBUG: NENHUM sumário encontrado para este paciente.")
         return None
     
     def get_new_diaries_added(self, obj):

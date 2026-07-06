@@ -1,98 +1,89 @@
 import json, re, time
-
 from typing import Dict, Any
 
-from Pipeline.llm import chat, get_client
+from Pipeline.ollama_local_client import chat, get_client
 from Pipeline.Prompts.Extraction_Prompt import get_prompt_for_diary_extraction
+
+LIST_FIELDS = ["diagnosticos", "medicacao", "alergias", "exames", "sintomas", "plano"]
 
 class DiaryExtractor:
     def __init__(self, system_prompt_path):
-        """Inicializa o cliente e carrega as instruções do System Prompt"""
-        
+        """Loads the client and the system prompt used for every extraction call."""        
         self.client = get_client()
 
         with open(system_prompt_path, 'r', encoding='utf-8') as f:
             self.system_prompt = f.read().strip()
     
     def clean_json_response(self, response: str) -> str:
-    
+        """Strips markdown fences and pulls out the first valid JSON object in the response."""
         if not response:
-            raise ValueError("Resposta vazia da LLM")
+            raise ValueError("Empty response from the LLM")
 
         text = response.strip()
 
-        # 1. Remover blocos ```json ``` se existirem
         text = re.sub(r"```json", "", text, flags=re.IGNORECASE)
         text = re.sub(r"```", "", text)
 
-        # 2. Tentar parse direto primeiro (fast path)
+        # Fast path: the response is already valid JSON as-is
         try:
             json.loads(text)
             return text
         except:
             pass
 
-        # 3. Extrair o primeiro bloco JSON válido (não greedy)
+        # Fallback: extract the first {...} block even if there's extra text around it
         match = re.search(r'\{.*\}', text, re.DOTALL)
         if match:
             candidate = match.group(0)
-
             try:
                 return json.dumps(json.loads(candidate))
-            except:
+            except Exception:
                 pass
 
-        print("RAW RESPONSE:")
-        print(response)
+        print(f"[EXTRACTION] Could not parse a valid JSON object from the LLM response ({len(response)} chars).", flush=True)
 
-        raise ValueError("JSON inválido")
+        raise ValueError("Invalid JSON")
     
 
     def extract_full_diary(self, diary_text: str) -> Dict[str, Any]:
-        """
-        Extrai um único diário num formato JSON estruturado.
-        Inclui mecanismo de Retry (3 tentativas) para tolerância a falhas (ex: 504 Timeout).
-        """
-        
+        """Extracts one diary into structured JSON, retrying up to 3 times on failure (e.g. 504 timeout)."""
         user_prompt = get_prompt_for_diary_extraction(diary_text)
-        max_tentativas = 3
+        max_attempts = 3
 
-        for tentativa in range(1, max_tentativas + 1):
+        for attempt in range(1, max_attempts + 1):
             try:
-                response, tempo_llm, houve_retry = chat(self.client, user_prompt, self.system_prompt)
-                
-                json_str = self.clean_json_response(response)
-                dados = json.loads(json_str)
+                response, llm_duration, had_retry = chat(self.client, user_prompt, self.system_prompt)
 
-                if not isinstance(dados, dict):
-                    raise ValueError("A resposta da LLM não é um objeto JSON válido.")
-                
-                chaves_lista = ["diagnosticos", "medicacao", "alergias", "exames", "sintomas", "plano"]
-                for chave in chaves_lista:
-                    if chave in dados and not isinstance(dados[chave], list):
-                        raise ValueError(f"Formato quebrado: A secção '{chave}' devia ser uma lista, mas a LLM devolveu {type(dados[chave]).__name__}.")
+                json_str = self.clean_json_response(response)
+                data = json.loads(json_str)
+
+                if not isinstance(data, dict):
+                    raise ValueError("The LLM response is not a valid JSON object.")
+
+                for field in LIST_FIELDS:
+                    if field in data and not isinstance(data[field], list):
+                        raise ValueError(f"Broken format: section '{field}' should be a list, got {type(data[field]).__name__}.")
 
                 return {
-                    "dados": dados,
-                    "tempo_llm": tempo_llm,
-                    "houve_retry": houve_retry or (tentativa > 1),
+                    "data": data,
+                    "llm_duration": llm_duration,
+                    "had_retry": had_retry or (attempt > 1),
                     "status": "success"
                 }
 
             except Exception as e:
-                print(f"[EXTRAÇÃO] Falha na tentativa {tentativa}/{max_tentativas}: {str(e)}", flush=True)
-                
-                if tentativa < max_tentativas:
-                    print("[EXTRAÇÃO] A aguardar 5 segundos para arrefecer o servidor antes de tentar novamente...", flush=True)
-                    time.sleep(5)  
+                print(f"[EXTRACTION] Attempt {attempt}/{max_attempts} failed: {str(e)}", flush=True)
+
+                if attempt < max_attempts:
+                    print("[EXTRACTION] Waiting 5 seconds to let the server cool down before retrying...", flush=True)
+                    time.sleep(5)
                 else:
-                    print("[EXTRAÇÃO] Limite de tentativas atingido! A criar registo vazio para não bloquear o pipeline.", flush=True)
-                    
+                    print("[EXTRACTION] Retry limit reached! Creating an empty record to avoid blocking the pipeline.", flush=True)
+
                     return {
-                        "dados": {}, 
-                        "tempo_llm": 0.0,
-                        "houve_retry": True,
-                        "status": "success" 
+                        "data": {},
+                        "llm_duration": 0.0,
+                        "had_retry": True,
+                        "status": "success",  # kept as "success" on purpose: this is a graceful-degradation path, not a pipeline error, see 'extraction_failed' below
+                        "extraction_failed": True
                     }
-        
-    

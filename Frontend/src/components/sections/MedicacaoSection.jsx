@@ -1,4 +1,6 @@
-export default function MedicacaoSection({ medicacao = [] }) {
+import Highlight from '../Highlight';
+
+export default function MedicacaoSection({ medicacao = [], searchTerm = ''  }) {
   return (
     <div className="w-full mb-8">
       <div className="flex items-center gap-3 mb-6">
@@ -55,24 +57,24 @@ export default function MedicacaoSection({ medicacao = [] }) {
               }}
               className="hover:bg-slate-50 transition-colors last:border-0"
             >
-              <div className="font-medium text-slate-800">{med.farmaco || 'N/A'}</div>
-              <div className="text-slate-600">{med.dosagem || 'N/A'}</div>
-              <div className="text-slate-600">{med.posologia || 'N/A'}</div>
-              <div className="text-slate-600">{med.indicacao || 'N/A'}</div>
+              <div className="font-medium text-slate-800"><Highlight text={med.farmaco || 'N/A'} term={searchTerm} /></div>
+              <div className="text-slate-600"><Highlight text={med.dosagem || 'N/A'} term={searchTerm} /></div>
+              <div className="text-slate-600"><Highlight text={med.posologia || 'N/A'} term={searchTerm} /></div>
+              <div className="text-slate-600"><Highlight text={med.indicacao || 'N/A'} term={searchTerm} /></div>
               <div className="text-slate-500 leading-tight">
                 <div className="font-semibold text-[11px] text-slate-700">
                   {/* Pega no texto até ao primeiro ' - ' (o nome da especialidade) */}
-                  {med.diario_origem ? med.diario_origem.split(' - ')[0] : 'N/A'}
+                  <Highlight text={med.diario_origem ? med.diario_origem.split(' - ')[0] : 'N/A'} term={searchTerm} />
                 </div>
                 <div className="text-[10px]">
                   {/* Pega na parte central que contém a data, removendo o Registo no final */}
-                  {med.diario_origem ? med.diario_origem.split(' - ')[1].split('(')[0].trim() : ''}
+                  <Highlight text={med.diario_origem ? med.diario_origem.split(' - ')[1].split('(')[0].trim() : ''} term={searchTerm} />
                 </div>
               </div>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </div> 
   );
 }

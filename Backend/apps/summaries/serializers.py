@@ -8,3 +8,6 @@ class SummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Summary
         fields = ['id', 'patient', 'summary_text', 'updated_at', 'dados_estruturados']
+
+    def get_dados_estruturados(self, obj):
+        return obj.dados_estruturados

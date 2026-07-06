@@ -5,84 +5,135 @@ from apps.metrics.models import PerformanceMetric
 from Pipeline.pipeline_extraction import ExtractionPipeline 
 from apps.notifications.models import SystemNotification
 from apps.summaries.models import Summary
+from Pipeline.ollama_local_client import get_client, ollama_warmup, ollama_unload
 
 logger = logging.getLogger(__name__)
 
-def process_diary_batch(patient, lista_diarios_segmentados):
+def extract_single_diary(diary, client=None):
     """
-    1. Guarda os textos brutos na BD imediatamente.
-    2. Processa-os na LLM.
-    3. Atualiza os registos na BD com a informação extraída.
+    Re-runs extraction for a single, already-saved diary (used by the admin action,
+    e.g. when the original batch extraction failed for that one diary).
+    Warms up/unloads Ollama only when no client was passed in, same pattern as
+    generate_patient_summary in patient_summary_service.py.
+    """
+    local_client = client
+    owns_client = False
+
+    if local_client is None:
+        local_client = get_client()
+        ollama_warmup(local_client)
+        owns_client = True
+
+    try:
+        pipeline = ExtractionPipeline()
+        result = pipeline.run(diary.original_text or "")
+
+        if result.get("status") != "success":
+            logger.error(f"Failed to (re)extract diary '{diary.title}': {result.get('message')}")
+            return False
+
+        extracted_data = result.get("extracted_data")
+
+        if not extracted_data:
+            SystemNotification.objects.create(
+                patient=diary.patient,
+                message=f"The system could not extract structured information from document '{diary.title}'. Manual review needed."
+            )
+
+        # None (not {}) when extraction genuinely failed, same reasoning as process_diary_batch
+        diary.extracted_data = extracted_data if extracted_data else None
+        diary.save()
+
+        PerformanceMetric.objects.create(
+            operation_type='EXTRACTION',
+            duration_seconds=result.get("total_duration", 0.0),
+            inference_duration=result.get("llm_duration", 0.0),
+            is_retry=result.get("had_retry", False),
+            input_size=len(diary.original_text or ""),
+            patient=diary.patient,
+            diary=diary
+        )
+        return True
+
+    except Exception as e:
+        logger.error(f"Critical error re-extracting diary {diary.id}: {e}")
+        return False
+
+    finally:
+        if owns_client and local_client:
+            ollama_unload(local_client)
+
+def process_diary_batch(patient, segmented_diaries):
+    """
+    1. Saves the raw diary texts to the DB immediately.
+    2. Runs them through the LLM extraction pipeline.
+    3. Updates the DB records with the extracted data.
     """
     try:
-        # PASSO 1: GUARDAR IMEDIATAMENTE NA BD (Antes da IA atuar)
-        diarios_db_map = {} # Dicionário para ligar o ID gerado ao título
+        # Step 1: persist raw diaries right away, before the LLM runs
+        diary_objects = {}
         
         with transaction.atomic():
-            for segmento in lista_diarios_segmentados:
-                titulo = segmento.get("titulo", "Diário Desconhecido")
-                
-                # Cria o diário sem dados extraídos ainda
+            for segment in segmented_diaries:
+                title = segment.get("title", "Diário Desconhecido")
+
                 diary_obj = ClinicalDiary.objects.create(
                     patient=patient,
-                    title=titulo,
-                    original_text=segmento.get("texto", ""),
-                    cleaned_text="", 
-                    extracted_data=None # Vazio para já
+                    title=title,
+                    original_text=segment.get("text", ""),
+                    visit_date=segment.get("visit_date"),
+                    extracted_data=None
                 )
-                # Guarda o objeto para o podermos atualizar depois
-                diarios_db_map[titulo] = diary_obj
+                diary_objects.append(diary_obj)
 
-        # PASSO 2: EXTRAÇÃO PELA LLM
+         # Step 2: run LLM extraction over the whole batch
         pipeline = ExtractionPipeline()
-        logger.info(f"Iniciando extração em LOTE SEQUENCIAL para o paciente ID: {patient.id}")
-        
+        logger.info(f"Starting sequential batch extraction for patient ID: {patient.id}")
+
         start_total = time.perf_counter()
-        resultados_lote = pipeline.process_batch(lista_diarios_segmentados)
+        batch_results = pipeline.process_batch(segmented_diaries)
         total_duration = time.perf_counter() - start_total
 
-        # PASSO 3: ATUALIZAR OS DIÁRIOS QUE JÁ ESTÃO NA BD
-        for res in resultados_lote:
-            titulo_diario = res.get("titulo")
-            dados_extraidos = res.get("extracted_data")
-            
-            # Recupera o objeto exato que criámos no Passo 1
-            diary = diarios_db_map.get(titulo_diario)
-            
+        # Step 3: update the DB records created in step 1 with the extracted data
+        for result in batch_results:
+            index = result.get("index")
+            diary_title = result.get("title")
+            extracted_data = result.get("extracted_data")
+
+            diary = diary_objects[index] if index is not None and index < len(diary_objects) else None
+
             if diary:
-                if res.get("status") == "success":
-                    
-                    if not dados_extraidos:
+                if result.get("status") == "success":
+
+                    if not extracted_data:
                         SystemNotification.objects.create(
                             patient=patient,
-                            message=f"O sistema não conseguiu extrair informação estruturada do documento '{titulo_diario}'. É necessária revisão manual."
+                            message=f"The system could not extract structured information from document '{diary_title}'. Manual review needed."
                         )
-                    
-                    # Atualiza os dados
-                    diary.cleaned_text = res.get("cleaned_text", "")
-                    diary.extracted_data = dados_extraidos
-                    diary.save() # Grava a atualização
+
+                    diary.extracted_data = extracted_data if extracted_data else None
+                    diary.save()
 
                     PerformanceMetric.objects.create(
                         operation_type='EXTRACTION',
-                        duration_seconds=res.get("tempo_total_extracao", 0.0), 
-                        inference_duration=res.get("tempo_llm", 0.0), 
-                        is_retry=res.get("houve_retry", False),   
-                        input_size=len(res.get("texto_original", "")), 
+                        duration_seconds=result.get("total_duration", 0.0),
+                        inference_duration=result.get("llm_duration", 0.0),
+                        is_retry=result.get("had_retry", False),
+                        input_size=len(result.get("original_text", "")),
                         patient=patient,
                         diary=diary
                     )
                 else:
-                    logger.error(f"Falha na estruturação do diário '{titulo_diario}': {res.get('message')}")
-                
+                    logger.error(f"Failed to structure diary '{diary_title}': {result.get('message')}")
+
         Summary.objects.get_or_create(
             patient=patient,
-            defaults={"summary_text": "{}"} 
+            defaults={"summary_text": "{}"}
         )
 
-        logger.info(f"Lote sequencial concluído com sucesso em {total_duration:.2f}s.")
+        logger.info(f"Sequential batch completed successfully in {total_duration:.2f}s.")
         return True
 
     except Exception as e:
-        logger.error(f"Erro crítico no lote do extraction_service: {e}")
+        logger.error(f"Critical error in extraction_service batch: {e}")
         return False

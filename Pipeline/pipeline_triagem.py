@@ -9,31 +9,28 @@ class TriagePipeline:
         self.analyzer = TriageAnalyzer(system_prompt_path=TRIAGE_SYSTEM_PROMPT_PATH)
 
     def run(self, triage_text: str, patient_history: dict):
+        """
+        Runs the triage analyzer and returns the API-facing dict.
+        """
         try:
-            print("DEBUG PIPELINE: A chamar self.analyzer.analyze...")
             result = self.analyzer.analyze(triage_text, patient_history)
-            
-            # Verificamos se o resultado é o que esperamos
-            if not isinstance(result, tuple) or len(result) < 4:
-                print(f"DEBUG PIPELINE: O analyzer retornou algo inesperado: {result}")
-                return {"error": "Formato de retorno inválido do analyzer"}
 
-            texto, dados_json, tempo, retry = result
-            
-            # Verifica se 'triagem' existe nos dados ANTES de retornar
-            if 'triagem' not in dados_json:
-                 print(f"DEBUG PIPELINE: ALERTA - Chave 'triagem' não encontrada em: {dados_json}")
+            if not isinstance(result, tuple) or len(result) < 4:
+                print(f"[TRIAGE PIPELINE] Unexpected return from the analyzer: {result}", flush=True)
+                return {"error": "Invalid return format from the analyzer"}
+
+            clinical_text, structured_data, llm_duration, had_retry = result
+
+            if 'triagem' not in structured_data:
+                print(f"[TRIAGE PIPELINE] WARNING - 'triagem' key not found in: {structured_data}", flush=True)
 
             return {
-                "analise_texto": texto,
-                "dados_estruturados": dados_json,
-                #"tempo_llm": tempo,
-                #"houve_retry": retry
+                "analise_texto": clinical_text,
+                "dados_estruturados": structured_data,
+                "tempo_llm": llm_duration,
+                "houve_retry": had_retry
             }
-        
+
         except Exception as e:
-            # Captura o erro exato e a linha onde ocorre
-            import traceback
-            print(f"DEBUG PIPELINE: ERRO CRÍTICO -> {str(e)}")
-            traceback.print_exc() # Isto vai mostrar a linha exata do erro
+            print(f"[TRIAGE PIPELINE] Critical error: {str(e)}", flush=True)
             return {"error": str(e), "analise_texto": "", "dados_estruturados": {}}

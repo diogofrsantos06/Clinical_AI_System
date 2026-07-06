@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { FlaskConical, ChevronLeft, ChevronRight } from 'lucide-react';
+import Highlight from '../Highlight';
 
-export default function ExamesSection({ exames = [], examesTriagem = [] }) {
+export default function ExamesSection({ exames = [], examesTriagem = [], searchTerm = ''  }) {
   const [filtro, setFiltro] = useState('todos');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const itensPorPagina = 6; 
@@ -97,14 +98,14 @@ export default function ExamesSection({ exames = [], examesTriagem = [] }) {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start mb-3">
-                  <h4 className="font-bold text-gray-900 text-base truncate">{diario.nome}</h4>
+                  <h4 className="font-bold text-gray-900 text-base truncate"><Highlight text={diario.nome} term={searchTerm} /></h4>
                   <span className="text-xs text-gray-400 font-medium whitespace-nowrap ml-2">{diario.data}</span>
                 </div>
                 <div className="space-y-2">
                   {diario.items.map((item, index) => (
                     <div key={index} className="text-sm bg-gray-50 p-2 rounded border-l-4 border-[#216348]">
-                      <span className="font-semibold text-gray-800">{item.tipo}: </span>
-                      <span className="text-gray-600">{item.resultado}</span>
+                      <span className="font-semibold text-gray-800"><Highlight text={item.tipo} term={searchTerm} />: </span>
+                      <span className="text-gray-600"><Highlight text={item.resultado} term={searchTerm} /></span>
                     </div>
                   ))}
                 </div>

@@ -1,4 +1,6 @@
-export default function PlanoSection({ plano }) {
+import Highlight from '../Highlight';
+
+export default function PlanoSection({ plano, searchTerm = '' }) {
   // 1. Verificação de segurança: garantimos que 'itensPlano' é sempre um array.
   // Se o backend enviar uma string (dados antigos) ou algo inválido, devolvemos array vazio.
   const itensPlano = Array.isArray(plano) ? plano : [];
@@ -42,14 +44,14 @@ export default function PlanoSection({ plano }) {
               <div className="flex flex-col w-full">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-bold text-slate-800 text-sm">
-                    {item.especialidade || "Especialidade"}
+                    <Highlight text={item.especialidade || "Especialidade"} term={searchTerm} />
                   </span>
                   <span className="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-500 uppercase tracking-wider">
                     {item.data || "Sem data"}
                   </span>
                 </div>
                 <p className="text-slate-700 m-0 text-base leading-relaxed">
-                  {item.conteudo}
+                  <Highlight text={item.conteudo} term={searchTerm} />
                 </p>
               </div>
             </div>

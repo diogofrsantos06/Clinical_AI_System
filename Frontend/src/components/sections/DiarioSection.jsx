@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Clock, ChevronDown, ChevronUp } from 'lucide-react';
-export default function DiarioSection({ diarios }) {
+import Highlight from '../Highlight';
+export default function DiarioSection({ diarios, searchTerm = '' }) {
   const [expandedIds, setExpandedIds] = useState([]);
   const toggleExpand = (id) => {
     setExpandedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
@@ -77,14 +78,14 @@ export default function DiarioSection({ diarios }) {
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                   <div className="flex justify-between items-start">
                     <h4 className="font-bold text-slate-900 text-[15px] mb-1">
-                      {tituloLimpo} ({d.diaLabel})
+                       <Highlight text={tituloLimpo} term={searchTerm} /> ({d.diaLabel})
                     </h4>
                     <button onClick={() => toggleExpand(i)} className="text-slate-400 hover:text-[#2d6a4f]">
                       {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                     </button>
                   </div>
-                  <p className={`text-slate-600 text-sm leading-relaxed whitespace-pre-wrap ${!isExpanded ? 'line-clamp-2' : ''}`}>
-                    {d.original_text || "Sem resumo disponível."}
+                 <p className={`text-slate-600 text-sm leading-relaxed whitespace-pre-wrap ${!isExpanded ? 'line-clamp-2' : ''}`}>
+                   <Highlight text={d.original_text || "Sem resumo disponível."} term={searchTerm} />
                   </p>
                 </div>
               </div>

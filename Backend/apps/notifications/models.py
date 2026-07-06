@@ -8,7 +8,7 @@ class SystemNotification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at'] # Mostra sempre as mais recentes primeiro
+        ordering = ['-created_at'] 
         verbose_name = 'Notificação do Sistema'
         verbose_name_plural = 'Notificações do Sistema'
 

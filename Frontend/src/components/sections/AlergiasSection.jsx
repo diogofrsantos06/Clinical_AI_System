@@ -1,4 +1,6 @@
-export default function AlergiasSection({ alergias }) {
+import Highlight from '../Highlight';
+
+export default function AlergiasSection({ alergias, searchTerm = ''  }) {
   const valoresNulos = ["Sem alergias conhecidas", "N/A", "Nenhum", ""];
   const primeiraAlergiaStr = alergias && alergias.length > 0 ? (alergias[0].substancia || alergias[0]) : "";
   const temAlergias = alergias && alergias.length > 0 && !valoresNulos.includes(primeiraAlergiaStr);
@@ -30,8 +32,8 @@ export default function AlergiasSection({ alergias }) {
             {alergias.map((item, i) => (
               <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm">
                 <div>
-                  <div className="font-bold text-slate-900">{item.substancia || item}</div>
-                  <div className="text-sm text-slate-600">{item.reacao || 'Sem descrição da reação'}</div>
+                  <div className="font-bold text-slate-900"><Highlight text={item.substancia || item} term={searchTerm} /></div>
+                  <div className="text-sm text-slate-600"><Highlight text={item.reacao || 'Sem descrição da reação'} term={searchTerm} /></div>
 
                   {item.registo_origem && item.registo_origem !== "N/A" && (
                     <div className="text-xs text-slate-400 mt-2 italic font-medium">

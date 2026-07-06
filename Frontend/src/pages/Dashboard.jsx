@@ -60,6 +60,7 @@ export default function Dashboard({ patient: propPatient, onNewSearch }) {
   const [showUploadModal, setShowUploadModal] = useState(null);
   const [resultadoTriagem, setResultadoTriagem] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const patientId = patient?.id;
 
   const sectionStyle = { scrollMarginTop: '100px' };
@@ -215,7 +216,8 @@ export default function Dashboard({ patient: propPatient, onNewSearch }) {
           <PatientHeader 
             patient={patient} 
             onBack={onNewSearch} 
-            onSearch={(term) => console.log("Pesquisar:", term)} 
+            searchTerm={searchTerm}
+            onSearch={setSearchTerm}  
             notifications={notifications}        
             onMarkAsRead={handleMarkAsRead}
           />
@@ -233,19 +235,19 @@ export default function Dashboard({ patient: propPatient, onNewSearch }) {
             )}
 
             <div id="triagem" style={sectionStyle}><TriagemSection processNumber={patientId} onSave={handleSaveTriagem} /></div>
-            <div id="antecedentes" style={sectionStyle}><AntecedentesSection antecedentes={summary?.antecedentes || []} /></div>
-            <div id="medicacao" style={sectionStyle}><MedicacaoSection medicacao={summary?.medicacao || []} /></div>
-            <div id="alergias" style={sectionStyle}><AlergiasSection alergias={summary?.alergias || []} /></div>
-            <div id="exames" style={sectionStyle}><ExamesSection exames={summary?.exames || []} examesTriagem={resultadoTriagem?.dados_estruturados?.exames || []} /></div>
+            <div id="antecedentes" style={sectionStyle}><AntecedentesSection antecedentes={summary?.antecedentes || []} searchTerm={searchTerm}/></div>
+            <div id="medicacao" style={sectionStyle}><MedicacaoSection medicacao={summary?.medicacao || []} searchTerm={searchTerm}/></div>
+            <div id="alergias" style={sectionStyle}><AlergiasSection alergias={summary?.alergias || []} searchTerm={searchTerm}/></div>
+            <div id="exames" style={sectionStyle}><ExamesSection exames={summary?.exames || []} examesTriagem={resultadoTriagem?.dados_estruturados?.exames || []} searchTerm={searchTerm}/></div>
             
-            <div id="plano" style={sectionStyle}><PlanoSection plano={summary?.plano || ""} /></div>
+            <div id="plano" style={sectionStyle}><PlanoSection plano={summary?.plano || ""} searchTerm={searchTerm}/></div>
             
             <div id="upload" style={sectionStyle}>
               <UploadSection patientId={patientId} onUploadSuccess={refreshData} />
             </div>
 
             <div id="diarios" style={sectionStyle}>
-              <DiarioSection diarios={diaries || []} />
+              <DiarioSection diarios={diaries || []} searchTerm={searchTerm}/>
             </div>
           </div>
         </div>

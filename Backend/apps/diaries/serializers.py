@@ -1,9 +1,7 @@
 from rest_framework import serializers
 from .models import ClinicalDiary
 
-
 class ClinicalDiarySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = ClinicalDiary
         fields = [
@@ -11,7 +9,6 @@ class ClinicalDiarySerializer(serializers.ModelSerializer):
             'patient', 
             'diary_number', 
             'original_text', 
-            'cleaned_text', 
             'extracted_data',
             'title',
             'created_at'

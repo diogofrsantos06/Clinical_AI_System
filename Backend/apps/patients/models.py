@@ -1,7 +1,6 @@
 from django.db import models
 
 class Patient(models.Model):
-    id = models.IntegerField(primary_key=True)
     nome = models.CharField(max_length=255, null=True, blank=True)
     data_nascimento = models.DateField(null=True, blank=True)
     numero_processo = models.CharField(max_length=50, null=True, blank=True)

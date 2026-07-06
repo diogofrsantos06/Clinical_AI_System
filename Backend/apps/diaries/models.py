@@ -3,15 +3,16 @@ from django.db import models
 class ClinicalDiary(models.Model):
 
     patient = models.ForeignKey("patients.Patient", on_delete=models.CASCADE, related_name="diaries")
+    
     diary_number = models.IntegerField(null=True, blank=True)
 
     original_text = models.TextField(null=True, blank=True)
     
-    cleaned_text = models.TextField(null=True, blank=True)
-
     extracted_data = models.JSONField(null=True, blank=True)
     
     title = models.CharField(max_length=255, null=True, blank=True)
+
+    visit_date = models.DateField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
