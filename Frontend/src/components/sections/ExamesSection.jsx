@@ -5,7 +5,7 @@ import Highlight from '../Highlight';
 export default function ExamesSection({ exames = [], examesTriagem = [], searchTerm = ''  }) {
   const [filtro, setFiltro] = useState('todos');
   const [paginaAtual, setPaginaAtual] = useState(1);
-  const itensPorPagina = 6; 
+  const itensPorPagina = 4; 
 
   const examesAtuais = filtro === 'todos' ? exames : examesTriagem;
 
@@ -70,8 +70,17 @@ export default function ExamesSection({ exames = [], examesTriagem = [], searchT
           <div className="bg-[#216348] p-1 rounded-lg text-white">
             <FlaskConical size={18} />
           </div>
-          <h3 className="font-bold text-gray-900 text-lg">Exames e Análises</h3>
+          <div>
+            <h3 className="text-slate-900 m-0" style={{ fontFamily: 'Alice, serif', fontSize: '28px', letterSpacing: '-0.01em', fontWeight: 'bold', lineHeight: '1' }}>
+              Exames e Análises
+            </h3>
+            <p style={{ color: 'var(--ink-500)', fontSize: '13px', marginTop: '1px', margin: 0 }}>
+              Exames realizados no último ano
+            </p>
+          </div>
         </div>
+        
+        {/* Filtros mantidos no lado direito */}
         <div className="flex bg-gray-100 p-1 rounded-lg self-end md:self-auto">
           <button 
             onClick={() => alterarFiltro('todos')} 

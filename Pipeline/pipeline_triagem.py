@@ -19,7 +19,7 @@ class TriagePipeline:
                 print(f"[TRIAGE PIPELINE] Unexpected return from the analyzer: {result}", flush=True)
                 return {"error": "Invalid return format from the analyzer"}
 
-            clinical_text, structured_data, llm_duration, had_retry = result
+            clinical_text, structured_data, llm_duration, had_retry, tokens_per_second, model_ram_gb, model_vram_gb  = result
 
             if 'triagem' not in structured_data:
                 print(f"[TRIAGE PIPELINE] WARNING - 'triagem' key not found in: {structured_data}", flush=True)
@@ -28,7 +28,10 @@ class TriagePipeline:
                 "analise_texto": clinical_text,
                 "dados_estruturados": structured_data,
                 "tempo_llm": llm_duration,
-                "houve_retry": had_retry
+                "houve_retry": had_retry,
+                "tokens_per_second": tokens_per_second,
+                "model_ram_gb": model_ram_gb,
+                "model_vram_gb": model_vram_gb
             }
 
         except Exception as e:

@@ -26,6 +26,9 @@ class ExtractionPipeline:
                 "extracted_data": extraction_result.get("data", []),
                 "llm_duration": extraction_result.get("llm_duration", 0.0),
                 "had_retry": extraction_result.get("had_retry", False),
+                "tokens_per_second": extraction_result.get("tokens_per_second", 0.0),
+                "model_ram_gb": extraction_result.get("model_ram_gb"),
+                "model_vram_gb": extraction_result.get("model_vram_gb"),
                 "total_duration": total_duration
             }
 

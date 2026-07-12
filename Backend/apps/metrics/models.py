@@ -26,6 +26,8 @@ class PerformanceMetric(models.Model):
     # Size and speed
     input_size = models.IntegerField(help_text="Número de caracteres processados (Input)")
     tokens_per_second = models.FloatField(null=True, blank=True, help_text="Velocidade de geração da LLM")
+    model_ram_gb = models.FloatField(null=True, blank=True, help_text="RAM ocupada pelo modelo no momento da chamada")
+    model_vram_gb = models.FloatField(null=True, blank=True, help_text="VRAM ocupada pelo modelo no momento da chamada")
 
     # Error handling
     is_retry = models.BooleanField(default=False, help_text="Se a LLM falhou a 1ª tentativa e precisou de retry")

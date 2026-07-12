@@ -1,33 +1,4 @@
 PROMPT_ANTECEDENTES = """
-Atua como um Médico Sénior de Medicina Interna. O teu objetivo é extrair o histórico de patologias do paciente.
-
-DADOS PARA ANÁLISE:
-{extracted_data}
-
-REGRAS:
-1. Extrai 100% das doenças crónicas (AP) e diagnósticos agudos de TODOS os diários.
-2. Cada patologia só deve aparecer UMA vez. Se um diagnóstico aparecer como "Suspeita" no início, mas for validado como "Confirmado" mais à frente, consolida-o como "Confirmado".
-3. Devolve EXCLUSIVAMENTE um objeto JSON válido, sem markdown e sem introduções.
-4. Para o campo 'desde' de cada diagnóstico, aplica estritamente a seguinte prioridade:
-- Se o diário disser explicitamente a data do acontecimento (ex: 'diagnosticado em 2018' ou 'enfarte em 05/2021'), extrai essa data.
-- Se o diário disser que foi detetado na consulta atual (ex: 'diagnosticado hoje', 'início hoje'), calcula e devolve a Data do diário clínico atual correspondente.
-- Se NÃO houver qualquer menção de data no texto clínico, deves preencher com a data do primeiro diário clínico em que esse diagnóstico aparece listado, adicionando o sufixo '(Data do registo - Não confirmada)' (ex: '14-Jul-2023 (Data do registo - Não confirmada)').
-- Se for impossível determinar, usa 'Sem informação'.
-
-FORMATO DE SAÍDA:
-{{
-  "antecedentes": [
-    {{
-      "diagnostico": "Nome da doença",
-      "tipo": "Suspeita ou Confirmado",
-      "temporalidade": "Crónico ou Agudo",
-      "desde": "Data exata / Data calculada / Data do primeiro diário (Data do registo - Não confirmada) / Sem informação"    
-    }}
-  ]
-}}
-"""
-
-PROMPT_ANTECEDENTES = """
 Atua como um Médico Sénior. O teu objetivo é consolidar a lista de Antecedentes Pessoais e Diagnósticos do paciente.
 
 DADOS EXTRAÍDOS:
@@ -61,24 +32,28 @@ DADOS EXTRAÍDOS:
 {extracted_data}
 
 REGRAS CRÍTICAS PARA MEDICAÇÃO:
-1. FUSÃO INTELIGENTE: Cria uma única entrada por fármaco.
-2. PRIORIDADE: A Dosagem e Posologia devem vir do registo mais recente.
-3. HERANÇA TEMPORAL: Se o registo mais recente tiver campos vazios (Dosagem ou Posologia), herda o valor do registo anterior mais próximo que contenha essa informação (dentro do limite de 1.5 anos).
-4. INFERÊNCIA DE INDICAÇÃO: Se 'indicacao' estiver vazia, infere o motivo com base no contexto clínico. Não deixes vazio.
-5. Regra de Rastreabilidade: O campo 'diario_origem' deve conter estritamente o formato: "NOME DA ESPECIALIDADE - DATA".
-6. PROIBIÇÃO DE SOBREPOSIÇÃO: É estritamente proibido incluir qualquer valor de dosagem (mg, g, ml, mcg) no campo 'posologia'. .
+1. FUSÃO INTELIGENTE: Cria uma única entrada por fármaco. Cada fármaco entra só uma vez na lista final.
+2. Cada registo é a visita mais recente de uma especialidade (a urgência pode juntar várias notas do mesmo episódio). Cada fármaco tem 'tipo': "habitual" ou "suspensa".
+3. Base: o registo mais recente com pelo menos um fármaco "habitual" (salta os que não têm, seja qual for a especialidade).
+4. Se a medicação da base cobrir só doenças da própria especialidade (ex: só antiepiléticos num registo de Neurologia) é PARCIAL: guarda-a e repete esta análise no registo seguinte mais recente de OUTRA especialidade, até encontrares uma lista completa ou esgotares 1 ano. Se cobrir a medicação geral do doente, é COMPLETA: pára aqui.
+5. Antes de acrescentar um fármaco vindo de um registo mais antigo, confirma que não aparece como "suspensa" nalgum registo mais recente (até à base). Se aparecer, não incluas.
+6. INFERÊNCIA DE INDICAÇÃO: Se 'indicacao' estiver vazia, infere o motivo com base no contexto clínico. Não deixes vazio.
+7. Regra de Rastreabilidade: O campo 'diario_origem' deve conter estritamente o formato: "NOME DA ESPECIALIDADE - DATA".
+
+8. PRIORIDADE: A Dosagem e Posologia devem vir do registo mais recente.
+9. PROIBIÇÃO DE SOBREPOSIÇÃO: É estritamente proibido incluir qualquer valor de dosagem (mg, g, ml, mcg) no campo 'posologia'. .
    - DOSAGEM: Deve conter APENAS valores de concentração/quantidade seguidos de unidade de medida (ex: "5mg", "500mg", "10ml"). 
    - POSOLOGIA: Deve conter APENAS regime de toma/frequência (ex: "1 comp/dia", "ao deitar", "3 comp/dia").
-7. AVALIAÇÃO DE ERRO: 
+10. AVALIAÇÃO DE ERRO: 
   - Se o campo 'dosagem' contiver palavras como "comp", "dia", "toma", "jejum" ou "vezes", o conteúdo desse campo é, na verdade, POSOLOGIA.
   - Deves mover automaticamente esse conteúdo para o campo 'posologia' e deixar o campo 'dosagem' vazio (ou "N/A") se não existir uma concentração real.
-8.  É terminantemente proibido manter instruções de toma (ex: "3 comp/dia" ou "3 gotas/dia") no campo 'dosagem'.
+11.  É terminantemente proibido manter instruções de toma (ex: "3 comp/dia" ou "3 gotas/dia") no campo 'dosagem'.
 
 
 REGRAS CRÍTICAS PARA ALERGIAS (RASTREABILIDADE):
-4. Lista todas as alergias ou reações adversas medicamentosas.
-5. DESDUPLICAÇÃO CLÍNICA: Se a mesma alergia (ou alergia à mesma substância) for referida em vários registos, deves fundi-la numa única entrada na lista final (NÃO repitas alergias).
-6. REGISTO DE ORIGEM: Identifica o cabeçalho ("--- IDENTIFICAÇÃO E DATA DO REGISTO ---") onde a alergia aparece. Se a mesma alergia aparecer em vários registos de datas diferentes, guarda OBRIGATORIAMENTE o registo com a data mais ANTIGA no campo 'registo_origem', pois esse é o diagnóstico original.
+1. Lista todas as alergias ou reações adversas medicamentosas.
+2. DESDUPLICAÇÃO CLÍNICA: Se a mesma alergia (ou alergia à mesma substância) for referida em vários registos, deves fundi-la numa única entrada na lista final (NÃO repitas alergias).
+3. REGISTO DE ORIGEM: Identifica o cabeçalho ("--- IDENTIFICAÇÃO E DATA DO REGISTO ---") onde a alergia aparece. Se a mesma alergia aparecer em vários registos de datas diferentes, guarda OBRIGATORIAMENTE o registo com a data mais ANTIGA no campo 'registo_origem', pois esse é o diagnóstico original.
 
 FORMATO DE SAÍDA OBRIGATÓRIO (JSON VÁLIDO):
 {{

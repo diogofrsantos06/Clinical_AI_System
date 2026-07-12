@@ -24,7 +24,8 @@ class TriageAnalyzer:
 
         for attempt in range(1, max_attempts + 1):
             try:
-                raw_response, llm_duration, had_retry = chat(self.client, user_prompt, self.system_prompt)
+                stats = {}
+                raw_response, llm_duration, had_retry = chat(self.client, user_prompt, self.system_prompt, stats_sink=stats)
                 response = raw_response[0] if isinstance(raw_response, (tuple, list)) else str(raw_response)
 
                 if "504 Server Error" in response or "Gateway Timeout" in response:
@@ -55,7 +56,7 @@ class TriageAnalyzer:
                 if "exames" not in json_data:
                     raise ValueError("The JSON is missing the required 'exames' key.")
 
-                return clinical_text, json_data, llm_duration, (had_retry or attempt > 1)
+                return clinical_text, json_data, llm_duration, (had_retry or attempt > 1), stats.get("generation_tokens_per_second", 0.0), stats.get("model_ram_gb"), stats.get("model_vram_gb")
 
             except Exception as e:
                 print(f"[TRIAGE] Attempt {attempt}/{max_attempts} failed: {e}", flush=True)
@@ -66,4 +67,4 @@ class TriageAnalyzer:
                     return (
                         "Não foi possível realizar a análise clínica.",
                         {"triagem": "Erro de sistema na inferência.", "exames": []},
-                        0.0,True)
+                        0.0,True,0.0, None, None)

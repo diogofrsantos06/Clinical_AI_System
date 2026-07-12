@@ -52,7 +52,8 @@ class DiaryExtractor:
 
         for attempt in range(1, max_attempts + 1):
             try:
-                response, llm_duration, had_retry = chat(self.client, user_prompt, self.system_prompt)
+                stats = {}
+                response, llm_duration, had_retry = chat(self.client, user_prompt, self.system_prompt, stats_sink=stats)
 
                 json_str = self.clean_json_response(response)
                 data = json.loads(json_str)
@@ -68,6 +69,9 @@ class DiaryExtractor:
                     "data": data,
                     "llm_duration": llm_duration,
                     "had_retry": had_retry or (attempt > 1),
+                    "tokens_per_second": stats.get("generation_tokens_per_second", 0.0),
+                    "model_ram_gb": stats.get("model_ram_gb"),
+                    "model_vram_gb": stats.get("model_vram_gb"),
                     "status": "success"
                 }
 

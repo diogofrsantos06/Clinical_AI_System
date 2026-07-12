@@ -29,7 +29,8 @@ class Summarizer:
 
         for attempt in range(1, max_attempts + 1):
             try:
-                raw_response, duration, had_retry = chat(self.client, user_prompt, self.system_prompt)
+                stats = {}
+                raw_response, duration, had_retry = chat(self.client, user_prompt, self.system_prompt, stats_sink=stats)
                 response = raw_response[0] if isinstance(raw_response, (tuple, list)) else str(raw_response)
 
                 if "504 Server Error" in response or "Gateway Timeout" in response:
@@ -51,7 +52,7 @@ class Summarizer:
                     if not isinstance(data[key], expected_type):
                         raise ValueError(f"Key '{key}' has the wrong type. Expected: {expected_type.__name__}.")
 
-                return data, duration, (had_retry or attempt > 1)
+                return data, duration, (had_retry or attempt > 1), stats.get("generation_tokens_per_second", 0.0), stats.get("model_ram_gb"), stats.get("model_vram_gb")
 
             except Exception as e:
                 print(f"[{section_name}] Attempt {attempt}/{max_attempts} failed: {e}", flush=True)
@@ -81,7 +82,7 @@ class Summarizer:
                             salvaged_data[key] = fallbacks[key]
                             print(f"[{section_name}] -> Key '{key}' corrupted. Replaced with a safe error message.")
 
-                    return salvaged_data, 0.0, True
+                    return salvaged_data, 0.0, True, 0.0, None, None
 
     def generate_summary(self, all_extractions: Dict[str, Any], visit_dates: Dict[str, Any]) -> tuple:
         """Runs the 4 domain-specific LLM calls (antecedentes, medicação, exames, plano) and merges them."""
@@ -107,11 +108,11 @@ class Summarizer:
             schema = {"antecedentes": list}
             fallback = {"antecedentes": [{"diagnostico": "Erro: Não foi possível gerar o sumário de antecedentes.", "tipo": "N/A", "temporalidade": "N/A", "desde": "N/A"}]}
 
-            data, duration, had_retry = self.process_llm_section(user_prompt, "ANTECEDENTES", schema, fallback)
+            data, duration, had_retry, tokens_per_sec, model_ram, model_vram = self.process_llm_section(user_prompt, "ANTECEDENTES", schema, fallback)
             merged_summary.update(data)
             if had_retry:
                 any_retry = True
-            section_timings["ANTECEDENTES"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_antecedentes)}
+            section_timings["ANTECEDENTES"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_antecedentes), "tokens_per_second": tokens_per_sec, "model_ram_gb": model_ram, "model_vram_gb": model_vram}
         else:
             print("[ANTECEDENTES] Skipped: no data available.", flush=True)
 
@@ -119,19 +120,45 @@ class Summarizer:
         start_section = time.perf_counter()
         cutoff_date = datetime.now() - timedelta(days=365).date()  
 
-        medication_entries = []
+        medication_candidates = []
         for title, content in all_extractions.items():
             visit_date = get_date(title)
             if visit_date < cutoff_date:
                 continue
 
-            medications = content.get("medicacao", [])
+            medications = [m for m in content.get("medicacao", []) if m.get("tipo") != "administrada"]
             if medications:
-                medication_entries.append({'date': visit_date, 'title': title, 'medications': medications})
+                medication_candidates.append({'date': visit_date, 'title': title, 'medications': medications})
 
-        # Oldest first, so the LLM reads the medication history in chronological order
-        medication_entries.sort(key=lambda x: x['date'])
-        medication_dataset = {entry['title']: {"medicacao": entry['medications']} for entry in medication_entries}
+        # One representative per specialty: its own most recent diary with medication data.
+        latest_per_specialty = {}
+        for entry in medication_candidates:
+            specialty = entry['title'].split(' - ')[0].strip()
+            if specialty not in latest_per_specialty or entry['date'] > latest_per_specialty[specialty]['date']:
+                latest_per_specialty[specialty] = entry
+
+        representatives = []
+        for specialty, entry in latest_per_specialty.items():
+            if "HUC-URG" in specialty:
+                anchor_date = entry['date']
+                cluster_titles = []
+                cluster_medications = []
+
+                for candidate in medication_candidates:
+                    if "HUC-URG" not in candidate['title'].split(' - ')[0]:
+                        continue
+                    if anchor_date - timedelta(days=3) <= candidate['date'] <= anchor_date:
+                        cluster_titles.append(candidate['title'])
+                        cluster_medications.extend(candidate['medications'])
+
+                merged_title = entry['title'] if len(cluster_titles) <= 1 else f"{entry['title']} [episódio de urgência, inclui também: {', '.join(t for t in cluster_titles if t != entry['title'])}]"
+                representatives.append({'date': anchor_date, 'title': merged_title, 'medications': cluster_medications})
+            else:
+                representatives.append(entry)
+        
+
+        representatives.sort(key=lambda x: x['date'])
+        medication_dataset = {rep['title']: {"medicacao": rep['medications']} for rep in representatives}
 
         text_medication = change_data_format(medication_dataset, target_section="medicacao")
         text_allergies = change_data_format(all_extractions, target_section="alergias")  # allergies are kept in full, no date filtering
@@ -147,11 +174,11 @@ class Summarizer:
                 "alergias": [{"substancia": "N/A", "reacao": "N/A", "registo_origem": "N/A"}]
             }
 
-            data, duration, had_retry = self.process_llm_section(user_prompt, "MEDICAÇÃO/ALERGIAS", schema, fallback)
+            data, duration, had_retry, tokens_per_sec, model_ram, model_vram = self.process_llm_section(user_prompt, "MEDICAÇÃO/ALERGIAS", schema, fallback)
             merged_summary.update(data)
             if had_retry:
                 any_retry = True
-            section_timings["MEDICAÇÃO"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_medication_allergies)}
+            section_timings["MEDICAÇÃO"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_medication_allergies), "tokens_per_second": tokens_per_sec, "model_ram_gb": model_ram, "model_vram_gb": model_vram}
         else:
             print("[MEDICAÇÃO/ALERGIAS] Skipped: no data available.", flush=True)
 
@@ -181,7 +208,7 @@ class Summarizer:
             schema = {"exames": list}
             fallback = {"exames": [{"nome": "Sem exames realizados no último ano", "data": "N/A", "tipo_exame": "N/A", "resultado": "N/A"}]}
 
-            data, duration, had_retry = self.process_llm_section(user_prompt, "EXAMES", schema, fallback)
+            data, duration, had_retry, tokens_per_sec, model_ram, model_vram = self.process_llm_section(user_prompt, "EXAMES", schema, fallback)
 
             if data and isinstance(data.get("exames"), list) and len(data["exames"]) > 0:
                 if data["exames"][0].get("nome") != "Sem exames realizados no último ano":
@@ -189,11 +216,11 @@ class Summarizer:
 
             if had_retry:
                 any_retry = True
-            section_timings["EXAMES"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_exams)}
+            section_timings["EXAMES"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_exams), "tokens_per_second": tokens_per_sec, "model_ram_gb": model_ram, "model_vram_gb": model_vram}
         else:
             print("[EXAMES] Skipped: no exams in the last year.", flush=True)
             merged_summary.update({"exames": [{"nome": "N/A", "data": "N/A", "tipo_exame": "N/A", "resultado": "Sem exames registados no último ano."}]})
-            section_timings["EXAMES"] = {"duration": time.perf_counter() - start_section, "inference": 0.0, "input_size": 0}
+            section_timings["EXAMES"] = {"duration": time.perf_counter() - start_section, "inference": 0.0, "input_size": 0, "tokens_per_second": 0.0, "model_ram_gb": None, "model_vram_gb": None}
 
         # 4. THERAPEUTIC PLAN (most recent care plan per specialty, last year)
         start_section = time.perf_counter()
@@ -203,7 +230,7 @@ class Summarizer:
         latest_plan_per_specialty = {}
         plans_to_format = {}
 
-        for title, data in all_extractions.items():
+        for title, content in all_extractions.items():
             visit_date = get_date(title)
             if visit_date < one_year_ago:
                 continue
@@ -227,12 +254,12 @@ class Summarizer:
             schema = {"plano": list}
             fallback = {"plano": [{"especialidade": "N/A", "data": "N/A", "conteudo": "Erro ao gerar plano."}]}
 
-            data, duration, had_retry = self.process_llm_section(user_prompt, "PLANO", schema, fallback)
+            data, duration, had_retry, tokens_per_sec, model_ram, model_vram = self.process_llm_section(user_prompt, "PLANO", schema, fallback)
             merged_summary.update(data)
 
             if had_retry:
                 any_retry = True
-            section_timings["PLANO"] = {"duration": time.perf_counter() - start_section, "inference": duration}
+            section_timings["PLANO"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_plans), "tokens_per_second": tokens_per_sec, "model_ram_gb": model_ram, "model_vram_gb": model_vram}
 
         final_summary_text = json.dumps(merged_summary, ensure_ascii=False)
         total_llm_time = sum(section["inference"] for section in section_timings.values())

@@ -21,10 +21,10 @@ export default function AntecedentesSection({ antecedentes = [], searchTerm = ''
             </svg>
           </div>
           <div>
-            <h3 className="text-slate-900 m-0" style={{ fontFamily: 'Alice, serif', fontSize: '24px', letterSpacing: '-0.01em', fontWeight: 'bold', lineHeight: '1' }}>
+            <h3 className="text-slate-900 m-0" style={{ fontFamily: 'Alice, serif', fontSize: '28px', letterSpacing: '-0.01em', fontWeight: 'bold', lineHeight: '1' }}>
               Antecedentes Pessoais e Diagnósticos
             </h3>
-            <p style={{ color: 'var(--ink-500)', fontSize: '13px', marginTop: '3px', margin: 0 }}>
+            <p style={{ color: 'var(--ink-500)', fontSize: '13px', marginTop: '1px', margin: 0 }}>
               {diagnosticos.length} registos exibidos
             </p>
           </div>

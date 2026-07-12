@@ -59,6 +59,9 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
                         section_name=metric["section_name"],
                         duration_seconds=metric["duration_seconds"],
                         inference_duration=metric["inference_duration"],
+                        tokens_per_second=metric.get("tokens_per_second", 0.0),
+                        model_ram_gb=metric.get("model_ram_gb"),
+                        model_vram_gb=metric.get("model_vram_gb"),
                         input_size=metric["input_size"],
                         is_retry=metric["is_retry"],
                         patient=patient

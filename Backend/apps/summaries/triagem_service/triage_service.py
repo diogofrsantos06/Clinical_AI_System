@@ -44,6 +44,9 @@ def handle_triage_request(patient_id, triage_text):
             operation_type='TRIAGE_ANALYSIS',
             duration_seconds=duration_total,
             inference_duration=result.get("tempo_llm", 0.0),
+            tokens_per_second=result.get("tokens_per_second", 0.0),
+            model_ram_gb=result.get("model_ram_gb"),
+            model_vram_gb=result.get("model_vram_gb"),
             input_size=len(history) + len(triage_text),
             is_retry=result.get("houve_retry", False), 
             patient=patient

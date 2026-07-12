@@ -3,7 +3,7 @@ from .models import SystemNotification
 
 @admin.register(SystemNotification)
 class SystemNotificationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'patient', 'mensagem_curta', 'is_read', 'created_at')
+    list_display = ('id', 'patient', 'short_message', 'is_read', 'created_at')
     list_filter = ('is_read', 'created_at')
     readonly_fields = ('created_at',) # prevents accidentally editing the creation date
 

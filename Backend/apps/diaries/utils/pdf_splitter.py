@@ -93,13 +93,16 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
             max_attempts = 3
             cleaned_chunk_text = chunk_text
             had_retry = False
+            chunk_stats = {}
 
             for attempt in range(1, max_attempts + 1):
                 try:
+                    chunk_stats = {}
                     chat_result = chat(
                         client=client_llm,
                         user_prompt=f"Aqui está o bloco de páginas para limpar:\n\n{chunk_text}",
-                        system_prompt=SYS_PROMPT_PRE_CLEAN
+                        system_prompt=SYS_PROMPT_PRE_CLEAN,
+                        stats_sink = chunk_stats
                     )
 
                     response_text = chat_result[0] if isinstance(chat_result, (tuple, list)) else str(chat_result)
@@ -127,6 +130,9 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
                 "section_name": f"Bloco {int(i/chunk_size)+1}",
                 "duration_seconds": chunk_duration,
                 "inference_duration": chunk_duration,
+                "tokens_per_second": chunk_stats.get("generation_tokens_per_second", 0.0),
+                "model_ram_gb": chunk_stats.get("model_ram_gb"),
+                "model_vram_gb": chunk_stats.get("model_vram_gb"),
                 "input_size": len(chunk_text),
                 "is_retry": had_retry
             })

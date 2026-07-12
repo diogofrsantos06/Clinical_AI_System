@@ -55,7 +55,12 @@ export default function DiarioSection({ diarios, searchTerm = '' }) {
           const showYear = year !== currentYear;
           if (showYear) currentYear = year;
 
-          const isExpanded = expandedIds.includes(i);
+          const isExpanded = expandedIds.includes(d.id ?? i) || (
+            searchTerm.trim() && (
+              d.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              (d.original_text || '').toLowerCase().includes(searchTerm.toLowerCase())
+            )
+          );
           const tituloLimpo = d.title.split(' - ')[0];
           console.log("Diário completo:", d);
           return (
@@ -80,7 +85,7 @@ export default function DiarioSection({ diarios, searchTerm = '' }) {
                     <h4 className="font-bold text-slate-900 text-[15px] mb-1">
                        <Highlight text={tituloLimpo} term={searchTerm} /> ({d.diaLabel})
                     </h4>
-                    <button onClick={() => toggleExpand(i)} className="text-slate-400 hover:text-[#2d6a4f]">
+                    <button onClick={() => toggleExpand(d.id ?? i)} className="text-slate-400 hover:text-[#2d6a4f]">
                       {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                     </button>
                   </div>

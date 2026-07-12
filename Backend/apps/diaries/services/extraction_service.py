@@ -49,6 +49,9 @@ def extract_single_diary(diary, client=None):
             duration_seconds=result.get("total_duration", 0.0),
             inference_duration=result.get("llm_duration", 0.0),
             is_retry=result.get("had_retry", False),
+            tokens_per_second=result.get("tokens_per_second", 0.0),
+            model_ram_gb=result.get("model_ram_gb"),
+            model_vram_gb=result.get("model_vram_gb"),
             input_size=len(diary.original_text or ""),
             patient=diary.patient,
             diary=diary
@@ -71,7 +74,7 @@ def process_diary_batch(patient, segmented_diaries):
     """
     try:
         # Step 1: persist raw diaries right away, before the LLM runs
-        diary_objects = {}
+        diary_objects = []
         
         with transaction.atomic():
             for segment in segmented_diaries:
@@ -119,6 +122,9 @@ def process_diary_batch(patient, segmented_diaries):
                         duration_seconds=result.get("total_duration", 0.0),
                         inference_duration=result.get("llm_duration", 0.0),
                         is_retry=result.get("had_retry", False),
+                        tokens_per_second=result.get("tokens_per_second", 0.0),
+                        model_ram_gb=result.get("model_ram_gb"),
+                        model_vram_gb=result.get("model_vram_gb"), 
                         input_size=len(result.get("original_text", "")),
                         patient=patient,
                         diary=diary
