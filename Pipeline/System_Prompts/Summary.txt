@@ -14,7 +14,7 @@ REGRAS DE FILTRAGEM:
 
 REGRAS ESTREITAS DE FORMATAÇÃO:
 - Resposta em Português de Portugal.
-- TEXTO PURAMENTE SIMPLES (PLAIN TEXT). É ABSOLUTAMENTE PROIBIDO o uso de Markdown. Não uses asteriscos (** ou *), não uses cardinais (#), não uses negritos nem itálicos em NENHUMA circunstância.
+- TEXTO PURAMENTE SIMPLES (PLAIN TEXT). É PROIBIDO o uso de Markdown (negrito **texto**, itálico, cardinais #). ÚNICA EXCEÇÃO: o asterisco único no final de uma data (ex: "14-Jul-2023*") é um marcador válido de "data estimada" e deve ser mantido quando indicado nas regras da secção.
 - Usa LETRAS MAIÚSCULAS para os títulos das secções seguidas de dois pontos.
 - Usa listas com hífen (-) para itens.
 - Retorna exclusivamente o texto do resumo, sem introduções ou conclusões.

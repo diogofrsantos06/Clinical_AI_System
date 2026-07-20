@@ -2,7 +2,7 @@ import re, sys, time
 from pathlib import Path
 from datetime import date
 
-from Pipeline.ollama_local_client import chat
+from Pipeline.llm import chat
 
 BASE_DIR = Path(__file__).resolve().parent  
 PROJ_ROOT = BASE_DIR.parent                 

@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Dict, Any
 from datetime import datetime, timedelta, date
 
-from Pipeline.ollama_local_client import chat, get_client
+from Pipeline.llm import chat, get_client
 from Pipeline.Prompts.Summary_Prompt import PROMPT_ANTECEDENTES, PROMPT_MEDICACAO, PROMPT_EXAMES, PROMPT_PLANO
 from Pipeline.Summary_Codes.json_to_text import change_data_format
 
@@ -118,7 +118,7 @@ class Summarizer:
 
         # 2. MEDICATION AND ALLERGIES
         start_section = time.perf_counter()
-        cutoff_date = datetime.now() - timedelta(days=365).date()  
+        cutoff_date = (datetime.now() - timedelta(days=365)).date()  
 
         medication_candidates = []
         for title, content in all_extractions.items():
@@ -184,8 +184,7 @@ class Summarizer:
 
         # 3. EXAMES (complementary exams from the last year)
         start_section = time.perf_counter()
-        today = datetime.now()
-        one_year_ago = today - timedelta(days=365).date()
+        one_year_ago = (datetime.now() - timedelta(days=365)).date()
 
         exams_to_format = {}
         for title, data in all_extractions.items():
@@ -224,8 +223,7 @@ class Summarizer:
 
         # 4. THERAPEUTIC PLAN (most recent care plan per specialty, last year)
         start_section = time.perf_counter()
-        today = datetime.now()
-        one_year_ago = today - timedelta(days=365).date()
+        one_year_ago = (datetime.now() - timedelta(days=365)).date()
 
         latest_plan_per_specialty = {}
         plans_to_format = {}

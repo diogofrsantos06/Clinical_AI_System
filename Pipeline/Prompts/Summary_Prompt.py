@@ -5,12 +5,23 @@ DADOS EXTRAÍDOS:
 {extracted_data}
 
 REGRAS CRÍTICAS:
-1. FOCO CRÓNICO: Extrai APENAS diagnósticos crónicos e patologias ativas relevantes. IGNORA completamente diagnósticos agudos ou resolvidos.
-2. DESDUPLICAÇÃO E INFERÊNCIA CLÍNICA: É estritamente proibido listar a mesma doença mais do que uma vez. Deves analisar, inferir e fundir diagnósticos sinónimos, siglas, abreviaturas ou variações de escrita. Escolhe sempre fundi-los na nomenclatura médica mais completa e atualizada. Se houver evolução clínica (ex: "Nódulo" -> "Carcinoma"), mantém APENAS o diagnóstico evoluído.
-3. REGRA DA DATA ('desde'):
-   - Se o texto indicar claramente quando a doença foi diagnosticada (ex: "diagnosticado em 2015", "há 5 anos" ou "hoje"), calcula e escreve essa data exata/ano.
-   - Se a data exata do diagnóstico não for mencionada, mas a patologia constar no histórico, usa a data do cabeçalho mais antigo onde ela aparece e ADICIONA OBRIGATORIAMENTE um asterisco no final (ex: "14-Jul-2023*").
-4. Devolve EXCLUSIVAMENTE o objeto JSON válido abaixo.
+1. DESDUPLICAÇÃO E INFERÊNCIA CLÍNICA: É estritamente proibido listar a mesma doença mais do que uma vez. Deves analisar, inferir e fundir diagnósticos sinónimos, siglas, abreviaturas ou variações de escrita. Escolhe sempre fundi-los na nomenclatura médica mais completa e atualizada. Se houver evolução clínica (ex: "Nódulo" -> "Carcinoma"), mantém APENAS o diagnóstico evoluído.
+2. Campo 'data_diagnostico': para cada diagnóstico, procura entre todos os registos onde ele aparece.
+   - Se algum desses registos tiver 'data_diagnostico' preenchida, usa essa data (sem asterisco) — é a informação mais fiável que existe.
+   - Se nenhum tiver, usa a data do registo mais antigo (indicada no cabeçalho "--- IDENTIFICAÇÃO E DATA DO REGISTO ---") onde esse diagnóstico aparece, e acrescenta um asterisco no fim (ex: "14-Jul-2023*") a indicar que é uma data estimada.
+3. Mantém apenas diagnósticos confirmados que correspondam a doenças crónicas ativas e independentes.
+4. Exclui:
+   - doenças agudas e diagnósticos suspeitos;
+   - sintomas ou queixas (ex.: omalgia, dor, ansiedade referida) — EXCETO quando o próprio texto a nomeia como entidade clínica crónica e independente (ex.: "Obstipação Crónica", que deve ser mantida como diagnóstico).
+   - manifestações secundárias de outra doença;
+   - lesões traumáticas ou ortopédicas (roturas, meniscopatias, etc.);
+   - achados imagiológicos ou anatómicos (quistos, alterações degenerativas, hérnias, etc.);
+   - alterações laboratoriais ou défices (ex.: défice de vitamina D);
+   - infeções tratáveis ou resolvidas;
+   - antecedentes resolvidos, sequelas ou estados pós-operatórios.   
+Nota importante: a exclusão de "achados imagiológicos/anatómicos" e "alterações laboratoriais" aplica-se a descrições soltas de um exame (ex: "alterações degenerativas da coluna" mencionado num relatório de imagem, sem ser assumido como diagnóstico) 
+— NÃO se aplica a doenças diagnosticadas e nomeadas como tal, mesmo que a sua origem seja um exame de imagem ou uma análise (ex: "Osteoartrose", "Osteopenia", "Osteoporose" são diagnósticos verdadeiros e devem ser mantidos; "alterações degenerativas" ou "défice de vitamina D", sem nome de doença associado, não são).
+5. Devolve EXCLUSIVAMENTE o objeto JSON válido abaixo.
 
 FORMATO DE SAÍDA OBRIGATÓRIO:
 {{
@@ -82,7 +93,6 @@ Atua como um Médico Sénior. O teu objetivo é consolidar os Meios Complementar
 DADOS RECEBIDOS:
 {extracted_data}
 
-REGRAS DE OURO:
 REGRAS:
 1. FILTRAGEM: A tua entrada contém exames classificados como 'exame_objetivo' e 'exame_complementar'. Deves ignorar COMPLETAMENTE qualquer exame cuja categoria seja 'exame_objetivo'. Mantém apenas os classificados como 'exame_complementar'.
 2. VAZIO: Se o diário não contiver exames complementares (apenas objetivos ou nada), deves responder estritamente "SEM_DADOS" e não gerar nenhum objeto JSON.
@@ -92,7 +102,7 @@ REGRAS:
    - Proibido: Transcrever relatórios inteiros com descrições anatómicas normais que não contribuem para a decisão clínica.
 5. INTEGRIDADE: Se um exame for 'exame_complementar', ele DEVE aparecer no JSON final.
 
-FORMATO DE SAÍDA:
+FORMATO DE SAÍDA OBRIGATÓRIO (JSON VÁLIDO):
 {{
   "exames": [
     {{
@@ -103,6 +113,8 @@ FORMATO DE SAÍDA:
     }}
   ]
 }}
+
+IMPORTANTE: A tua resposta deve conter APENAS o objeto JSON pedido, começando em "{{" e terminando em "}}". Não escrevas nenhum texto, explicação ou título antes ou depois do JSON.
 """
 
 PROMPT_PLANO = """

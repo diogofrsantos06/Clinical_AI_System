@@ -1,7 +1,7 @@
 import json, re, time
 from typing import Dict, Any
 
-from Pipeline.ollama_local_client import chat, get_client
+from Pipeline.llm import chat, get_client
 from Pipeline.Prompts.Extraction_Prompt import get_prompt_for_diary_extraction
 
 LIST_FIELDS = ["diagnosticos", "medicacao", "alergias", "exames", "sintomas", "plano"]

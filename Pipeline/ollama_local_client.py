@@ -1,7 +1,6 @@
 import time, uuid, requests
 
-#DEFAULT_BASE_URL = "http://172.30.2.225:11434" 
-DEFAULT_BASE_URL = "http://172.30.2.225:8000/v1"
+DEFAULT_BASE_URL = "http://172.30.2.225:11434" 
 #DEFAULT_MODEL = "gemma3:27b" 
 #DEFAULT_MODEL = "qwen2.5:14b-instruct" 
 DEFAULT_MODEL = "qwen3:14b-q4_K_M"  
@@ -12,49 +11,87 @@ def get_client(base_url: str = DEFAULT_BASE_URL) -> dict:
     """Wraps the Ollama server URL in a simple client dict."""
     return {"base_url": base_url}
 
-def chat(client: dict, user_prompt: str, system_prompt: str = None, model: str = DEFAULT_MODEL, 
-         retries: int = 5, retry_delay: float = 2.0) -> tuple:
-    
+def chat(client: dict, user_prompt: str, system_prompt: str = None, model: str = DEFAULT_MODEL,
+         retries: int = 20, retry_delay: float = 1.0, keep_alive: int = -1, stats_sink: dict = None) -> tuple:
+    """Sends a chat request to Ollama, retrying on 404/503/network errors."""
     messages = []
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
     messages.append({"role": "user", "content": user_prompt})
 
-    # Payload simplificado para formato OpenAI/vLLM
     payload = {
         "model": model,
         "messages": messages,
-        "temperature": 0.0,
-        "max_tokens": 4096 # O vLLM usa max_tokens em vez de num_ctx
+        "stream": False,
+        "keep_alive": keep_alive,
+        "options": {
+            "temperature": 0.0,
+            "top_p": 1.0,
+            "num_ctx": CONTEXT_WINDOW,
+        },
     }
 
-    # O endpoint no vLLM é /chat/completions
-    url = f"{client['base_url']}/chat/completions"
-    
-    # Se te deram uma API KEY, usa-a aqui. Se não deram, tenta sem o header Authorization
+    url = f"{client['base_url']}/api/chat"
+    session_id = str(uuid.uuid4())
+
     headers = {
-        "Authorization": "Bearer vllm_ulsc_d66bdbbe68f4af13a90936bed53adfad0ded77a2", # Insere aqui a chave que recebeste
-        "Content-Type": "application/json"
+        "Connection": "close",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+        "X-Session-ID": session_id,
+        "X-Request-ID": session_id
     }
+
+    is_retry = False
 
     for attempt in range(1, retries + 1):
         try:
-            response = requests.post(url, json=payload, headers=headers, timeout=None)
-            
-            if response.status_code == 200:
-                data = response.json()
-                content = data["choices"][0]["message"]["content"]
-                return content, 0.0, False # Ajustar o cálculo do tempo se necessário
+            with requests.Session() as session:
+                start_inference = time.perf_counter()
 
-            if response.status_code in [429, 503]: # vLLM usa 429 para rate limit
+                response = session.post(url, json=payload, headers=headers, timeout=None)
+
+                if response.status_code == 200:
+                    duration = time.perf_counter() - start_inference
+                    data = response.json()
+                    
+                    if stats_sink is not None:
+                        from Pipeline.ollama_stats import parse_generation_stats, get_loaded_models
+                        stats_sink.update(parse_generation_stats(data))
+                        try:
+                            loaded = get_loaded_models(client)
+                            match = next((m for m in loaded if m["name"] == model), None)
+                            if match:
+                                stats_sink["model_ram_gb"] = match["size_ram_gb"]
+                                stats_sink["model_vram_gb"] = match["size_vram_gb"]
+                        except Exception:
+                            pass  # don't fail the whole call just because this extra lookup failed
+
+                    return data["message"]["content"], duration, is_retry
+
+                # Ollama returns 404 right after loading a new model into memory, and 503 when busy
+                if response.status_code in [404, 503]:
+                    is_retry = True
+                    if attempt < retries:
+                        print(f"[{session_id}] {response.status_code} - waiting {retry_delay:.0f}s before retrying...")
+                        time.sleep(retry_delay)
+                        continue
+                    return f"Error: {response.status_code} after {retries} attempts", 0.0, is_retry
+
+                response.raise_for_status()
+
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+            is_retry = True
+            if attempt < retries:
+                print(f"[{session_id}] Network error, waiting {retry_delay:.0f}s before retrying...")
                 time.sleep(retry_delay)
                 continue
-                
-            response.raise_for_status()
-            
-        except Exception as e:
-            if attempt == retries: return f"Error: {str(e)}", 0.0, True
-            time.sleep(retry_delay)
+
+            return f"Error: {str(e)}", 0.0, is_retry
+
+        except requests.exceptions.RequestException as e:
+            return f"Error: {str(e)}", 0.0, is_retry
+
 
 def ollama_warmup(client: dict, model: str = DEFAULT_MODEL) -> bool:
     """Sends a throwaway 1-token request so the model is already loaded when real work arrives."""
