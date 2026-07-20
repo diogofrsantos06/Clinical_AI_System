@@ -11,7 +11,7 @@ from ..summaries.models import Summary
 from ..summaries.services.patient_summary_service import generate_patient_summary
 
 from Pipeline.pipeline_segmentation import run_smart_segmentation
-from Pipeline.ollama_local_client import get_client, ollama_warmup, ollama_unload
+from Pipeline.llm import get_client, ollama_warmup, ollama_unload
 
 from .services.extraction_service import process_diary_batch
 

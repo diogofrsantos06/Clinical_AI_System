@@ -2,7 +2,7 @@ import os, fitz, io, re, time, pytesseract
 
 from PIL import Image, ImageEnhance, ImageOps
 
-from Pipeline.ollama_local_client import chat
+from Pipeline.llm import chat
     
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 

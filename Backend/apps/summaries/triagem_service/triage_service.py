@@ -1,6 +1,6 @@
 import time
 from Pipeline.pipeline_triagem import TriagePipeline
-from Pipeline.ollama_local_client import get_client, ollama_warmup, ollama_unload
+from Pipeline.llm import get_client, ollama_warmup, ollama_unload
 
 from apps.metrics.models import PerformanceMetric
 from apps.patients.models import Patient

@@ -5,7 +5,7 @@ from apps.metrics.models import PerformanceMetric
 from Pipeline.pipeline_extraction import ExtractionPipeline 
 from apps.notifications.models import SystemNotification
 from apps.summaries.models import Summary
-from Pipeline.ollama_local_client import get_client, ollama_warmup, ollama_unload
+from Pipeline.llm import get_client, ollama_warmup, ollama_unload
 
 logger = logging.getLogger(__name__)
 

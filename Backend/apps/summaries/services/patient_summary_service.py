@@ -6,7 +6,7 @@ from apps.metrics.models import PerformanceMetric
 from apps.notifications.models import SystemNotification
 from ..models import Summary
 
-from Pipeline.ollama_local_client import get_client, ollama_warmup, ollama_unload
+from Pipeline.llm import get_client, ollama_warmup, ollama_unload
 from Pipeline.pipeline_summary import SummaryPipeline
 
 logger = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ def generate_patient_summary(patient_id, client=None):
 
         total_duration = time.perf_counter() - start_total
 
-        input_size = len(json.dumps(all_extractions))
+        input_size = len(json.dumps(all_extractions, default=str))
 
         total_llm_inference_time = 0.0
 
