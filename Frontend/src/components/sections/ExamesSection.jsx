@@ -111,12 +111,19 @@ export default function ExamesSection({ exames = [], examesTriagem = [], searchT
                   <span className="text-xs text-gray-400 font-medium whitespace-nowrap ml-2">{diario.data}</span>
                 </div>
                 <div className="space-y-2">
-                  {diario.items.map((item, index) => (
-                    <div key={index} className="text-sm bg-gray-50 p-2 rounded border-l-4 border-[#216348]">
-                      <span className="font-semibold text-gray-800"><Highlight text={item.tipo} term={searchTerm} />: </span>
-                      <span className="text-gray-600"><Highlight text={item.resultado} term={searchTerm} /></span>
-                    </div>
-                  ))}
+                  {diario.items.map((item, index) => {
+                    // Evita mostrar o tipo se for redundante com o resultado (ex: Tipo: Bioquímica, Resultado: Bioquímica Normal)
+                    const isRedundante = !item.tipo || !item.resultado || item.resultado.toLowerCase().includes(item.tipo.toLowerCase());
+                    
+                    return (
+                      <div key={index} className="text-sm bg-gray-50 p-2 rounded border-l-4 border-[#216348]">
+                        {!isRedundante && (
+                          <span className="font-semibold text-gray-800"><Highlight text={item.tipo} term={searchTerm} />: </span>
+                        )}
+                        <span className="text-gray-600"><Highlight text={item.resultado} term={searchTerm} /></span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

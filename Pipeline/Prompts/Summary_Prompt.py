@@ -10,17 +10,14 @@ REGRAS CRÍTICAS:
    - Se algum desses registos tiver 'data_diagnostico' preenchida, usa essa data (sem asterisco) — é a informação mais fiável que existe.
    - Se nenhum tiver, usa a data do registo mais antigo (indicada no cabeçalho "--- IDENTIFICAÇÃO E DATA DO REGISTO ---") onde esse diagnóstico aparece, e acrescenta um asterisco no fim (ex: "14-Jul-2023*") a indicar que é uma data estimada.
 3. Mantém apenas diagnósticos confirmados que correspondam a doenças crónicas ativas e independentes.
-4. Exclui:
-   - doenças agudas e diagnósticos suspeitos;
-   - sintomas ou queixas (ex.: omalgia, dor, ansiedade referida) — EXCETO quando o próprio texto a nomeia como entidade clínica crónica e independente (ex.: "Obstipação Crónica", que deve ser mantida como diagnóstico).
-   - manifestações secundárias de outra doença;
-   - lesões traumáticas ou ortopédicas (roturas, meniscopatias, etc.);
-   - achados imagiológicos ou anatómicos (quistos, alterações degenerativas, hérnias, etc.);
-   - alterações laboratoriais ou défices (ex.: défice de vitamina D);
-   - infeções tratáveis ou resolvidas;
-   - antecedentes resolvidos, sequelas ou estados pós-operatórios.   
-Nota importante: a exclusão de "achados imagiológicos/anatómicos" e "alterações laboratoriais" aplica-se a descrições soltas de um exame (ex: "alterações degenerativas da coluna" mencionado num relatório de imagem, sem ser assumido como diagnóstico) 
-— NÃO se aplica a doenças diagnosticadas e nomeadas como tal, mesmo que a sua origem seja um exame de imagem ou uma análise (ex: "Osteoartrose", "Osteopenia", "Osteoporose" são diagnósticos verdadeiros e devem ser mantidos; "alterações degenerativas" ou "défice de vitamina D", sem nome de doença associado, não são).
+4. REGRAS DE EXCLUSÃO OBRIGATÓRIAS: Antes de incluíres qualquer diagnóstico na lista final, aplica OBRIGATORIAMENTE cada uma das regras seguintes a esse diagnóstico. Estas regras definem CATEGORIAS gerais, não uma lista fechada de doenças — aplica sempre o critério pela natureza da informação, independentemente do nome exato da doença ou da palavra usada no texto original.
+   a) Exclui qualquer diagnóstico agudo, e qualquer diagnóstico classificado como suspeita (não confirmado).
+   b) Exclui qualquer sintoma, sinal ou queixa clínica que não seja, em si, o nome formal de uma entidade clínica. Só é exceção quando o próprio texto nomeia essa queixa como uma entidade crónica independente e a trata como diagnóstico, não como sintoma.
+   c) Exclui qualquer valor, resultado ou achado de exame (imagem ou laboratorial) que seja descrito apenas como uma medida, alteração ou desvio do normal (incluindo explicitamente déficits nutricionais ou laboratoriais isolados, como deficiências de vitaminas ex: Vitamina E, ou anemias leves sem doença de base associada), sem que o texto o trate como uma patologia crónica major.
+   d) Exclui qualquer lesão traumática, ortopédica ou reumatológica regional/isolada (incluindo tendinopatias, bursites e trocanterites).
+   e) Exclui qualquer infeção já tratada ou resolvida, sequela, estado pós-operatório, ou lesões benignas passadas que já foram totalmente resolvidas/excisadas (incluindo pólipos uterinos, intestinais ou cutâneos removidos no passado).
+   f) Exclui qualquer diagnóstico que seja, clinicamente, uma manifestação ou complicação reconhecida de outro diagnóstico já presente nesta mesma lista, para este mesmo doente. Nestes casos, mantém apenas o diagnóstico principal (a doença de base), nunca as suas manifestações.
+   Em caso de dúvida sobre qualquer uma destas regras, exclui o diagnóstico.
 5. Devolve EXCLUSIVAMENTE o objeto JSON válido abaixo.
 
 FORMATO DE SAÍDA OBRIGATÓRIO:
@@ -50,16 +47,15 @@ REGRAS CRÍTICAS PARA MEDICAÇÃO:
 5. Antes de acrescentar um fármaco vindo de um registo mais antigo, confirma que não aparece como "suspensa" nalgum registo mais recente (até à base). Se aparecer, não incluas.
 6. INFERÊNCIA DE INDICAÇÃO: Se 'indicacao' estiver vazia, infere o motivo com base no contexto clínico. Não deixes vazio.
 7. Regra de Rastreabilidade: O campo 'diario_origem' deve conter estritamente o formato: "NOME DA ESPECIALIDADE - DATA".
-
 8. PRIORIDADE: A Dosagem e Posologia devem vir do registo mais recente.
-9. PROIBIÇÃO DE SOBREPOSIÇÃO: É estritamente proibido incluir qualquer valor de dosagem (mg, g, ml, mcg) no campo 'posologia'. .
+9. PROIBIÇÃO DE SOBREPOSIÇÃO: É estritamente proibido incluir qualquer valor de dosagem (mg, g, ml, mcg) no campo 'posologia'. 
    - DOSAGEM: Deve conter APENAS valores de concentração/quantidade seguidos de unidade de medida (ex: "5mg", "500mg", "10ml"). 
    - POSOLOGIA: Deve conter APENAS regime de toma/frequência (ex: "1 comp/dia", "ao deitar", "3 comp/dia").
 10. AVALIAÇÃO DE ERRO: 
   - Se o campo 'dosagem' contiver palavras como "comp", "dia", "toma", "jejum" ou "vezes", o conteúdo desse campo é, na verdade, POSOLOGIA.
   - Deves mover automaticamente esse conteúdo para o campo 'posologia' e deixar o campo 'dosagem' vazio (ou "N/A") se não existir uma concentração real.
-11.  É terminantemente proibido manter instruções de toma (ex: "3 comp/dia" ou "3 gotas/dia") no campo 'dosagem'.
-
+11. É terminantemente proibido manter instruções de toma (ex: "3 comp/dia" ou "3 gotas/dia") no campo 'dosagem'.
+12. TRADUÇÃO DE ABREVIATURAS DE POSOLOGIA: Interpreta corretamente as abreviaturas médicas latinas comuns: "id" significa "1 vez ao dia" (diário) e NUNCA "3 vezes/dia". Respeita rigorosamente a posologia unitária original sem extrapolar frequências falsas.
 
 REGRAS CRÍTICAS PARA ALERGIAS (RASTREABILIDADE):
 1. Lista todas as alergias ou reações adversas medicamentosas.
@@ -93,15 +89,16 @@ Atua como um Médico Sénior. O teu objetivo é consolidar os Meios Complementar
 DADOS RECEBIDOS:
 {extracted_data}
 
-REGRAS:
+REGRAS CRÍTICAS:
 1. FILTRAGEM: A tua entrada contém exames classificados como 'exame_objetivo' e 'exame_complementar'. Deves ignorar COMPLETAMENTE qualquer exame cuja categoria seja 'exame_objetivo'. Mantém apenas os classificados como 'exame_complementar'.
 2. VAZIO: Se o diário não contiver exames complementares (apenas objetivos ou nada), deves responder estritamente "SEM_DADOS" e não gerar nenhum objeto JSON.
-3. VALORES (Análises/Numéricos): Devem ser copiados na íntegra, sem omissões. Mantém a precisão dos números, unidades e referência (se houver).
-4. RELATÓRIOS (Texto/Imagem): Deves ler o texto completo, INFERIR o que é clinicamente relevante (achados patológicos, alterações, conclusões do radiologista/especialista) e escrever um resumo sucinto. 
-   - Objetivo: Extrair a conclusão clínica (o que importa para o tratamento).
-   - Proibido: Transcrever relatórios inteiros com descrições anatómicas normais que não contribuem para a decisão clínica.
-5. INTEGRIDADE: Se um exame for 'exame_complementar', ele DEVE aparecer no JSON final.
+3. TRATAMENTO DOS EXAMES (RIGOR ABSOLUTO DE REGISTO): 
+   - A) VALORES ANALÍTICOS (Numéricos): Devem ser transcrevidos na ÍNTEGRA, valor a valor, parâmetro a parâmetro. É terminantemente proibido omitir ou resumir valores analíticos.
+   - B) RESULTADOS QUALITATIVOS OU RESUMIDOS (Ex: "BQ: N", "Urina tipo: N", "Normal", "Negativo"): NUNCA os ignores ou elimines por não terem números. Se o resultado vier descrito como "N" (Normal) ou com uma menção qualitativa global, deves mantê-lo obrigatoriamente no JSON final indicando explicitamente esse estado (ex: "Normal / Sem alterações").
+   - C) RELATÓRIOS (Imagiologia, Endoscopias, etc.): Extrair APENAS os achados patológicos mais importantes e a conclusão clínica principal.
+4. INTEGRIDADE: Se um exame for 'exame_complementar', ele DEVE aparecer obrigatoriamente no JSON final. Não podes descartar nenhum painel analítico sob nenhuma circunstância.
 
+- TIPO DE EXAME: Indica apenas a categoria limpa (ex: "Bioquímica", "Urina Tipo II", "Hemograma"). Nunca repitas o nome do exame dentro do campo de resultado se isso gerar redundância.
 FORMATO DE SAÍDA OBRIGATÓRIO (JSON VÁLIDO):
 {{
   "exames": [

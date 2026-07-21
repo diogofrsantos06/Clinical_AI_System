@@ -49,7 +49,7 @@ export default function AntecedentesSection({ antecedentes = [], searchTerm = ''
                   display: 'grid', 
                   gridTemplateColumns: '1.8fr 1fr 0.8fr', 
                   gap: '16px', 
-                  padding: '8px 18px',  /* Reduzido de 14px para 8px para ficar mais fina */
+                  padding: '12px 18px',  /* Ajustado ligeiramente para dar bom respiro agora que tem uma linha só */
                   borderBottom: '1px solid var(--ink-50)', 
                   fontSize: '13.5px', 
                   alignItems: 'center' 
@@ -57,9 +57,8 @@ export default function AntecedentesSection({ antecedentes = [], searchTerm = ''
                 className="hover:bg-slate-50 transition-colors last:border-0"
               >
                 <div>
-                  <div className="font-medium text-slate-800"><Highlight text={item.diagnostico} term={searchTerm} /></div>
-                  <div className="text-xs text-slate-500 font-normal mt-0.5">
-                    <Highlight text={item.tipo || 'N/A'} term={searchTerm} />
+                  <div className="font-semibold text-slate-900" style={{ fontSize: '15px' }}>
+                      <Highlight text={item.diagnostico} term={searchTerm} />
                   </div>
                 </div>
 
