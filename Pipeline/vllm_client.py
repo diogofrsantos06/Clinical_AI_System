@@ -1,4 +1,4 @@
-import time
+import time, re
 import uuid
 import requests
 
@@ -8,6 +8,39 @@ DEFAULT_MODEL = "qwen3.6-35b-a3b"  # ajusta para o nome exato devolvido por /v1/
 # O servidor usa um certificado autoassinado (confirmado no exemplo do orientador,
 # que também desativa a validação). Se um dia houver um certificado válido, muda para True.
 VERIFY_TLS = False
+
+_METRIC_LINE = re.compile(r'^(vllm:[a-zA-Z0-9_]+)(\{[^}]*\})?\s+([-\d.eE+]+)$')
+
+def _get_server_load(client: dict) -> dict:
+    """
+    Fetches a lightweight snapshot from vLLM's /metrics (Prometheus text format):
+    how full the KV cache is, and how many requests are queued right now. Best-effort
+    only — if it fails for any reason, returns empty values instead of breaking the
+    actual chat request.
+    """
+    try:
+        response = requests.get(f"{client['base_url']}/metrics", timeout=5, verify=VERIFY_TLS)
+        response.raise_for_status()
+
+        kv_cache_usage_percent = None
+        requests_waiting = None
+
+        for line in response.text.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            match = _METRIC_LINE.match(line)
+            if not match:
+                continue
+            name, _, value = match.groups()
+            if name in ("vllm:gpu_cache_usage_perc", "vllm:kv_cache_usage_perc"):
+                kv_cache_usage_percent = float(value)
+            elif name == "vllm:num_requests_waiting":
+                requests_waiting = int(float(value))
+
+        return {"kv_cache_usage_percent": kv_cache_usage_percent, "requests_waiting": requests_waiting}
+    except Exception:
+        return {"kv_cache_usage_percent": None, "requests_waiting": None}
 
 
 def get_client(base_url: str = DEFAULT_BASE_URL) -> dict:
@@ -63,7 +96,8 @@ def chat(client: dict, user_prompt: str, system_prompt: str = None, model: str =
             if response.status_code == 200:
                 duration = time.perf_counter() - start_inference
                 data = response.json()
-                content = data["choices"][0]["message"]["content"]
+                choice = data["choices"][0]
+                content = choice["message"]["content"]
 
                 if stats_sink is not None:
                     usage = data.get("usage") or {}
@@ -71,6 +105,9 @@ def chat(client: dict, user_prompt: str, system_prompt: str = None, model: str =
                     stats_sink.update({
                         "prompt_tokens": usage.get("prompt_tokens", 0),
                         "generated_tokens": completion_tokens,
+                        "completion_tokens": completion_tokens,
+                        "finish_reason": choice.get("finish_reason"),
+                        "attempt_count": attempt,
                         # Wall-clock based (network + inference): vLLM's usage block,
                         # unlike Ollama's response, doesn't include the server's own
                         # generation-only duration, so this is the closest available.
@@ -79,6 +116,8 @@ def chat(client: dict, user_prompt: str, system_prompt: str = None, model: str =
                         "model_ram_gb": None,
                         "model_vram_gb": None,
                     })
+                    stats_sink.update(_get_server_load(client))
+
 
                 return content, duration, is_retry
 

@@ -23,15 +23,24 @@ class PerformanceMetric(models.Model):
     duration_seconds = models.FloatField(help_text="Tempo total da operação (inclui código Python + LLM)")
     inference_duration = models.FloatField(default=0.0, help_text="Tempo exclusivo de inferência da LLM")
 
-    # Size and speed
+    # Tamanho e Velocidade
     input_size = models.IntegerField(help_text="Número de caracteres processados (Input)")
     tokens_per_second = models.FloatField(null=True, blank=True, help_text="Velocidade de geração da LLM")
+    prompt_tokens = models.IntegerField(null=True, blank=True, help_text="Tokens reais de entrada, devolvidos pelo servidor")
+    completion_tokens = models.IntegerField(null=True, blank=True, help_text="Tokens reais gerados na resposta")
+    finish_reason = models.CharField(max_length=20, null=True, blank=True, help_text="'stop' (terminou naturalmente) ou 'length' (cortado pelo limite de tokens)")
     model_ram_gb = models.FloatField(null=True, blank=True, help_text="RAM ocupada pelo modelo no momento da chamada")
     model_vram_gb = models.FloatField(null=True, blank=True, help_text="VRAM ocupada pelo modelo no momento da chamada")
 
+    # Estado do servidor no momento da chamada (só vLLM, via /metrics; fica vazio no Ollama)
+    kv_cache_usage_percent = models.FloatField(null=True, blank=True, help_text="Fração do KV cache ocupada no momento da chamada (0.0-1.0)")
+    requests_waiting = models.IntegerField(null=True, blank=True, help_text="Pedidos em fila de espera no servidor no momento da chamada")
+
     # Error handling
     is_retry = models.BooleanField(default=False, help_text="Se a LLM falhou a 1ª tentativa e precisou de retry")
+    attempt_count = models.IntegerField(null=True, blank=True, help_text="Número de tentativas até obter uma resposta válida (1 a 3)")
     fallback_used = models.BooleanField(default=False, help_text="Se falhou as 3x e aplicou dados parciais/erros")
+    error_type = models.CharField(max_length=30, null=True, blank=True, help_text="Categoria do erro quando fallback_used=True: 'invalid_json', 'missing_key', 'network', 'timeout'")
 
     # Relations
     patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True, blank=True, related_name='metrics')

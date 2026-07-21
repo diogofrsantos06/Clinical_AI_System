@@ -72,6 +72,12 @@ class DiaryExtractor:
                     "tokens_per_second": stats.get("generation_tokens_per_second", 0.0),
                     "model_ram_gb": stats.get("model_ram_gb"),
                     "model_vram_gb": stats.get("model_vram_gb"),
+                    "prompt_tokens": stats.get("prompt_tokens"),
+                    "completion_tokens": stats.get("completion_tokens"),
+                    "finish_reason": stats.get("finish_reason"),
+                    "attempt_count": stats.get("attempt_count", attempt),
+                    "kv_cache_usage_percent": stats.get("kv_cache_usage_percent"),
+                    "requests_waiting": stats.get("requests_waiting"),
                     "status": "success"
                 }
 
@@ -84,10 +90,14 @@ class DiaryExtractor:
                 else:
                     print("[EXTRACTION] Retry limit reached! Creating an empty record to avoid blocking the pipeline.", flush=True)
 
+                    error_type = "invalid_json" if "JSON" in str(e) else "invalid_schema"
+
                     return {
                         "data": {},
                         "llm_duration": 0.0,
                         "had_retry": True,
                         "status": "success",  # kept as "success" on purpose: this is a graceful-degradation path, not a pipeline error, see 'extraction_failed' below
-                        "extraction_failed": True
+                        "extraction_failed": True,
+                        "fallback_used": True,
+                        "error_type": error_type,
                     }

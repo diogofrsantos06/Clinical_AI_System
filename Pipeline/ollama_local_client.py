@@ -1,4 +1,6 @@
 import time, uuid, requests
+from Pipeline.ollama_stats import parse_generation_stats, get_loaded_models
+
 
 DEFAULT_BASE_URL = "http://172.30.2.225:11434" 
 #DEFAULT_MODEL = "gemma3:27b" 
@@ -56,8 +58,11 @@ def chat(client: dict, user_prompt: str, system_prompt: str = None, model: str =
                     data = response.json()
                     
                     if stats_sink is not None:
-                        from Pipeline.ollama_stats import parse_generation_stats, get_loaded_models
                         stats_sink.update(parse_generation_stats(data))
+                        stats_sink["prompt_tokens"] = data.get("prompt_eval_count", 0)
+                        stats_sink["completion_tokens"] = data.get("eval_count", 0)
+                        stats_sink["finish_reason"] = data.get("done_reason")
+                        stats_sink["attempt_count"] = attempt
                         try:
                             loaded = get_loaded_models(client)
                             match = next((m for m in loaded if m["name"] == model), None)

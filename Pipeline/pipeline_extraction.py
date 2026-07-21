@@ -29,6 +29,14 @@ class ExtractionPipeline:
                 "tokens_per_second": extraction_result.get("tokens_per_second", 0.0),
                 "model_ram_gb": extraction_result.get("model_ram_gb"),
                 "model_vram_gb": extraction_result.get("model_vram_gb"),
+                "prompt_tokens": extraction_result.get("prompt_tokens"),
+                "completion_tokens": extraction_result.get("completion_tokens"),
+                "finish_reason": extraction_result.get("finish_reason"),
+                "attempt_count": extraction_result.get("attempt_count"),
+                "kv_cache_usage_percent": extraction_result.get("kv_cache_usage_percent"),
+                "requests_waiting": extraction_result.get("requests_waiting"),
+                "fallback_used": extraction_result.get("fallback_used", False),
+                "error_type": extraction_result.get("error_type"),
                 "total_duration": total_duration
             }
 

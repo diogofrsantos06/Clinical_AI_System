@@ -62,10 +62,17 @@ def generate_patient_summary(patient_id, client=None):
         input_size = len(json.dumps(all_extractions, default=str))
 
         total_llm_inference_time = 0.0
+        total_prompt_tokens = 0
+        total_completion_tokens = 0
+        any_fallback_used = False
 
         if isinstance(section_timings, dict):
             for section_name, section_metrics in section_timings.items():
                 total_llm_inference_time += section_metrics["inference"]
+                total_prompt_tokens += section_metrics.get("prompt_tokens") or 0
+                total_completion_tokens += section_metrics.get("completion_tokens") or 0
+                if section_metrics.get("fallback_used"):
+                    any_fallback_used = True
 
                 PerformanceMetric.objects.create(
                     operation_type='SUMM_SECTION',
@@ -75,6 +82,14 @@ def generate_patient_summary(patient_id, client=None):
                     tokens_per_second=section_metrics.get("tokens_per_second", 0.0),
                     model_ram_gb=section_metrics.get("model_ram_gb"),
                     model_vram_gb=section_metrics.get("model_vram_gb"),
+                    prompt_tokens=section_metrics.get("prompt_tokens"),
+                    completion_tokens=section_metrics.get("completion_tokens"),
+                    finish_reason=section_metrics.get("finish_reason"),
+                    attempt_count=section_metrics.get("attempt_count"),
+                    kv_cache_usage_percent=section_metrics.get("kv_cache_usage_percent"),
+                    requests_waiting=section_metrics.get("requests_waiting"),
+                    fallback_used=section_metrics.get("fallback_used", False),
+                    error_type=section_metrics.get("error_type"),
                     input_size=section_metrics.get("input_size", 0),
                     is_retry=False,
                     patient=patient
@@ -85,11 +100,14 @@ def generate_patient_summary(patient_id, client=None):
             section_name='TOTAL',
             duration_seconds=total_duration,
             inference_duration=total_llm_inference_time,
+            prompt_tokens=total_prompt_tokens,
+            completion_tokens=total_completion_tokens,
+            fallback_used=any_fallback_used,
             input_size=input_size,
             is_retry=had_retry,
             patient=patient
         )
-
+        
         summary, created = Summary.objects.update_or_create(
             patient=patient,
             defaults={"summary_text": summary_text}

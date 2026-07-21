@@ -15,11 +15,11 @@ class TriagePipeline:
         try:
             result = self.analyzer.analyze(triage_text, patient_history)
 
-            if not isinstance(result, tuple) or len(result) < 4:
+            if not isinstance(result, tuple) or len(result) < 8:
                 print(f"[TRIAGE PIPELINE] Unexpected return from the analyzer: {result}", flush=True)
                 return {"error": "Invalid return format from the analyzer"}
 
-            clinical_text, structured_data, llm_duration, had_retry, tokens_per_second, model_ram_gb, model_vram_gb  = result
+            clinical_text, structured_data, llm_duration, had_retry, tokens_per_second, model_ram_gb, model_vram_gb, extra_stats = result
 
             if 'triagem' not in structured_data:
                 print(f"[TRIAGE PIPELINE] WARNING - 'triagem' key not found in: {structured_data}", flush=True)
@@ -31,7 +31,8 @@ class TriagePipeline:
                 "houve_retry": had_retry,
                 "tokens_per_second": tokens_per_second,
                 "model_ram_gb": model_ram_gb,
-                "model_vram_gb": model_vram_gb
+                "model_vram_gb": model_vram_gb,
+                **extra_stats
             }
 
         except Exception as e:

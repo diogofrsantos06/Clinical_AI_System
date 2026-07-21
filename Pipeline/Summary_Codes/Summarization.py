@@ -52,7 +52,17 @@ class Summarizer:
                     if not isinstance(data[key], expected_type):
                         raise ValueError(f"Key '{key}' has the wrong type. Expected: {expected_type.__name__}.")
 
-                return data, duration, (had_retry or attempt > 1), stats.get("generation_tokens_per_second", 0.0), stats.get("model_ram_gb"), stats.get("model_vram_gb")
+                extra_stats = {
+                    "prompt_tokens": stats.get("prompt_tokens"),
+                    "completion_tokens": stats.get("completion_tokens"),
+                    "finish_reason": stats.get("finish_reason"),
+                    "attempt_count": stats.get("attempt_count", attempt),
+                    "kv_cache_usage_percent": stats.get("kv_cache_usage_percent"),
+                    "requests_waiting": stats.get("requests_waiting"),
+                    "fallback_used": False,
+                    "error_type": None,
+                }
+                return data, duration, (had_retry or attempt > 1), stats.get("generation_tokens_per_second", 0.0), stats.get("model_ram_gb"), stats.get("model_vram_gb"), extra_stats
 
             except Exception as e:
                 print(f"[{section_name}] Attempt {attempt}/{max_attempts} failed: {e}", flush=True)
@@ -82,7 +92,12 @@ class Summarizer:
                             salvaged_data[key] = fallbacks[key]
                             print(f"[{section_name}] -> Key '{key}' corrupted. Replaced with a safe error message.")
 
-                    return salvaged_data, 0.0, True, 0.0, None, None
+                    extra_stats = {
+                        "prompt_tokens": None, "completion_tokens": None, "finish_reason": None,
+                        "attempt_count": attempt, "kv_cache_usage_percent": None, "requests_waiting": None,
+                        "fallback_used": True, "error_type": "invalid_json",
+                    }
+                    return salvaged_data, 0.0, True, 0.0, None, None, extra_stats
 
     def generate_summary(self, all_extractions: Dict[str, Any], visit_dates: Dict[str, Any]) -> tuple:
         """Runs the 4 domain-specific LLM calls (antecedentes, medicação, exames, plano) and merges them."""
@@ -108,11 +123,11 @@ class Summarizer:
             schema = {"antecedentes": list}
             fallback = {"antecedentes": [{"diagnostico": "Erro: Não foi possível gerar o sumário de antecedentes.", "tipo": "N/A", "temporalidade": "N/A", "desde": "N/A"}]}
 
-            data, duration, had_retry, tokens_per_sec, model_ram, model_vram = self.process_llm_section(user_prompt, "ANTECEDENTES", schema, fallback)
+            data, duration, had_retry, tokens_per_sec, model_ram, model_vram, extra_stats = self.process_llm_section(user_prompt, "ANTECEDENTES", schema, fallback)
             merged_summary.update(data)
             if had_retry:
                 any_retry = True
-            section_timings["ANTECEDENTES"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_antecedentes), "tokens_per_second": tokens_per_sec, "model_ram_gb": model_ram, "model_vram_gb": model_vram}
+            section_timings["ANTECEDENTES"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_antecedentes), "tokens_per_second": tokens_per_sec, "model_ram_gb": model_ram, "model_vram_gb": model_vram, **extra_stats}
         else:
             print("[ANTECEDENTES] Skipped: no data available.", flush=True)
 
@@ -174,11 +189,11 @@ class Summarizer:
                 "alergias": [{"substancia": "N/A", "reacao": "N/A", "registo_origem": "N/A"}]
             }
 
-            data, duration, had_retry, tokens_per_sec, model_ram, model_vram = self.process_llm_section(user_prompt, "MEDICAÇÃO/ALERGIAS", schema, fallback)
+            data, duration, had_retry, tokens_per_sec, model_ram, model_vram, extra_stats = self.process_llm_section(user_prompt, "MEDICAÇÃO/ALERGIAS", schema, fallback)
             merged_summary.update(data)
             if had_retry:
                 any_retry = True
-            section_timings["MEDICAÇÃO"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_medication_allergies), "tokens_per_second": tokens_per_sec, "model_ram_gb": model_ram, "model_vram_gb": model_vram}
+            section_timings["MEDICAÇÃO"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_medication_allergies), "tokens_per_second": tokens_per_sec, "model_ram_gb": model_ram, "model_vram_gb": model_vram, **extra_stats}
         else:
             print("[MEDICAÇÃO/ALERGIAS] Skipped: no data available.", flush=True)
 
@@ -207,7 +222,7 @@ class Summarizer:
             schema = {"exames": list}
             fallback = {"exames": [{"nome": "Sem exames realizados no último ano", "data": "N/A", "tipo_exame": "N/A", "resultado": "N/A"}]}
 
-            data, duration, had_retry, tokens_per_sec, model_ram, model_vram = self.process_llm_section(user_prompt, "EXAMES", schema, fallback)
+            data, duration, had_retry, tokens_per_sec, model_ram, model_vram, extra_stats = self.process_llm_section(user_prompt, "EXAMES", schema, fallback)
 
             if data and isinstance(data.get("exames"), list) and len(data["exames"]) > 0:
                 if data["exames"][0].get("nome") != "Sem exames realizados no último ano":
@@ -215,11 +230,12 @@ class Summarizer:
 
             if had_retry:
                 any_retry = True
-            section_timings["EXAMES"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_exams), "tokens_per_second": tokens_per_sec, "model_ram_gb": model_ram, "model_vram_gb": model_vram}
+            section_timings["EXAMES"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_exams), "tokens_per_second": tokens_per_sec, "model_ram_gb": model_ram, "model_vram_gb": model_vram, **extra_stats}
         else:
             print("[EXAMES] Skipped: no exams in the last year.", flush=True)
             merged_summary.update({"exames": [{"nome": "N/A", "data": "N/A", "tipo_exame": "N/A", "resultado": "Sem exames registados no último ano."}]})
-            section_timings["EXAMES"] = {"duration": time.perf_counter() - start_section, "inference": 0.0, "input_size": 0, "tokens_per_second": 0.0, "model_ram_gb": None, "model_vram_gb": None}
+            section_timings["EXAMES"] = {"duration": time.perf_counter() - start_section, "inference": 0.0, "input_size": 0, "tokens_per_second": 0.0, "model_ram_gb": None, "model_vram_gb": None, "prompt_tokens": None, "completion_tokens": None, "finish_reason": None, "attempt_count": None, "kv_cache_usage_percent": None, "requests_waiting": None, "fallback_used": False, "error_type": None}
+
 
         # 4. THERAPEUTIC PLAN (most recent care plan per specialty, last year)
         start_section = time.perf_counter()
@@ -252,12 +268,12 @@ class Summarizer:
             schema = {"plano": list}
             fallback = {"plano": [{"especialidade": "N/A", "data": "N/A", "conteudo": "Erro ao gerar plano."}]}
 
-            data, duration, had_retry, tokens_per_sec, model_ram, model_vram = self.process_llm_section(user_prompt, "PLANO", schema, fallback)
+            data, duration, had_retry, tokens_per_sec, model_ram, model_vram, extra_stats = self.process_llm_section(user_prompt, "PLANO", schema, fallback)
             merged_summary.update(data)
 
             if had_retry:
                 any_retry = True
-            section_timings["PLANO"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_plans), "tokens_per_second": tokens_per_sec, "model_ram_gb": model_ram, "model_vram_gb": model_vram}
+            section_timings["PLANO"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_plans), "tokens_per_second": tokens_per_sec, "model_ram_gb": model_ram, "model_vram_gb": model_vram, **extra_stats}
 
         final_summary_text = json.dumps(merged_summary, ensure_ascii=False)
         total_llm_time = sum(section["inference"] for section in section_timings.values())

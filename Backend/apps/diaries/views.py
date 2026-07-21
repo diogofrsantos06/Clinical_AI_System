@@ -62,10 +62,19 @@ class ClinicalDiaryViewSet(viewsets.ModelViewSet):
                         tokens_per_second=metric.get("tokens_per_second", 0.0),
                         model_ram_gb=metric.get("model_ram_gb"),
                         model_vram_gb=metric.get("model_vram_gb"),
+                        prompt_tokens=metric.get("prompt_tokens"),
+                        completion_tokens=metric.get("completion_tokens"),
+                        finish_reason=metric.get("finish_reason"),
+                        attempt_count=metric.get("attempt_count"),
+                        kv_cache_usage_percent=metric.get("kv_cache_usage_percent"),
+                        requests_waiting=metric.get("requests_waiting"),
+                        fallback_used=metric.get("fallback_used", False),
+                        error_type=metric.get("error_type"),
                         input_size=metric["input_size"],
                         is_retry=metric["is_retry"],
                         patient=patient
                     )
+                    
                 print(f"[METRICS] Saved {len(collected_metrics)} OCR/cleanup metrics.", flush=True)
 
             if not clean_full_text.strip():

@@ -4,10 +4,10 @@ from PIL import Image, ImageEnhance, ImageOps
 
 from Pipeline.llm import chat
     
-#pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-caminho_tesseract = os.getenv('TESSERACT_PATH', 'tesseract')
-pytesseract.pytesseract.tesseract_cmd = caminho_tesseract
+#caminho_tesseract = os.getenv('TESSERACT_PATH', 'tesseract')
+#pytesseract.pytesseract.tesseract_cmd = caminho_tesseract
 
 SYS_PROMPT_PRE_CLEAN = """A tua ÚNICA tarefa é transcrever o texto fornecido, linha a linha, limpando APENAS o lixo institucional e dados pessoais, mantendo 100% da informação clínica e notas médicas intactas, na sua exata ordem original.
 
@@ -94,6 +94,8 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
             cleaned_chunk_text = chunk_text
             had_retry = False
             chunk_stats = {}
+            attempts_exhausted = False
+            error_type = None
 
             for attempt in range(1, max_attempts + 1):
                 try:
@@ -116,12 +118,14 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
 
                 except Exception as e:
                     print(f"[LLM PRE-CLEAN] Attempt {attempt}/{max_attempts} failed: {str(e)}", flush=True)
+                    error_type = "timeout" if "Timeout" in str(e) else "network"
                     if attempt < max_attempts:
                         print("[LLM PRE-CLEAN] Waiting 5 seconds...", flush=True)
                         time.sleep(5)
                     else:
                         print("[LLM PRE-CLEAN] Retry limit reached! Falling back to the raw OCR text to avoid data loss.", flush=True)
                         had_retry = True
+                        attempts_exhausted = True
 
             chunk_duration = time.perf_counter() - start_chunk
 
@@ -133,6 +137,14 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
                 "tokens_per_second": chunk_stats.get("generation_tokens_per_second", 0.0),
                 "model_ram_gb": chunk_stats.get("model_ram_gb"),
                 "model_vram_gb": chunk_stats.get("model_vram_gb"),
+                "prompt_tokens": chunk_stats.get("prompt_tokens"),
+                "completion_tokens": chunk_stats.get("completion_tokens"),
+                "finish_reason": chunk_stats.get("finish_reason"),
+                "attempt_count": chunk_stats.get("attempt_count", attempt),
+                "kv_cache_usage_percent": chunk_stats.get("kv_cache_usage_percent"),
+                "requests_waiting": chunk_stats.get("requests_waiting"),
+                "fallback_used": attempts_exhausted,
+                "error_type": error_type if attempts_exhausted else None,
                 "input_size": len(chunk_text),
                 "is_retry": had_retry
             })

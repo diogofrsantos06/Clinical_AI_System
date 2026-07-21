@@ -56,15 +56,30 @@ class TriageAnalyzer:
                 if "exames" not in json_data:
                     raise ValueError("The JSON is missing the required 'exames' key.")
 
-                return clinical_text, json_data, llm_duration, (had_retry or attempt > 1), stats.get("generation_tokens_per_second", 0.0), stats.get("model_ram_gb"), stats.get("model_vram_gb")
-
+                extra_stats = {
+                    "prompt_tokens": stats.get("prompt_tokens"),
+                    "completion_tokens": stats.get("completion_tokens"),
+                    "finish_reason": stats.get("finish_reason"),
+                    "attempt_count": stats.get("attempt_count", attempt),
+                    "kv_cache_usage_percent": stats.get("kv_cache_usage_percent"),
+                    "requests_waiting": stats.get("requests_waiting"),
+                    "fallback_used": False,
+                    "error_type": None,
+                }
+                return clinical_text, json_data, llm_duration, (had_retry or attempt > 1), stats.get("generation_tokens_per_second", 0.0), stats.get("model_ram_gb"), stats.get("model_vram_gb"), extra_stats
+            
             except Exception as e:
                 print(f"[TRIAGE] Attempt {attempt}/{max_attempts} failed: {e}", flush=True)
                 if attempt < max_attempts:
                     time.sleep(5)
                 else:
                     print("[TRIAGE] Retry limit reached! Returning the safety fallback.", flush=True)
+                    extra_stats = {
+                        "prompt_tokens": None, "completion_tokens": None, "finish_reason": None,
+                        "attempt_count": attempt, "kv_cache_usage_percent": None, "requests_waiting": None,
+                        "fallback_used": True, "error_type": "invalid_json",
+                    }
                     return (
                         "Não foi possível realizar a análise clínica.",
                         {"triagem": "Erro de sistema na inferência.", "exames": []},
-                        0.0,True,0.0, None, None)
+                        0.0, True, 0.0, None, None, extra_stats)
