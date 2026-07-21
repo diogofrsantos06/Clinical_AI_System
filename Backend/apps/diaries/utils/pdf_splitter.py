@@ -4,7 +4,7 @@ from PIL import Image, ImageEnhance, ImageOps
 
 from Pipeline.llm import chat
     
-3pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+#pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 caminho_tesseract = os.getenv('TESSERACT_PATH', 'tesseract')
 pytesseract.pytesseract.tesseract_cmd = caminho_tesseract
