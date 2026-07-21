@@ -99,7 +99,7 @@ class Summarizer:
                     }
                     return salvaged_data, 0.0, True, 0.0, None, None, extra_stats
 
-    def generate_summary(self, all_extractions: Dict[str, Any], visit_dates: Dict[str, Any]) -> tuple:
+    def generate_summary(self, all_extractions: Dict[str, Any], visit_dates: Dict[str, Any], diary_ids: Dict[str, Any] = None) -> tuple:
         """Runs the 4 domain-specific LLM calls (antecedentes, medicação, exames, plano) and merges them."""
         if not all_extractions:
             return "Nenhum dado disponível para sumarização.", 0.0, False
@@ -112,6 +112,8 @@ class Summarizer:
 
         def get_date(title):
             return visit_dates.get(title) or date.min
+        def get_id(title):
+            return (diary_ids or {}).get(title, 0)
 
         # 1. ANTECEDENTES (medical history / diagnoses)
         start_section = time.perf_counter()
@@ -253,9 +255,24 @@ class Summarizer:
             raw_specialty = title.split(" - ")[0].strip()
             specialty_key = re.sub(r'[^a-zA-Z0-9]', '', raw_specialty).lower()
 
-            if specialty_key not in latest_plan_per_specialty or visit_date > latest_plan_per_specialty[specialty_key]['date']:
-                latest_plan_per_specialty[specialty_key] = {'date': visit_date, 'title': title}
+            # Todas as sub-especialidades de urgência (ex: HUC-URG_ORTOPEDIA, HUC-URG_CIRURGIA)
+            # contam como uma só, para efeitos de plano: o plano mais recente da urgência já
+            # incorpora/substitui o de uma paragem anterior dentro da mesma vinda.
+            if specialty_key.startswith("hucurg"):
+                specialty_key = "hucurg"
 
+            diary_id = get_id(title)
+            current = latest_plan_per_specialty.get(specialty_key)
+
+            is_newer = (
+                current is None
+                or visit_date > current['date']
+                or (visit_date == current['date'] and diary_id > current.get('id', 0))
+            )
+
+            if is_newer:
+                latest_plan_per_specialty[specialty_key] = {'date': visit_date, 'title': title, 'id': diary_id}
+                
         for specialty_key, info in latest_plan_per_specialty.items():
             selected_title = info['title']
             plans_to_format[selected_title] = all_extractions[selected_title]

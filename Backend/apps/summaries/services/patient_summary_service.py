@@ -36,7 +36,8 @@ def generate_patient_summary(patient_id, client=None):
             all_extractions.append({
                 "title": safe_title,
                 "data": diary.extracted_data,
-                "visit_date": diary.visit_date
+                "visit_date": diary.visit_date,
+                "id": diary.id
             })
 
         summary_pipeline = SummaryPipeline()
