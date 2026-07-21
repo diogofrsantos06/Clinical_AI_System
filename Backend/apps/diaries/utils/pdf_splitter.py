@@ -4,10 +4,10 @@ from PIL import Image, ImageEnhance, ImageOps
 
 from Pipeline.llm import chat
     
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+3pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-#caminho_tesseract = os.getenv('TESSERACT_PATH', 'tesseract')
-#pytesseract.pytesseract.tesseract_cmd = caminho_tesseract
+caminho_tesseract = os.getenv('TESSERACT_PATH', 'tesseract')
+pytesseract.pytesseract.tesseract_cmd = caminho_tesseract
 
 SYS_PROMPT_PRE_CLEAN = """A tua ÚNICA tarefa é transcrever o texto fornecido, linha a linha, limpando APENAS o lixo institucional e dados pessoais, mantendo 100% da informação clínica e notas médicas intactas, na sua exata ordem original.
 
