@@ -5,19 +5,18 @@ DADOS EXTRAÍDOS:
 {extracted_data}
 
 REGRAS CRÍTICAS:
-1. DESDUPLICAÇÃO E INFERÊNCIA CLÍNICA: É estritamente proibido listar a mesma doença mais do que uma vez. Deves analisar, inferir e fundir diagnósticos sinónimos, siglas, abreviaturas ou variações de escrita. Escolhe sempre fundi-los na nomenclatura médica mais completa e atualizada. Se houver evolução clínica (ex: "Nódulo" -> "Carcinoma"), mantém APENAS o diagnóstico evoluído.
+1. DESDUPLICAÇÃO E INFERÊNCIA CLÍNICA: É estritamente proibido listar a mesma doença mais do que uma vez. Deves analisar, inferir e fundir diagnósticos sinónimos, siglas, abreviaturas ou variações de escrita na nomenclatura médica mais completa. Se houver evolução clínica, mantém APENAS o diagnóstico evoluído.
 2. Campo 'data_diagnostico': para cada diagnóstico, procura entre todos os registos onde ele aparece.
-   - Se algum desses registos tiver 'data_diagnostico' preenchida, usa essa data (sem asterisco) — é a informação mais fiável que existe.
-   - Se nenhum tiver, usa a data do registo mais antigo (indicada no cabeçalho "--- IDENTIFICAÇÃO E DATA DO REGISTO ---") onde esse diagnóstico aparece, e acrescenta um asterisco no fim (ex: "14-Jul-2023*") a indicar que é uma data estimada.
-3. Mantém apenas diagnósticos confirmados que correspondam a doenças crónicas ativas e independentes.
-4. REGRAS DE EXCLUSÃO OBRIGATÓRIAS: Antes de incluíres qualquer diagnóstico na lista final, aplica OBRIGATORIAMENTE cada uma das regras seguintes a esse diagnóstico. Estas regras definem CATEGORIAS gerais, não uma lista fechada de doenças — aplica sempre o critério pela natureza da informação, independentemente do nome exato da doença ou da palavra usada no texto original.
-   a) Exclui qualquer diagnóstico agudo, e qualquer diagnóstico classificado como suspeita (não confirmado).
-   b) Exclui qualquer sintoma, sinal ou queixa clínica que não seja, em si, o nome formal de uma entidade clínica. Só é exceção quando o próprio texto nomeia essa queixa como uma entidade crónica independente e a trata como diagnóstico, não como sintoma.
-   c) Exclui qualquer valor, resultado ou achado de exame (imagem ou laboratorial) que seja descrito apenas como uma medida, alteração ou desvio do normal (incluindo explicitamente déficits nutricionais ou laboratoriais isolados, como deficiências de vitaminas ex: Vitamina E, ou anemias leves sem doença de base associada), sem que o texto o trate como uma patologia crónica major.
-   d) Exclui qualquer lesão traumática, ortopédica ou reumatológica regional/isolada (incluindo tendinopatias, bursites e trocanterites).
-   e) Exclui qualquer infeção já tratada ou resolvida, sequela, estado pós-operatório, ou lesões benignas passadas que já foram totalmente resolvidas/excisadas (incluindo pólipos uterinos, intestinais ou cutâneos removidos no passado).
-   f) Exclui qualquer diagnóstico que seja, clinicamente, uma manifestação ou complicação reconhecida de outro diagnóstico já presente nesta mesma lista, para este mesmo doente. Nestes casos, mantém apenas o diagnóstico principal (a doença de base), nunca as suas manifestações.
-   Em caso de dúvida sobre qualquer uma destas regras, exclui o diagnóstico.
+   - Se algum desses registos tiver 'data_diagnostico' preenchida, usa essa data (sem asterisco).
+   - Se nenhum tiver, usa a data do registo mais antigo onde esse diagnóstico aparece, e acrescenta um asterisco no fim (ex: "14-Jul-2023*") a indicar que é uma data estimada.
+3. FILTRAGEM DE DOENÇAS CRÓNICAS ATIVAS: Mantém exclusivamente diagnósticos confirmados que representem **doenças crónicas ativas, sistémicas e de seguimento médico contínuo**. Uma doença crónica válida exige que o doente mantenha vigilância clínica regular ou terapêutica médica permanente para essa mesma condição.
+4. REGRAS DE EXCLUSÃO ABSOLUTA (Aplica a cada diagnóstico por ordem lógica):
+   a) Exclui qualquer diagnóstico classificado como agudo, intermitente, subagudo ou suspeita.
+   b) Exclui qualquer evento patológico agudo, traumático, hemorrágico, infecioso ou cirúrgico que tenha ocorrido e sido resolvido, tratado ou curado no passado (mesmo que conste na história pregressa do doente, se o episódio agudo terminou, não é uma doença crónica ativa).
+   c) Exclui qualquer neoplasia ou lesão oncológica localizada do passado que tenha sido completamente tratada, excisada ou resolvida cirurgicamente. Antecedentes oncológicos tratados não entram como doenças crónicas ativas de ambulatório.
+   d) Exclui qualquer sintoma, sinal, queixa isolada, achado imagiológico descritivo (ex: alterações estruturais ou atrofias isoladas) ou desvio laboratorial.
+   e) Exclui rigorosamente qualquer diagnóstico que seja, clinicamente, uma manifestação, consequência, sequela ou complicação secundária de outra doença de base já presente na lista. Mantém apenas a patologia primária principal.
+   Em caso de dúvida fundamentada sobre a natureza estritamente crónica e ativa da doença, EXCLUI o diagnóstico.
 5. Devolve EXCLUSIVAMENTE o objeto JSON válido abaixo.
 
 FORMATO DE SAÍDA OBRIGATÓRIO:
@@ -41,21 +40,23 @@ DADOS EXTRAÍDOS:
 
 REGRAS CRÍTICAS PARA MEDICAÇÃO:
 1. FUSÃO INTELIGENTE: Cria uma única entrada por fármaco. Cada fármaco entra só uma vez na lista final.
-2. Cada registo é a visita mais recente de uma especialidade (a urgência pode juntar várias notas do mesmo episódio). Cada fármaco tem 'tipo': "habitual" ou "suspensa".
-3. Base: o registo mais recente com pelo menos um fármaco "habitual" (salta os que não têm, seja qual for a especialidade).
-4. Se a medicação da base cobrir só doenças da própria especialidade (ex: só antiepiléticos num registo de Neurologia) é PARCIAL: guarda-a e repete esta análise no registo seguinte mais recente de OUTRA especialidade, até encontrares uma lista completa ou esgotares 1 ano. Se cobrir a medicação geral do doente, é COMPLETA: pára aqui.
-5. Antes de acrescentar um fármaco vindo de um registo mais antigo, confirma que não aparece como "suspensa" nalgum registo mais recente (até à base). Se aparecer, não incluas.
-6. INFERÊNCIA DE INDICAÇÃO: Se 'indicacao' estiver vazia, infere o motivo com base no contexto clínico. Não deixes vazio.
-7. Regra de Rastreabilidade: O campo 'diario_origem' deve conter estritamente o formato: "NOME DA ESPECIALIDADE - DATA".
-8. PRIORIDADE: A Dosagem e Posologia devem vir do registo mais recente.
-9. PROIBIÇÃO DE SOBREPOSIÇÃO: É estritamente proibido incluir qualquer valor de dosagem (mg, g, ml, mcg) no campo 'posologia'. 
-   - DOSAGEM: Deve conter APENAS valores de concentração/quantidade seguidos de unidade de medida (ex: "5mg", "500mg", "10ml"). 
-   - POSOLOGIA: Deve conter APENAS regime de toma/frequência (ex: "1 comp/dia", "ao deitar", "3 comp/dia").
-10. AVALIAÇÃO DE ERRO: 
-  - Se o campo 'dosagem' contiver palavras como "comp", "dia", "toma", "jejum" ou "vezes", o conteúdo desse campo é, na verdade, POSOLOGIA.
-  - Deves mover automaticamente esse conteúdo para o campo 'posologia' e deixar o campo 'dosagem' vazio (ou "N/A") se não existir uma concentração real.
-11. É terminantemente proibido manter instruções de toma (ex: "3 comp/dia" ou "3 gotas/dia") no campo 'dosagem'.
-12. TRADUÇÃO DE ABREVIATURAS DE POSOLOGIA: Interpreta corretamente as abreviaturas médicas latinas comuns: "id" significa "1 vez ao dia" (diário) e NUNCA "3 vezes/dia". Respeita rigorosamente a posologia unitária original sem extrapolar frequências falsas.
+2. O QUE VAIS RECEBER: para consultas externas, os 2 registos mais recentes de cada especialidade; para a urgência, TODOS os registos dentro do último ano (um único internamento é muitas vezes dividido em vários registos, por vezes até com nomes de especialidade diferentes — ex: HUC-URG_NEUROLOGIA, HUC-URG_CIRURGIA_CARDIOTORÁCICA — trata-os como parte do mesmo episódio de urgência). Cada fármaco tem 'tipo': "habitual", "administrada" ou "suspensa" — mas um fármaco com tipo "administrada" pode ainda assim representar uma alteração duradoura (ex: uma substituição ou início de tratamento continuado, descrito no campo 'observações'), não apenas uma dose pontual. Lê sempre 'observações' antes de decidires excluir só por causa do tipo.
+3. Base: o registo mais recente com pelo menos um fármaco "habitual" (ou "administrada" que na prática representa uma mudança duradoura). Salta registos sem isso, seja qual for a especialidade.
+4. Se a medicação da base cobrir só doenças da própria especialidade (ex: só antiepiléticos num registo de Neurologia) é PARCIAL: guarda-a e completa com o registo mais recente a seguir — primeiro procura outro registo da MESMA especialidade (se tiveres mais do que um), depois de outra especialidade — até encontrares uma lista completa ou esgotares 1 ano. Se cobrir a medicação geral do doente, é COMPLETA: pára aqui.
+5. Antes de acrescentar um fármaco vindo de um registo mais antigo, confirma que não aparece como "suspensa" nalgum registo mais recente (até à base). Se aparecer, não incluas. Da mesma forma, se um fármaco for substituído por outro com a mesma indicação (ex: "passa a fazer X em vez de Y", "Y é descontinuado e inicia X"), considera Y suspenso e não o incluas, mesmo que nenhum registo o marque explicitamente como "suspensa".
+6. EXCLUSÃO DE TRATAMENTOS TÓPICOS E DE CURTA DURAÇÃO: Medicação habitual implica toma continuada, regular e sem data de fim prevista (tipicamente diária). Exclui da lista final:
+   - tratamentos tópicos/locais (cremes, pomadas, aplicações sobre a pele ou lesões, ex: para queratoses, feridas);
+   - tratamentos com fim definido ou previsto (ex: "até à consulta", um ciclo curto, um tratamento pontual para resolver um problema específico e não recorrente).
+   Em caso de dúvida sobre se um fármaco é de toma continuada ou só um tratamento pontual, exclui-o.
+7. INFERÊNCIA DE INDICAÇÃO: Se 'indicacao' estiver vazia, infere o motivo com base no contexto clínico. Não deixes vazio.
+8. Regra de Rastreabilidade: O campo 'diario_origem' deve conter estritamente o formato: "NOME DA ESPECIALIDADE - DATA".
+9. DOSAGEM vs. POSOLOGIA — DEFINIÇÃO, PRIORIDADE E CORREÇÃO:
+   - DOSAGEM: apenas concentração/quantidade (ex: "5mg", "10ml"). NUNCA um regime de toma.
+   - POSOLOGIA: apenas regime de toma/frequência (ex: "1cp/dia", "2id", "ao deitar"). NUNCA uma concentração.
+   - Se um destes campos vier com o valor do outro misturado (ex: "dosagem" a conter "3 comp/dia", ou qualquer um dos dois a incluir palavras como "comp", "toma", "jejum", "vezes"), corrige automaticamente: move o conteúdo para o campo certo, e deixa "N/A" no campo onde não houver informação real.
+   - Se o mesmo fármaco aparecer em mais do que um registo, usa sempre a dosagem/posologia do registo mais recente.
+10. TRADUÇÃO DE ABREVIATURAS DE POSOLOGIA: "id" sozinho = "1 vez ao dia". "2id" = "2 vezes ao dia", "3id" = "3 vezes ao dia", "4id" = "4 vezes ao dia" — o número antes do "id" multiplica a frequência; nunca o ignores nem o confundas com "id" sozinho.
+11. PROIBIÇÃO DE VALORES POR OMISSÃO: nunca assumas, infiras ou "adivinhes" uma dosagem ou posologia que não esteja explicitamente presente nos dados fornecidos para aquele fármaco — mesmo que "1 vez ao dia" seja a frequência mais comum na prática clínica em geral. Sem informação real em nenhum dos registos disponíveis, usa "N/A" nesse campo, independentemente de outros campos desse fármaco (indicação, nome) estarem preenchidos.
 
 REGRAS CRÍTICAS PARA ALERGIAS (RASTREABILIDADE):
 1. Lista todas as alergias ou reações adversas medicamentosas.

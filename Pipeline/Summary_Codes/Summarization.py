@@ -137,46 +137,38 @@ class Summarizer:
         start_section = time.perf_counter()
         cutoff_date = (datetime.now() - timedelta(days=365)).date()  
 
+        # NOTA: já não filtramos "administrada" aqui em Python — ver explicação no
+        # ponto 3 da conversa. O filtro estava a apagar mudanças reais de medicação
+        # descritas no plano (ex: substituições), não só doses agudas verdadeiras.
         medication_candidates = []
         for title, content in all_extractions.items():
             visit_date = get_date(title)
             if visit_date < cutoff_date:
                 continue
 
-            medications = [m for m in content.get("medicacao", []) if m.get("tipo") != "administrada"]
+            medications = content.get("medicacao", [])
             if medications:
                 medication_candidates.append({'date': visit_date, 'title': title, 'medications': medications})
 
-        # One representative per specialty: its own most recent diary with medication data.
-        latest_per_specialty = {}
-        for entry in medication_candidates:
-            specialty = entry['title'].split(' - ')[0].strip()
-            if specialty not in latest_per_specialty or entry['date'] > latest_per_specialty[specialty]['date']:
-                latest_per_specialty[specialty] = entry
+        # Urgência: todas as variantes de HUC-URG_* contam como um só grupo.
+        urg_entries = [e for e in medication_candidates if "HUC-URG" in e['title'].split(' - ')[0]]
+        specialty_entries = [e for e in medication_candidates if "HUC-URG" not in e['title'].split(' - ')[0]]
 
         representatives = []
-        for specialty, entry in latest_per_specialty.items():
-            if "HUC-URG" in specialty:
-                anchor_date = entry['date']
-                cluster_titles = []
-                cluster_medications = []
 
-                for candidate in medication_candidates:
-                    if "HUC-URG" not in candidate['title'].split(' - ')[0]:
-                        continue
-                    if anchor_date - timedelta(days=3) <= candidate['date'] <= anchor_date:
-                        cluster_titles.append(candidate['title'])
-                        cluster_medications.extend(candidate['medications'])
+        representatives.extend(urg_entries)
 
-                merged_title = entry['title'] if len(cluster_titles) <= 1 else f"{entry['title']} [episódio de urgência, inclui também: {', '.join(t for t in cluster_titles if t != entry['title'])}]"
-                representatives.append({'date': anchor_date, 'title': merged_title, 'medications': cluster_medications})
-            else:
-                representatives.append(entry)
-        
+        by_specialty = {}
+        for entry in specialty_entries:
+            specialty = entry['title'].split(' - ')[0].strip()
+            by_specialty.setdefault(specialty, []).append(entry)
+
+        for specialty, entries in by_specialty.items():
+            entries.sort(key=lambda x: x['date'], reverse=True)
+            representatives.extend(entries[:2])
 
         representatives.sort(key=lambda x: x['date'])
         medication_dataset = {rep['title']: {"medicacao": rep['medications']} for rep in representatives}
-
         text_medication = change_data_format(medication_dataset, target_section="medicacao")
         text_allergies = change_data_format(all_extractions, target_section="alergias")  # allergies are kept in full, no date filtering
         text_medication_allergies = f"{text_medication}\n\n{text_allergies}".strip()
