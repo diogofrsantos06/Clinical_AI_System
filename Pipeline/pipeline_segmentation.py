@@ -65,8 +65,9 @@ def build_diary_title(diary_text, index):
         date_str = f"{day}-{MONTHS_PT.get(month, month)}-{year}"
 
     specialty = ""
-    if '/' in header_line:
-        specialty = header_line.split('/')[-1].strip()
+    if '/' in header_line or '|' in header_line:
+        separator = '/' if '/' in header_line else '|'
+        specialty = header_line.split(separator)[-1].strip()
     elif '(' in header_line and ')' in header_line:
         parens_match = re.search(r'\(([^)]+)\)[^()]*$', header_line)
         if parens_match:

@@ -9,6 +9,8 @@ from Pipeline.llm import chat
 caminho_tesseract = os.getenv('TESSERACT_PATH', 'tesseract')
 pytesseract.pytesseract.tesseract_cmd = caminho_tesseract
 
+USE_OCR_FALLBACK = False
+
 SYS_PROMPT_PRE_CLEAN = """A tua ÚNICA tarefa é transcrever o texto fornecido, linha a linha, limpando APENAS o lixo institucional e dados pessoais, mantendo 100% da informação clínica e notas médicas intactas, na sua exata ordem original.
 
 O texto enviado pertence a fatias de páginas de diários clínicos. Aplica as seguintes regras de limpeza cirúrgica:
@@ -48,32 +50,44 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
             start_page = time.perf_counter()
             page = doc[idx]
 
-            matrix = fitz.Matrix(300/72, 300/72)
-            pix = page.get_pixmap(matrix=matrix)
+            # Extração automática: lê o texto tal como está guardado no PDF, na ordem
+            # em que lá aparece, sem nenhuma reordenação nem alteração ao conteúdo.
+            width, height = page.rect.width, page.rect.height
+            interest_area = fitz.Rect(0, height * 0.01, width, height * 0.99)
+            native_text = page.get_text("text", clip=interest_area, sort=True).strip()
+            pre_cleaned_text = clean_clinical_text(native_text)
+            operation_type = "NATIVE_TEXT_PAGE"
 
-            img = Image.open(io.BytesIO(pix.tobytes("png"))).convert('L')
-            img = ImageEnhance.Contrast(img).enhance(2.0)
-            img = ImageOps.autocontrast(img)
+            if USE_OCR_FALLBACK and not pre_cleaned_text:
+                # Bloco do OCR: mantido no código, mas só corre se USE_OCR_FALLBACK
+                # for explicitamente ligado a True no topo do ficheiro.
+                matrix = fitz.Matrix(300/72, 300/72)
+                pix = page.get_pixmap(matrix=matrix)
 
-            custom_config = r'--psm 4 --oem 1 -c preserve_interword_spaces=1'
-            raw_ocr_text = pytesseract.image_to_string(img, lang='por', config=custom_config)
-            pre_cleaned_text = clean_clinical_text(raw_ocr_text)
+                img = Image.open(io.BytesIO(pix.tobytes("png"))).convert('L')
+                img = ImageEnhance.Contrast(img).enhance(2.0)
+                img = ImageOps.autocontrast(img)
+
+                custom_config = r'--psm 4 --oem 1 -c preserve_interword_spaces=1'
+                raw_ocr_text = pytesseract.image_to_string(img, lang='por', config=custom_config)
+                pre_cleaned_text = clean_clinical_text(raw_ocr_text)
+                operation_type = "OCR_PAGE"
 
             raw_pages.append(pre_cleaned_text)
 
-            ocr_duration = time.perf_counter() - start_page
+            page_duration = time.perf_counter() - start_page
 
             collected_metrics.append({
-                "operation_type": "OCR_PAGE",
+                "operation_type": operation_type,
                 "section_name": f"Página {idx+1}",
-                "duration_seconds": ocr_duration,
+                "duration_seconds": page_duration,
                 "inference_duration": 0.0,
                 "input_size": len(pre_cleaned_text),
                 "is_retry": False
             })
 
             if debug:
-                print(f"[OCR] Page {idx+1}/{total_pages} processed in {time.perf_counter() - start_page:.2f}s", flush=True)
+                print(f"[{operation_type}] Page {idx+1}/{total_pages} processed in {page_duration:.2f}s", flush=True)
 
         doc.close()
 
