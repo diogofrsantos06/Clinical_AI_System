@@ -150,25 +150,9 @@ class Summarizer:
             if medications:
                 medication_candidates.append({'date': visit_date, 'title': title, 'medications': medications})
 
-        # Urgência: todas as variantes de HUC-URG_* contam como um só grupo.
-        urg_entries = [e for e in medication_candidates if "HUC-URG" in e['title'].split(' - ')[0]]
-        specialty_entries = [e for e in medication_candidates if "HUC-URG" not in e['title'].split(' - ')[0]]
-
-        representatives = []
-
-        representatives.extend(urg_entries)
-
-        by_specialty = {}
-        for entry in specialty_entries:
-            specialty = entry['title'].split(' - ')[0].strip()
-            by_specialty.setdefault(specialty, []).append(entry)
-
-        for specialty, entries in by_specialty.items():
-            entries.sort(key=lambda x: x['date'], reverse=True)
-            representatives.extend(entries[:2])
-
-        representatives.sort(key=lambda x: x['date'])
+        representatives = sorted(medication_candidates, key=lambda x: x['date'])
         medication_dataset = {rep['title']: {"medicacao": rep['medications']} for rep in representatives}
+
         text_medication = change_data_format(medication_dataset, target_section="medicacao")
         text_allergies = change_data_format(all_extractions, target_section="alergias")  # allergies are kept in full, no date filtering
         text_medication_allergies = f"{text_medication}\n\n{text_allergies}".strip()

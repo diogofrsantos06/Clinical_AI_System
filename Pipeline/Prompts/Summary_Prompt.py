@@ -39,38 +39,37 @@ DADOS EXTRAÍDOS:
 {extracted_data}
 
 REGRAS CRÍTICAS PARA MEDICAÇÃO:
-1. FUSÃO INTELIGENTE: Cria uma única entrada por fármaco. Cada fármaco entra só uma vez na lista final.
-2. O QUE VAIS RECEBER: para consultas externas, os 2 registos mais recentes de cada especialidade; para a urgência, TODOS os registos dentro do último ano (um único internamento é muitas vezes dividido em vários registos, por vezes até com nomes de especialidade diferentes — ex: HUC-URG_NEUROLOGIA, HUC-URG_CIRURGIA_CARDIOTORÁCICA — trata-os como parte do mesmo episódio de urgência). Cada fármaco tem 'tipo': "habitual", "administrada" ou "suspensa" — mas um fármaco com tipo "administrada" pode ainda assim representar uma alteração duradoura (ex: uma substituição ou início de tratamento continuado, descrito no campo 'observações'), não apenas uma dose pontual. Lê sempre 'observações' antes de decidires excluir só por causa do tipo.
-3. Base: o registo mais recente com pelo menos um fármaco "habitual" (ou "administrada" que na prática representa uma mudança duradoura). Salta registos sem isso, seja qual for a especialidade.
-4. Se a medicação da base cobrir só doenças da própria especialidade (ex: só antiepiléticos num registo de Neurologia) é PARCIAL: guarda-a e completa com o registo mais recente a seguir — primeiro procura outro registo da MESMA especialidade (se tiveres mais do que um), depois de outra especialidade — até encontrares uma lista completa ou esgotares 1 ano. Se cobrir a medicação geral do doente, é COMPLETA: pára aqui.
-5. Antes de acrescentar um fármaco vindo de um registo mais antigo, confirma que não aparece como "suspensa" nalgum registo mais recente (até à base). Se aparecer, não incluas. Da mesma forma, se um fármaco for substituído por outro com a mesma indicação (ex: "passa a fazer X em vez de Y", "Y é descontinuado e inicia X"), considera Y suspenso e não o incluas, mesmo que nenhum registo o marque explicitamente como "suspensa".
-6. EXCLUSÃO DE TRATAMENTOS TÓPICOS E DE CURTA DURAÇÃO: Medicação habitual implica toma continuada, regular e sem data de fim prevista (tipicamente diária). Exclui da lista final:
-   - tratamentos tópicos/locais (cremes, pomadas, aplicações sobre a pele ou lesões, ex: para queratoses, feridas);
-   - tratamentos com fim definido ou previsto (ex: "até à consulta", um ciclo curto, um tratamento pontual para resolver um problema específico e não recorrente).
-   Em caso de dúvida sobre se um fármaco é de toma continuada ou só um tratamento pontual, exclui-o.
-7. INFERÊNCIA DE INDICAÇÃO: Se 'indicacao' estiver vazia, infere o motivo com base no contexto clínico. Não deixes vazio.
-8. Regra de Rastreabilidade: O campo 'diario_origem' deve conter estritamente o formato: "NOME DA ESPECIALIDADE - DATA".
-9. DOSAGEM vs. POSOLOGIA — DEFINIÇÃO, PRIORIDADE E CORREÇÃO:
-   - DOSAGEM: apenas concentração/quantidade (ex: "5mg", "10ml"). NUNCA um regime de toma.
-   - POSOLOGIA: apenas regime de toma/frequência (ex: "1cp/dia", "2id", "ao deitar"). NUNCA uma concentração.
-   - Se um destes campos vier com o valor do outro misturado (ex: "dosagem" a conter "3 comp/dia", ou qualquer um dos dois a incluir palavras como "comp", "toma", "jejum", "vezes"), corrige automaticamente: move o conteúdo para o campo certo, e deixa "N/A" no campo onde não houver informação real.
-   - Se o mesmo fármaco aparecer em mais do que um registo, usa sempre a dosagem/posologia do registo mais recente.
-10. TRADUÇÃO DE ABREVIATURAS DE POSOLOGIA: "id" sozinho = "1 vez ao dia". "2id" = "2 vezes ao dia", "3id" = "3 vezes ao dia", "4id" = "4 vezes ao dia" — o número antes do "id" multiplica a frequência; nunca o ignores nem o confundas com "id" sozinho.
-11. PROIBIÇÃO DE VALORES POR OMISSÃO: nunca assumas, infiras ou "adivinhes" uma dosagem ou posologia que não esteja explicitamente presente nos dados fornecidos para aquele fármaco — mesmo que "1 vez ao dia" seja a frequência mais comum na prática clínica em geral. Sem informação real em nenhum dos registos disponíveis, usa "N/A" nesse campo, independentemente de outros campos desse fármaco (indicação, nome) estarem preenchidos.
+1. FUSÃO INTELIGENTE: cria uma única entrada por fármaco. Cada fármaco entra só uma vez na lista final.
+2. O QUE VAIS RECEBER: todos os diários com medicação de cada especialidade (incluindo urgência), dentro do último ano — não é uma lista já filtrada, tens o histórico completo à disposição.
+3. ENCONTRA A BASE: percorre os diários do mais recente para o mais antigo. O primeiro que tiver pelo menos um fármaco "habitual" é a tua base — ignora diários sem nenhuma medicação "habitual", seja qual for a especialidade.
+4. LISTA JÁ COMPLETA POR ESPECIALIDADE: para cada especialidade, olha primeiro para o seu diário mais recente. Se esse diário já listar mais do que 1-2 fármacos (indício de que é uma lista completa da medicação relevante para essa especialidade), usa-a diretamente e não precisas de recuar a diários mais antigos DA MESMA especialidade à procura de mais fármacos. Só recuas a um diário mais antigo dessa especialidade se o mais recente não tiver nenhuma lista de medicação, ou só tiver 1-2 fármacos isolados (sinal de lista incompleta).
+5. FUSÃO ENTRE ESPECIALIDADES: depois de determinares a lista de cada especialidade (regra 4), junta tudo, especialidade a especialidade — cada uma pode contribuir com fármacos que as outras não mencionam.
+6. ASTERISCO: um fármaco só fica SEM asterisco se estiver escrito no "registo mais recente" (ponto 3). Todos os outros fármacos (vindos de qualquer outro registo, de qualquer especialidade) levam um asterisco no fim do nome (ex: "Levotiroxina*"). Não escrevas nada sobre isto no campo 'indicacao'. Aplica sempre da mesma forma a fármacos com o mesmo 'diario_origem' — nunca uns com asterisco e outros sem, vindos do mesmo registo.
+7. EXCLUSÃO DE SUSPENSÕES E TRATAMENTOS TEMPORÁRIOS: exclui por completo (não incluas de forma nenhuma, nem com asterisco) qualquer fármaco que:
+   - esteja explicitamente identificado como suspenso, descontinuado, ou substituído por outro, em qualquer um dos diários recebidos (mesmo que essa informação só apareça no plano, não na lista de medicação);
+   - tenha uma duração de tratamento definida ou prevista (ex.: "até à consulta", "durante um mês", um ciclo curto) — só entra na lista final medicação verdadeiramente continuada, sem data de fim prevista;
+   - seja um tratamento tópico/local (cremes, pomadas, aplicações sobre a pele ou lesões).
+   Em caso de dúvida sobre se é suspensão/temporário, exclui o fármaco.
+8. PRIORIDADE DE DOSAGEM/POSOLOGIA: quando o mesmo fármaco aparece em mais do que um diário, a dosagem e a posologia devem vir sempre do diário mais recente onde esse fármaco aparece — nunca de um diário mais antigo, mesmo que o mais antigo tenha mais detalhe. Apenas se o diario mais recente não tiver indicações sobre os campos é que deves retirar do diario anterior mais recente que tiver.
+9. INFERÊNCIA DE INDICAÇÃO: se 'indicacao' estiver vazia (e não se aplicar a regra 6), infere o motivo pelo contexto clínico. Não deixes vazio.
+10. RASTREABILIDADE: o campo 'diario_origem' deve conter estritamente o formato "NOME DA ESPECIALIDADE - DATA", referente ao diário de onde veio a dosagem/posologia usada (regra 8).
+11. DOSAGEM vs. POSOLOGIA: DOSAGEM = só concentração (ex.: "5mg"). POSOLOGIA = só regime de toma (ex.: "1cp/dia", "2id"). Nunca misturar; corrige automaticamente se vierem trocadas ou com o valor do outro campo incluído.
+12. TRADUÇÃO DE ABREVIATURAS: "id" sozinho = "1 vez ao dia". "2id" = "2 vezes ao dia", "3id" = "3 vezes ao dia" — o número antes do "id" multiplica a frequência, nunca o ignores.
+13. PROIBIÇÃO DE VALORES POR OMISSÃO: nunca assumas uma dosagem ou posologia que não esteja explicitamente presente nos dados para aquele fármaco. Sem informação real, usa "N/A".
 
 REGRAS CRÍTICAS PARA ALERGIAS (RASTREABILIDADE):
 1. Lista todas as alergias ou reações adversas medicamentosas.
-2. DESDUPLICAÇÃO CLÍNICA: Se a mesma alergia (ou alergia à mesma substância) for referida em vários registos, deves fundi-la numa única entrada na lista final (NÃO repitas alergias).
-3. REGISTO DE ORIGEM: Identifica o cabeçalho ("--- IDENTIFICAÇÃO E DATA DO REGISTO ---") onde a alergia aparece. Se a mesma alergia aparecer em vários registos de datas diferentes, guarda OBRIGATORIAMENTE o registo com a data mais ANTIGA no campo 'registo_origem', pois esse é o diagnóstico original.
+2. DESDUPLICAÇÃO CLÍNICA: se a mesma alergia for referida em vários registos, funde-a numa única entrada.
+3. REGISTO DE ORIGEM: identifica o cabeçalho ("--- IDENTIFICAÇÃO E DATA DO REGISTO ---") onde a alergia aparece. Se aparecer em vários registos, guarda no campo 'registo_origem' o registo com a data mais ANTIGA.
 
 FORMATO DE SAÍDA OBRIGATÓRIO (JSON VÁLIDO):
 {{
   "medicacao": [
     {{
-      "farmaco": "Nome",
+      "farmaco": "Nome (com asterisco no fim se aplicável, ex: Levotiroxina*)",
       "dosagem": "Dosagem",
       "posologia": "Posologia",
-      "indicacao": "Motivo",
+      "indicacao": "Motivo (inclui a nota de incerteza da regra 6, se aplicável)",
       "diario_origem": "Nome do diário de origem"
     }}
   ],

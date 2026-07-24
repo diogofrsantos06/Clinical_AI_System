@@ -4,6 +4,7 @@ from apps.diaries.models import ClinicalDiary
 
 class PerformanceMetric(models.Model):
     OPERATION_CHOICES = [
+        ('NATIVE_TEXT_PAGE', 'Extração Automática de Texto (PDF)'),
         ('OCR_PAGE', 'OCR de Página PDF (Tesseract)'),
         ('PRE_CLEAN_CHUNK', 'Limpeza Prévia LLM (Bloco PDF)'),
         ('EXTRACTION', 'Extração de Diário'),
@@ -11,7 +12,7 @@ class PerformanceMetric(models.Model):
         ('SUMMARIZATION_TOTAL', 'Geração de Sumário Global'),
         ('TRIAGE_ANALYSIS', 'Análise de Triagem'),
     ]
-
+    
     operation_type = models.CharField(max_length=25, choices=OPERATION_CHOICES)
 
     # Which summary section this metric belongs to, if applicable (e.g. 'ANTECEDENTES', 'MEDICACAO')

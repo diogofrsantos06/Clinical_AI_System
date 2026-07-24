@@ -14,7 +14,10 @@ if str(BASE_DIR) not in sys.path:
 
 DATE_PART = r'\d{1,2}[-/](?:[A-Za-z]{3}|\d{1,2})[-/]\d{2,4}'
 TIME_PART = r'(?:\s+\d{2}:\d{2}(?::\d{2})?)?'
-DOCTOR_PART = r'(?:.|\n){0,80}?(?:Dr\(?a?\)?\.?\s|Médico:)'
+MEDICO = r'(?:Dr\(?a?\)?\.?\s|Médico:)'
+NOME_MEDICO = r'[A-Za-zÀ-ÿ.\s]{1,60}?'  # só o nome do médico: letras e espaços
+SEPARADOR = r'[/|(]'                      # um dos três separadores possíveis
+ESPECIALIDADE_HUC = r'\s*(?-i:[A-Z]{2,6}-)'
 
 MONTHS_PT = {
     '01': 'Jan', '02': 'Fev', '03': 'Mar', '04': 'Abr', '05': 'Mai', '06': 'Jun',
@@ -44,7 +47,7 @@ def build_diary_title(diary_text, index):
     if not diary_text or not diary_text.strip():
         return f"Nota_Clinica_{index}"
 
-    header_pattern = fr'{DATE_PART}{TIME_PART}{DOCTOR_PART}[^\n]*(?:\n[^\n]*)?'
+    header_pattern = fr'{DATE_PART}{TIME_PART}[ \t]*{MEDICO}{NOME_MEDICO}{SEPARADOR}{ESPECIALIDADE_HUC}[^\n]*(?:\n[^\n]*)?'
     header_match = re.search(header_pattern, diary_text, re.IGNORECASE)
 
     if not header_match:
@@ -67,12 +70,14 @@ def build_diary_title(diary_text, index):
         date_str = f"{day}-{MONTHS_PT.get(month, month)}-{year}"
 
     specialty = ""
-    if '/' in header_line or '|' in header_line:
-        separator = '/' if '/' in header_line else '|'
-        specialty = header_line.split(separator)[-1].strip()
+    if '/' in header_line.split('\n')[0] or '|' in header_line.split('\n')[0]:
+        # Sem fecho natural (ao contrário dos parênteses) — limita-se sempre à primeira linha
+        primeira_linha = header_line.split('\n')[0]
+        separator = '/' if '/' in primeira_linha else '|'
+        specialty = primeira_linha.split(separator)[-1].strip()
     elif '(' in header_line:
         if header_line.count('(') > header_line.count(')'):
-            texto_seguinte = diary_text[header_end_pos:header_end_pos + 300]
+            texto_seguinte = diary_text[header_end_pos:header_end_pos + 50]
             fecho_match = re.search(r'^[^(){}]*\)', texto_seguinte)
             if fecho_match:
                 header_line += fecho_match.group(0)
@@ -81,8 +86,6 @@ def build_diary_title(diary_text, index):
         if parens_match:
             specialty = parens_match.group(1).strip()
         else:
-            # Não há fecho nenhum a encontrar: usa só a primeira palavra a seguir
-            # ao último "(" (não o texto todo, para não apanhar texto clínico a mais).
             abre_match = re.search(r'\(([^()]*)$', header_line)
             if abre_match and abre_match.group(1).strip():
                 specialty = abre_match.group(1).strip().split()[0]
@@ -95,12 +98,13 @@ def build_diary_title(diary_text, index):
 
 def get_diary_start_indices(text):
     """
-    Maps the start index of every clinical record found either via a full date+doctor
-    header, or via a doctor-only header (name+specialty, no date) when it appears at
-    the very start of a line — this second format has no date of its own.
+    Encontra o início de cada diário: data (+ hora opcional) seguida diretamente do
+    médico, nome, um separador (/, (, ou |), e a especialidade (sempre a começar por
+    "HUC"). Aceita também o mesmo formato sem data, quando aparece no início de uma
+    linha — mas a especialidade com "HUC" tem sempre de estar presente logo a seguir.
     """
-    pattern_with_date = f'{DATE_PART}{TIME_PART}{DOCTOR_PART}'
-    pattern_no_date = r'^[ \t]*(?:Dr\(?a?\)?\.?\s|Médico:)'
+    pattern_with_date = f'{DATE_PART}{TIME_PART}[ \t]*{MEDICO}{NOME_MEDICO}{SEPARADOR}{ESPECIALIDADE_HUC}'
+    pattern_no_date = f'^[ \t]*{MEDICO}{NOME_MEDICO}{SEPARADOR}{ESPECIALIDADE_HUC}'
     combined_pattern = f'(?:{pattern_with_date})|(?:{pattern_no_date})'
     return [m.start() for m in re.finditer(combined_pattern, text, re.IGNORECASE | re.MULTILINE)]
 

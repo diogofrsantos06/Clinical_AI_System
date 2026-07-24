@@ -1,6 +1,8 @@
 import Highlight from '../Highlight';
 
 export default function MedicacaoSection({ medicacao = [], searchTerm = ''  }) {
+  const temAsterisco = medicacao.some(med => med.farmaco && med.farmaco.includes('*'));
+
   return (
     <div className="w-full mb-8">
       <div className="flex items-center gap-3 mb-6">
@@ -74,6 +76,11 @@ export default function MedicacaoSection({ medicacao = [], searchTerm = ''  }) {
             </div>
           ))}
         </div>
+        {temAsterisco && (
+          <div className="p-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 italic">
+            * Fármaco não confirmado no registo mais recente disponível — pode ter sido suspenso ou alterado desde então.
+          </div>
+        )}
       </div>
     </div> 
   );

@@ -103,6 +103,7 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
 
             if debug:
                 print(f"Sending chunk: pages {i+1} to {min(i + chunk_size, total_pages)}...", flush=True)
+                
 
             max_attempts = 3
             cleaned_chunk_text = chunk_text
@@ -128,6 +129,10 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
 
                     cleaned_chunk_text = response_text.strip()
                     had_retry = (attempt > 1)
+
+                    if debug:
+                        print(" LIMPEZA LLM (bloco {int(i/chunk_size)+1})")
+                        
                     break  # success!
 
                 except Exception as e:
