@@ -1,5 +1,7 @@
 import Highlight from '../Highlight';
 
+const COLUNAS = '1.5fr 0.8fr 1fr 1fr';
+
 export default function MedicacaoSection({ medicacao = [], searchTerm = ''  }) {
   const temAsterisco = medicacao.some(med => med.farmaco && med.farmaco.includes('*'));
 
@@ -28,9 +30,9 @@ export default function MedicacaoSection({ medicacao = [], searchTerm = ''  }) {
         {/* Header original */}
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: '1.5fr 0.8fr 1fr 1fr 1fr', 
+          gridTemplateColumns: COLUNAS, 
           gap: '16px', 
-          padding: '14px 18px', 
+          padding: '10px 18px', 
           borderBottom: '1px solid var(--ink-50)', 
           fontSize: '12px', 
           color: 'var(--ink-500)', 
@@ -49,16 +51,16 @@ export default function MedicacaoSection({ medicacao = [], searchTerm = ''  }) {
               key={i} 
               style={{ 
                 display: 'grid', 
-                gridTemplateColumns: '1.5fr 0.8fr 1fr 1fr', 
+                gridTemplateColumns: COLUNAS, 
                 gap: '16px', 
-                padding: '14px 18px', 
+                padding: '8px 18px', 
                 borderBottom: '1px solid var(--ink-50)', 
                 fontSize: '14px', 
                 alignItems: 'center' 
               }}
               className="hover:bg-slate-50 transition-colors last:border-0"
             >
-              <div className="font-medium text-slate-800"><Highlight text={med.farmaco || 'N/A'} term={searchTerm} /></div>
+              <div className="font-semibold text-slate-900" style={{ fontSize: '15px' }}><Highlight text={med.farmaco || 'N/A'} term={searchTerm} /></div>
               <div className="text-slate-600"><Highlight text={med.dosagem || 'N/A'} term={searchTerm} /></div>
               <div className="text-slate-600"><Highlight text={med.posologia || 'N/A'} term={searchTerm} /></div>
               <div className="text-slate-500 leading-tight">
