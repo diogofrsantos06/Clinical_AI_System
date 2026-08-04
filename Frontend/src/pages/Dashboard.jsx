@@ -102,20 +102,8 @@ export default function Dashboard({ patient: propPatient, onNewSearch }) {
       }
   };
 
-  async function handleSaveTriagem(text) {
-    try {
-      const response = await axios.post('/api/summaries/patient-summary/analyze_triage/', {
-        patient_id: patientId, 
-        triage_text: text
-      });
-      
-      setResultadoTriagem(response.data);
-      
-      console.log("Chegou ao frontend!", response.data);
-
-    } catch (err) {
-      console.error("Erro ao enviar triagem:", err);
-    }
+  function handleSaveTriagem(data) {
+    setResultadoTriagem(data);
   }
 
   useEffect(() => {

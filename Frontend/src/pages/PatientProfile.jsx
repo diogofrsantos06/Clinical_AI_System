@@ -38,6 +38,16 @@ export default function PatientProfile({ patient: propPatient }) {
     return `${day}/${month}/${year}`;
   };
 
+  const calculateAge = (dobString) => {
+    if (!dobString) return "--";
+    const birthDate = new Date(dobString);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
+    return `${age} anos`;
+  };
+
   if (loading) {
     return <div className="p-10 text-center">A carregar dados do paciente...</div>;
   }
@@ -83,7 +93,7 @@ export default function PatientProfile({ patient: propPatient }) {
           >
             {patient.nome}
           </h1>          
-          <p className="text-gray-500 text-sm mt-1">Nº {patient.numero_processo} · 21 anos · Sexo: {patient.sexo} · Nasc. {formatDate(patient.data_nascimento)}</p>
+          <p className="text-gray-500 text-sm mt-1">Nº {patient.numero_processo} · {calculateAge(patient.data_nascimento)} · Sexo: {patient.sexo} · Nasc. {formatDate(patient.data_nascimento)}</p>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

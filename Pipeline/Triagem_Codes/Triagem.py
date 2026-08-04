@@ -17,6 +17,15 @@ class TriageAnalyzer:
             except Exception:
                 pass
 
+        # Só antecedentes e exames são relevantes para a correlação clínica da
+        # triagem — medicação, alergias e plano não entram, reduzindo bastante
+        # o tamanho do prompt enviado à LLM.
+        if isinstance(patient_history, dict):
+            patient_history = {
+                "antecedentes": patient_history.get("antecedentes", []),
+                "exames": patient_history.get("exames", []),
+            }
+
         history_str = json.dumps(patient_history, indent=2, ensure_ascii=False)
         user_prompt = TRIAGEM_PROMPT.format(triagem=triage_text, data=history_str)
 

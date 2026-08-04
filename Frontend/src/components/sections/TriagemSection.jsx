@@ -18,14 +18,8 @@ export default function TriagemSection({ processNumber, triagemData, onSave }) {
   };
 
   const enviarTriagemParaAnalise = async () => {
+    if (carregando) return; // protege contra duplo-clique, como já tínhamos combinado
     setCarregando(true);
-    
-    // (Opcional) Se quiseres que o Dashboard também "saiba" qual é o texto atual,
-    // podes chamar o onSave aqui. Se não precisares de guardar na Base de Dados, podes remover esta linha.
-    if (alterado) {
-       onSave(texto);
-       setAlterado(false);
-    }
 
     try {
       const response = await fetch('/api/summaries/patient-summary/analyze_triage/', {
@@ -39,6 +33,11 @@ export default function TriagemSection({ processNumber, triagemData, onSave }) {
       
       const data = await response.json();
       setAnaliseClinica(data);
+      setAlterado(false);
+
+      // Partilha o resultado com o Dashboard (para os exames correlacionados),
+      // sem precisar de outra chamada à API — já o temos aqui.
+      onSave(data);
     } catch (error) {
       console.error("Erro na triagem:", error);
     } finally {
