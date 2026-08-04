@@ -40,7 +40,6 @@ export default function MedicacaoSection({ medicacao = [], searchTerm = ''  }) {
           <div>Fármaco</div>
           <div>Dosagem</div>
           <div>Posologia</div>
-          <div>Indicação</div>
           <div>Origem</div>
         </div>
 
@@ -50,7 +49,7 @@ export default function MedicacaoSection({ medicacao = [], searchTerm = ''  }) {
               key={i} 
               style={{ 
                 display: 'grid', 
-                gridTemplateColumns: '1.5fr 0.8fr 1fr 1fr 1fr', 
+                gridTemplateColumns: '1.5fr 0.8fr 1fr 1fr', 
                 gap: '16px', 
                 padding: '14px 18px', 
                 borderBottom: '1px solid var(--ink-50)', 
@@ -62,7 +61,6 @@ export default function MedicacaoSection({ medicacao = [], searchTerm = ''  }) {
               <div className="font-medium text-slate-800"><Highlight text={med.farmaco || 'N/A'} term={searchTerm} /></div>
               <div className="text-slate-600"><Highlight text={med.dosagem || 'N/A'} term={searchTerm} /></div>
               <div className="text-slate-600"><Highlight text={med.posologia || 'N/A'} term={searchTerm} /></div>
-              <div className="text-slate-600"><Highlight text={med.indicacao || 'N/A'} term={searchTerm} /></div>
               <div className="text-slate-500 leading-tight">
                 <div className="font-semibold text-[11px] text-slate-700">
                   {/* Pega no texto até ao primeiro ' - ' (o nome da especialidade) */}
