@@ -9,14 +9,13 @@ REGRAS CRÍTICAS:
 2. Campo 'data_diagnostico': para cada diagnóstico, procura entre todos os registos onde ele aparece.
    - Se algum desses registos tiver 'data_diagnostico' preenchida, usa essa data (sem asterisco).
    - Se nenhum tiver, usa a data do registo mais antigo onde esse diagnóstico aparece, e acrescenta um asterisco no fim (ex: "14-Jul-2023*") a indicar que é uma data estimada.
-3. FILTRAGEM DE DOENÇAS CRÓNICAS ATIVAS: Mantém exclusivamente diagnósticos que, com base no teu conhecimento clínico geral sobre a doença nomeada, representem **doenças crónicas ativas e sistémicas, do tipo que por natureza exige seguimento médico contínuo** (ex.: doenças metabólicas, cardiovasculares, neurológicas degenerativas, autoimunes). Não confies cegamente no campo 'temporalidade' fornecido — usa o teu próprio julgamento clínico sobre o nome da doença como verificação adicional. Se o nome da doença corresponder claramente a um sintoma, achado ou evento transitório, mesmo que 'temporalidade' venha marcado como "cronico", trata-o de acordo com as regras de exclusão abaixo.
+3. FILTRAGEM DE DOENÇAS CRÓNICAS ATIVAS: Mantém exclusivamente diagnósticos confirmados que representem **doenças crónicas ativas, sistémicas e de seguimento médico contínuo**. Uma doença crónica válida exige que o doente mantenha vigilância clínica regular ou terapêutica médica permanente para essa mesma condição.
 4. REGRAS DE EXCLUSÃO ABSOLUTA (Aplica a cada diagnóstico por ordem lógica):
-   a) Exclui qualquer diagnóstico classificado com 'tipo' = 'agudo' ou 'suspeita'.
-   b) Exclui qualquer diagnóstico que, pelo nome, corresponda a um evento agudo, traumático, hemorrágico, infecioso ou cirúrgico tipicamente autolimitado ou resolúvel (mesmo que 'temporalidade' venha marcado como "cronico" por erro de extração).
-   c) NEOPLASIAS E LESÕES ONCOLÓGICAS: mantém sempre qualquer diagnóstico de natureza oncológica ou neoplásica, independentemente de estar tratado, excisado ou resolvido, e independentemente de ser um único registo ou vários. O historial oncológico mantém relevância clínica a longo prazo mesmo após tratamento curativo, pelo que nunca deve ser excluído apenas por já não estar ativo.
-   d) ACHADOS DESCRITIVOS E IMAGIOLÓGICOS: exclui qualquer diagnóstico cujo nome descreva um achado de exame de imagem ou um sinal isolado, em vez de uma doença clínica ativa e tratável. Isto inclui explicitamente nomes que referem alterações estruturais, atrofias, leucoencefalopatias, leucoaraiose, alterações isquémicas inespecíficas, ou qualquer outra formulação que descreva o que um exame mostra, em vez de um diagnóstico. Este tipo de achado NUNCA deve ser listado, mesmo que o nome esteja formulado como se fosse um diagnóstico.
-   e) CONDIÇÕES PSICOSSOCIAIS, COMPORTAMENTAIS E DE CONSUMO DE SUBSTÂNCIAS: aplica um critério mais rigoroso a este tipo de diagnóstico. Só o mantém se, pelo teu conhecimento clínico, a condição nomeada implicar tipicamente acompanhamento médico ou psiquiátrico estruturado e permanente por si só (ex.: uma perturbação psiquiátrica major com necessidade de terapêutica continuada). Não assumas cronicidade apenas porque a categoria geral (comportamental, psicossocial, uso de substâncias) é frequentemente associada a cronicidade — analisa a condição específica nomeada.
-   f) Exclui rigorosamente qualquer diagnóstico que seja, clinicamente, uma manifestação, consequência, sequela ou complicação secundária de outra doença de base já presente na lista. Mantém apenas a patologia primária principal.
+   a) Exclui qualquer diagnóstico classificado como agudo, intermitente, subagudo ou suspeita.
+   b) Exclui qualquer evento patológico agudo, traumático, hemorrágico, infecioso ou cirúrgico que tenha ocorrido e sido resolvido, tratado ou curado no passado (mesmo que conste na história pregressa do doente, se o episódio agudo terminou, não é uma doença crónica ativa).
+   c) Exclui qualquer neoplasia ou lesão oncológica localizada do passado que tenha sido completamente tratada, excisada ou resolvida cirurgicamente. Antecedentes oncológicos tratados não entram como doenças crónicas ativas de ambulatório.
+   d) Exclui qualquer sintoma, sinal, queixa isolada, achado imagiológico descritivo (ex: alterações estruturais ou atrofias isoladas) ou desvio laboratorial.
+   e) Exclui rigorosamente qualquer diagnóstico que seja, clinicamente, uma manifestação, consequência, sequela ou complicação secundária de outra doença de base já presente na lista. Mantém apenas a patologia primária principal.
    Em caso de dúvida fundamentada sobre a natureza estritamente crónica e ativa da doença, EXCLUI o diagnóstico.
 5. Devolve EXCLUSIVAMENTE o objeto JSON válido abaixo.
 
@@ -31,8 +30,6 @@ FORMATO DE SAÍDA OBRIGATÓRIO:
     }}
   ]
 }}
-
-IMPORTANTE: A tua resposta deve conter APENAS o objeto JSON pedido, começando em "{{" e terminando em "}}". Não escrevas nenhum texto, explicação ou título antes ou depois do JSON.
 """
 
 PROMPT_MEDICACAO = """
@@ -84,8 +81,6 @@ FORMATO DE SAÍDA OBRIGATÓRIO (JSON VÁLIDO):
     }}
   ]
 }}
-
-IMPORTANTE: A tua resposta deve conter APENAS o objeto JSON pedido, começando em "{{" e terminando em "}}". Não escrevas nenhum texto, explicação ou título antes ou depois do JSON.
 """
 
 PROMPT_EXAMES = """
@@ -103,10 +98,11 @@ REGRAS CRÍTICAS:
    - C) RELATÓRIOS (Imagiologia, Endoscopias, etc.): Extrair APENAS os achados patológicos mais importantes e a conclusão clínica principal.
 4. INTEGRIDADE: Se um exame for 'exame_complementar', ele DEVE aparecer obrigatoriamente no JSON final. Não podes descartar nenhum painel analítico sob nenhuma circunstância.
 5. EXCLUSÃO DE EXAMES SEM RESULTADO: Exclui por completo (não incluas no JSON final) qualquer exame cujo "resultado" não seja, de facto, um achado clínico — ou seja, exclui sempre que o texto disponível só indicar que o exame:
-   - ainda não foi realizado (ex: "Pendente", "A realizar dentro de um mês", "Não disponível durante a noite");
-   - foi apenas pedido/requisitado, sem resultado (ex: "Pedido", "Marcado para 15 de junho", "Tem RMN marcada");
-   - descreve só o motivo/contexto de ter sido pedido, sem apresentar o achado em si (ex: "Realizado na sequência de episódios de mal estar geral, hipersudorese e sensação de desmaio" — isto é a justificação clínica do pedido, não o resultado).
+   - ainda não foi realizado;
+   - foi apenas pedido/requisitado, sem resultado;
+   - descreve só o motivo/contexto de ter sido pedido, sem apresentar o achado em si.
    Um exame só entra no JSON final se o texto contiver o resultado/achado real (mesmo que seja "Normal" ou "Sem alterações", como já previsto na regra 3-B). Em caso de dúvida sobre se é resultado ou não, exclui.
+
 
 - TIPO DE EXAME: Indica apenas a categoria limpa (ex: "Bioquímica", "Urina Tipo II", "Hemograma"). Nunca repitas o nome do exame dentro do campo de resultado se isso gerar redundância.
 FORMATO DE SAÍDA OBRIGATÓRIO (JSON VÁLIDO):
@@ -124,6 +120,8 @@ FORMATO DE SAÍDA OBRIGATÓRIO (JSON VÁLIDO):
 IMPORTANTE: A tua resposta deve conter APENAS o objeto JSON pedido, começando em "{{" e terminando em "}}". Não escrevas nenhum texto, explicação ou título antes ou depois do JSON.
 """
 
+
+
 PROMPT_PLANO = """
 Atua como um Médico Sénior. O teu objetivo é interpretar e redigir o plano terapêutico ativo do paciente com base na última consulta de CADA especialidade no último ano.
 
@@ -132,14 +130,17 @@ DADOS EXTRAÍDOS (Agrupados por Especialidade):
 
 REGRAS CRÍTICAS:
 1. PROCESSAMENTO TOTAL: Deves ler CADA bloco identificado por ###ESPECIALIDADE, sem exceção.
-2. RELEVÂNCIA CLÍNICA (FILTRO OBRIGATÓRIO): Só inclui uma especialidade na lista final se o seu plano contiver pelo menos uma decisão terapêutica ativa e concreta — início, alteração, suspensão ou manutenção explícita de um tratamento/medicação, ou uma indicação clínica concreta a seguir (ex: "inicia levetiracetam 500mg 2id"). 
+2. RELEVÂNCIA CLÍNICA (FILTRO OBRIGATÓRIO): Só inclui uma especialidade na lista final se o seu plano contiver pelo menos uma decisão terapêutica ativa e concreta — início, alteração, suspensão ou manutenção explícita de um tratamento/medicação, ou uma indicação clínica concreta a seguir. 
    Exclui, e não incluas de forma nenhuma, especialidades cujo conteúdo seja apenas:
-   - agendamento de consultas ou datas de seguimento (ex: "Consulta agendada dia 06/07/2026", "Alta para o domicílio");
-   - encaminhamentos/referenciações sem outra decisão terapêutica associada (ex: "Encaminhamento para consulta de ortopedia");
-   - informação prestada a familiares, explicações de sinais de alarme, ou instruções administrativas de alta (ex: "Explicação de sinais de alarme para retorno à urgência");
-   - afirmações de ausência de indicação para tratamento (ex: "Sem indicação atual para tratamento com Botox");
-   - vigilância genérica sem outra ação associada (ex: "Sem lesões novas suspeitas. Continuação de vigilância").
-   Se, depois deste filtro, uma especialidade não tiver nenhum conteúdo clinicamente relevante, OMITE essa especialidade por completo da lista
+   - agendamento de consultas ou datas de seguimento;
+   - encaminhamentos/referenciações sem outra decisão terapêutica associada;
+   - informação prestada a familiares, explicações de sinais de alarme, ou instruções administrativas de alta;
+   - afirmações de ausência de indicação para tratamento;
+   - vigilância genérica sem outra ação associada.
+   Se, depois deste filtro, uma especialidade não tiver nenhum conteúdo clinicamente relevante, OMITE essa especialidade por completo da lista final — não a incluas com um plano vazio ou genérico.
+3. Para cada especialidade incluída, extrai a data e sintetiza APENAS a decisão terapêutica em si, sem os elementos administrativos à volta (ex: de "Encaminhar para consulta de Medicina Interna devido a bicitopenia. Manter medicação atual.", retém só "Manter medicação atual." — o encaminhamento em si não entra).
+4. Devolve EXCLUSIVAMENTE um JSON com uma lista de planos (um objeto por especialidade que tenha passado o filtro da regra 2).
+
 
 FORMATO DE SAÍDA OBRIGATÓRIO:
 {{
@@ -151,6 +152,4 @@ FORMATO DE SAÍDA OBRIGATÓRIO:
     }}
   ]
 }}
-
-IMPORTANTE: A tua resposta deve conter APENAS o objeto JSON pedido, começando em "{{" e terminando em "}}". Não escrevas nenhum texto, explicação ou título antes ou depois do JSON.
 """

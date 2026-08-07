@@ -115,6 +115,12 @@ class Summarizer:
         def get_id(title):
             return (diary_ids or {}).get(title, 0)
 
+        print(f"\n[DEBUG DATAS] cutoff (1 ano): {(datetime.now() - timedelta(days=365)).date()}", flush=True)
+        print(f"[DEBUG DATAS] Títulos em all_extractions: {list(all_extractions.keys())}", flush=True)
+        print(f"[DEBUG DATAS] Títulos em visit_dates: {list(visit_dates.keys())}", flush=True)
+        for title in all_extractions.keys():
+            print(f"[DEBUG DATAS] '{title}' -> get_date = {get_date(title)}", flush=True)
+
         # 1. ANTECEDENTES (medical history / diagnoses)
         start_section = time.perf_counter()
         text_antecedentes = change_data_format(all_extractions, target_section="diagnosticos")
