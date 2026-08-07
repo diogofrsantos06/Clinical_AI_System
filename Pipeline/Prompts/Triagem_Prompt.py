@@ -1,7 +1,7 @@
 TRIAGEM_PROMPT = """
 Atua como um Médico Sénior de Medicina Interna. O teu objetivo é realizar uma análise de triagem baseada no histórico clínico consolidado do paciente.
 
-DADOS HISTÓRICOS (JSON):
+DADOS HISTÓRICOS:
 {data}
 
 TEXTO DE TRIAGEM ATUAL (QUEIXA):
@@ -34,3 +34,4 @@ ESTRUTURA JSON OBRIGATÓRIA:
   ]
 }}
 """
+

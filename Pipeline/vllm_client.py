@@ -3,7 +3,7 @@ import uuid
 import requests
 
 DEFAULT_BASE_URL = "https://172.30.2.225:8000"
-DEFAULT_MODEL = "qwen3.6-35b-a3b"  # ajusta para o nome exato devolvido por /v1/models
+DEFAULT_MODEL = "gemma-4-31b-it" #"qwen3.6-35b-a3b"  # ajusta para o nome exato devolvido por /v1/models
 
 # O servidor usa um certificado autoassinado (confirmado no exemplo do orientador,
 # que também desativa a validação). Se um dia houver um certificado válido, muda para True.

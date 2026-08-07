@@ -75,3 +75,43 @@ def change_data_format(extracted_json, target_section=None):
             final_text += f"--- IDENTIFICAÇÃO E DATA DO REGISTO: {diary_name} ---\n{diary_block_text}\n"
 
     return final_text.strip()
+
+
+def summary_json_to_text(summary_json):
+    """Flattens the already-merged patient summary (antecedentes/exames) into a plain-text
+    block the LLM can read — same visual style as change_data_format, but for the flat
+    summary structure instead of the per-diary extraction structure."""
+    if isinstance(summary_json, str):
+        try:
+            summary_json = json.loads(summary_json)
+        except Exception:
+            return ""
+
+    section_titles = {
+        "antecedentes": "Diagnósticos",
+        "exames": "Exames e Resultados",
+    }
+
+    final_text = ""
+
+    for field, title in section_titles.items():
+        field_items = summary_json.get(field, [])
+        if not field_items:
+            continue
+
+        section_lines = ""
+        for item in field_items:
+            if isinstance(item, str):
+                section_lines += f"- {item}\n"
+                continue
+
+            details = [f"{key.replace('_', ' ').capitalize()}: {str(value).strip()}"
+                       for key, value in item.items() if value]
+
+            if details:
+                section_lines += f"- {' | '.join(details)}\n"
+
+        if section_lines:
+            final_text += f"{title}\n{section_lines}\n"
+
+    return final_text.strip()

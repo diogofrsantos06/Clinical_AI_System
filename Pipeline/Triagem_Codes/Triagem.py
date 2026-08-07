@@ -1,6 +1,7 @@
 import json, re, time
 from Pipeline.llm import chat, get_client
 from Pipeline.Prompts.Triagem_Prompt import TRIAGEM_PROMPT
+from Pipeline.Summary_Codes.json_to_text import summary_json_to_text
 
 class TriageAnalyzer:
 
@@ -26,7 +27,8 @@ class TriageAnalyzer:
                 "exames": patient_history.get("exames", []),
             }
 
-        history_str = json.dumps(patient_history, indent=2, ensure_ascii=False)
+        history_str = summary_json_to_text(patient_history)
+        print(f"[TRIAGE DEBUG] history_str ({len(history_str)} chars):\n{history_str[:500]}\n", flush=True)
         user_prompt = TRIAGEM_PROMPT.format(triagem=triage_text, data=history_str)
 
         max_attempts = 3
@@ -56,7 +58,10 @@ class TriageAnalyzer:
                 else:
                     json_match = re.search(r'\{.*\}', response, re.DOTALL)
                     if not json_match:
+                        print(f"[TRIAGE DEBUG] Resposta completa da LLM:\n{response}\n", flush=True)
                         raise ValueError("Both the tag and the JSON are missing.")
+
+                    
                     json_data = json.loads(json_match.group())
                     clinical_text = response.replace(json_match.group(), "").strip()
 
@@ -92,3 +97,6 @@ class TriageAnalyzer:
                         "Não foi possível realizar a análise clínica.",
                         {"triagem": "Erro de sistema na inferência.", "exames": []},
                         0.0, True, 0.0, None, None, extra_stats)
+
+
+

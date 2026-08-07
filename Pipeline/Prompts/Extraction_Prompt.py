@@ -31,6 +31,7 @@ Como médico assistente e especialista em análise de documentação clínica, e
 - Extrai apenas diagnósticos médicos explicitamente documentados. Nunca infiras diagnósticos.
 - Considera como diagnóstico apenas doenças ou síndromes reconhecidas.
 - Só extraias um diagnóstico se ele for apresentado como tal no texto. Não extraias uma doença apenas porque o nome aparece uma vez a descrever o contexto ou uma manifestação de outro problema.
+- VERIFICAÇÃO DE SUJEITO (CRÍTICO): Antes de extraíres qualquer diagnóstico, confirma que ele pertence ao PRÓPRIO paciente, não a outra pessoa mencionada no texto (familiar, cônjuge, cuidador, etc.). Nunca extraias uma doença só porque o nome aparece no texto — verifica sempre de quem se está a falar naquela frase. 
 - NÃO extraias:
   - sintomas ou queixas clínicas;
   - sinais do exame objetivo;
