@@ -1,0 +1,59 @@
+14-Set-2025 16:42:00 Dr(a). Marta Sequeira (HUC-URG_ORTOPEDIA)
+
+Trazido por INEM após queda acidental no domicílio, cerca das 15h30, ao tropeçar durante marcha no interior de casa. Trauma directo sobre anca D. Nega traumatismo cranioencefálico, perda de conhecimento, síncope, dor torácica, palpitações ou pródromos. Sem queixas cervicais/lombares. Desde trauma com dor muito intensa inguino-crural D e incapacidade total para carga/marcha. Imobilizado em posição antálgica pelo INEM.
+
+82 anos, autónomo c/ apoio parcial para AVD, mobilidade previamente limitada por gonartrose bilateral. AP: FA permanente sob varfarina e digoxina, HTA, DRC 3a, défice cognitivo ligeiro, osteoartrose joelhos. Anemia normocítica ligeira conhecida em contexto de DRC. Internamento por PAC em Dez/2024, sem sequelas. Sem alergias conhecidas. MH: varfarina conforme INR, digoxina 0,125 mg id, amlodipina 5 mg id, furosemida 20 mg id, paracetamol 1 g SOS.
+
+À admissão consciente, colaborante, algo ansioso por dor, GCS 15, orientado na pessoa/local/situação. TA 156/84 mmHg, FC 88 bpm irregular, FR 18 cpm, SpO2 97% ar ambiente, T 36,4ºC, glicemia capilar 118 mg/dL. Sem sinais de trauma craniofacial. Pupilas isocóricas/fotorreactivas. Sem dor à palpação cervical, dorsal ou lombar. Tórax sem deformidade, MV mantido bilateralmente, sem ruídos adventícios. AC: ritmo irregular, sem sopros evidentes. Abdómen flácido, depressível, indolor, sem defesa.
+
+MID em encurtamento aparente e rotação externa. Dor marcada à palpação inguinal/trocantérica D e à mobilização mínima da coxofemoral; mobilidade activa impossível por dor. Sem ferida, hematoma expansivo ou compromisso cutâneo. Joelho D sem derrame/instabilidade traumática evidente. Pulsos pedioso e tibial posterior palpáveis e simétricos. Pé quente, TEC <2 seg. Sensibilidade e motricidade distal preservadas: mobiliza dedos e realiza flexão/extensão tibiotársica. Sem défice neurovascular periférico.
+
+Analgesia EV titulada, com melhoria parcial da dor em repouso. Mantém dor à mobilização. Jejum instituído. Colhidas análises pré-operatórias, grupo sanguíneo e prova de compatibilidade. ECG c/ FA, FC ventricular média 82 bpm, sem alterações isquémicas agudas.
+
+Rx bacia/anca D: fractura subcapital do colo do fémur direito, completa, deslocada, com perda de continuidade cortical e varização/encurtamento do segmento proximal; cabeça femoral mantém relação articular com acetábulo, sem luxação coxofemoral. Sem fractura acetabular identificável. Osteopenia difusa. Alterações degenerativas coxofemorais ligeiras bilaterais e artrose avançada dos joelhos parcialmente visualizados. Sem lesão traumática pélvica adicional evidente nas incidências efectuadas.
+
+Analítica: Hb 10,8 g/dL, Ht 32,6%, VGM 91 fL, leucócitos 8,9x10^9/L, plaquetas 214x10^9/L. Na 139 mmol/L, K 4,4 mmol/L, ureia 54 mg/dL, creatinina 1,46 mg/dL, TFGe 47 mL/min/1,73m², compatível c/ DRC basal conhecida. Glicose 124 mg/dL. AST 24 U/L, ALT 18 U/L, bilirrubina total 0,7 mg/dL. PCR 4 mg/L. INR 2,38, TP 27,1 seg, aPTT 35 seg. Grupo A Rh positivo; pesquisa Ac irregulares negativa.
+
+Quadro compatível c/ fractura intracapsular deslocada do colo femoral D após queda de baixa energia. Sob anticoagulação por FA, INR supraterapêutico para procedimento cirúrgico. Contactada Ortopedia; indicada admissão para optimização pré-operatória e tratamento cirúrgico, previsivelmente artroplastia da anca D conforme decisão de equipa operatória. Suspender varfarina. Vigilância de Hb, função renal e coagulação; estratégia de reversão/ponte anticoagulante a definir em articulação c/ Anestesiologia/Medicina Interna, atendendo a FA e necessidade cirúrgica. Mantém jejum, analgesia, profilaxia de lesão por pressão e vigilância neurovascular do membro.
+
+Notas de Enfermagem
+
+16h48: recebido em maca, consciente, doloroso à mobilização. MID mantido imobilizado em posição de conforto, sem carga. Acesso venoso periférico 20G em MSE, pérvio. Colheitas efectuadas.  
+17h05: administrado paracetamol 1 g EV e morfina 2 mg EV titulada, sem intercorrências. Dor reduz de EN 9/10 para EN 4/10 em repouso. Sem náuseas, vómitos ou depressão respiratória.  
+17h40: jejum mantido. Familiar informado da necessidade de internamento e provável intervenção cirúrgica.
+
+Diagnósticos
+
+(S720) - Fractura subcapital deslocada do colo do fémur direito, traumática, fechada  
+(W019) - Queda acidental no domicílio, ao mesmo nível  
+(I489) - Fibrilhação auricular permanente sob anticoagulação oral  
+(N183) - Doença renal crónica estádio 3  
+(D649) - Anemia ligeira normocítica
+
+Medicação
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco  
+14/09/2025 16:55 | 14/09/2025 16:55 | 14/09/2025 16:55 | Paracetamol 1 g EV  
+14/09/2025 17:05 | 14/09/2025 17:05 | 14/09/2025 17:05 | Morfina 2 mg EV, titulada  
+14/09/2025 17:20 | Em curso | 14/09/2025 17:20 | NaCl 0,9% EV, manutenção em jejum  
+14/09/2025 17:30 | Suspensa | 13/09/2025 noite | Varfarina, suspensa por indicação cirúrgica
+
+MCDT Requisitados / Procedimentos Efectuados
+
+M10834 RX BACIA/ANCA DIREITA, 2 INCIDÊNCIAS – Fractura subcapital do colo do fémur direito, completa e deslocada, com encurtamento/varização. Sem luxação coxofemoral. Sem fractura acetabular ou lesão traumática pélvica adicional evidente. Osteopenia difusa.  
+
+L10001 Hemograma completo – Hb 10,8 g/dL, leucócitos 8,9x10^9/L, plaquetas 214x10^9/L.  
+
+L10015 Bioquímica renal/ionograma – creatinina 1,46 mg/dL, ureia 54 mg/dL, TFGe 47 mL/min/1,73m², Na 139 mmol/L, K 4,4 mmol/L.  
+
+L10032 Estudo coagulação – TP 27,1 seg, INR 2,38, aPTT 35 seg.  
+
+L10110 Grupo sanguíneo/prova compatibilidade – A Rh positivo, pesquisa de anticorpos irregulares negativa; reserva de concentrado eritrocitário solicitada.  
+
+C10005 ECG 12 derivações – Fibrilhação auricular, resposta ventricular controlada, FC 82 bpm; sem sinais electrocardiográficos de isquemia aguda.
+
+Destino do Doente
+
+Data: 14/09/2025 18:15  
+Destino: Internamento no Serviço de Ortopedia, para optimização pré-operatória e tratamento cirúrgico de fractura do colo do fémur direito.  
+Médico: Dr(a). Marta Sequeira

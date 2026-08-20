@@ -1,0 +1,37 @@
+29-Abr-2026 15:42:00 Dr(a). Ricardo M. Valente (HUC-URG_ORTOPEDIA)
+
+M, 71a. Recorre por queda acidental no domicílio cerca das 13h30, por entorse em inversão do tornozelo E ao tropeçar em tapete. Sem síncope, tontura ou pródromos. Nega traumatismo cranioencefálico, cervicalgia, perda de consciência, vómitos ou outra queixa traumática. Dor e tumefacção progressivas face externa tornozelo E, agravadas c/ carga e mobilização. Conseguiu deambular após evento, c/ claudicação. Sem parestesias, dormência ou alteração da coloração distal.
+
+AP: DM2, HTA, DPOC moderada, adenocarcinoma próstata submetido a prostatectomia 2022, sob hormonoterapia/vigilância. Ex-fumador. Alergia a contraste iodado, urticária ligeira prévia. MH: bicalutamida 50 mg id, metformina 1000 mg 2id, empagliflozina 10 mg id, tiotrópio inalado 18 mcg id, salbutamol SOS, perindopril 5 mg id.
+
+EO: consciente, colaborante, orientado, GCS 15. Bom estado geral, sem dificuldade respiratória. TA 138/76 mmHg, FC 82 bpm, FR 18 cpm, SpO2 96% AA, T 36,4ºC, glicemia capilar 146 mg/dL. Cabeça/pescoço sem lesões, indolor à palpação cervical. Tórax sem dor à compressão; MV presente bilateralmente, discretamente diminuído de forma difusa compatível c/ DPOC basal, sem sibilos/crepitações. AC rítmica, sem sopros. Abdómen mole, depressível, indolor. Bacia estável e indolor. MIE: tumefacção peri-maleolar externa ligeira/moderada, sem equimose extensa, ferida ou deformidade. Dor selectiva à palpação do maléolo externo e região do ligamento talofibular anterior. Sem dor à palpação do maléolo interno, navicular, base do 5.º metatársico, calcâneo ou diáfise tibio-peroneal. Mobilidade activa e passiva mantida, dolorosa sobretudo em inversão/flexão plantar. Sem instabilidade grosseira. Pulsos pedioso e tibial posterior presentes, simétricos; enchimento capilar <2 seg. Sensibilidade e motricidade distais preservadas. Apoio possível c/ claudicação.
+
+Rx tornozelo E, AP/perfil/mortise: alinhamento tibiotalar e subtalar mantido. Mortise tibioperoneo-astragalina congruente, sem alargamento. Sem descontinuidade cortical ou traço de fractura aguda dos maléolos, astrágalo, calcâneo ou ossos visualizados do mediopé. Sem luxação. Discreta tumefacção dos tecidos moles peri-maleolares externos, compatível c/ lesão ligamentar/entorse. Sem derrame articular volumoso.
+
+Quadro compatível c/ entorse lateral ligeira do tornozelo E, sem evidência imagiográfica de fractura. Feita analgesia c/ melhoria parcial. Aplicada ligadura elástica, sem compromisso neurovascular após colocação. Orientado para repouso relativo 48-72h, gelo local protegido 15-20 min 3-4id nas primeiras 48h, elevação do MIE e carga conforme tolerância. Manter ligadura durante actividade, retirar para repouso nocturno. Paracetamol 1 g 8/8h SOS dor, máx. 3 g/dia. Evitar AINE sem avaliação pelo risco associado a HTA/DM2. Regressar por dor crescente, incapacidade de apoio, parestesias, palidez/cianose distal, tumefacção importante, febre ou ausência de melhoria em 5-7 dias. Seguimento c/ MF; reavaliação ortopédica se sintomas persistentes.
+
+Notas de Enfermagem
+
+À admissão, deambula c/ claudicação, sem necessidade de auxílio para transferência. Dor referida 7/10 em repouso, 8/10 à mobilização. Aplicado gelo local e elevação do MIE. Após paracetamol, dor 4/10. Ligadura elástica bem tolerada; extremidade quente, rosada, pulsos periféricos palpáveis, sem queixas de formigueiro.
+
+Diagnósticos
+
+(S93.4) - Entorse do tornozelo esquerdo, sem fractura radiográfica.
+(W01) - Queda acidental por tropeção, no domicílio.
+
+Medicação
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco
+29-Abr-2026 16:18 | 29-Abr-2026 16:18 | 29-Abr-2026 16:18 | Paracetamol 1000 mg PO, toma única em SU
+
+MCDT Requisitados / Procedimentos Efectuados
+
+M10831 1 TORNOZELO ESQUERDO 3 INCIDÊNCIAS — Rx AP, perfil e mortise. Sem sinais de fractura ou luxação aguda. Congruência tibiotalar mantida, sem diástase da sindesmose. Tumefacção dos tecidos moles peri-maleolares externos, sugestiva de entorse ligamentar lateral.
+
+P70018 — Aplicação de ligadura elástica funcional do tornozelo esquerdo, c/ verificação de integridade neurovascular distal pós-procedimento.
+
+Destino do Doente
+
+Data: 29-Abr-2026 16:45  
+Destino: Alta para domicílio, c/ instruções e vigilância por MF.  
+Médico: Dr(a). Ricardo M. Valente

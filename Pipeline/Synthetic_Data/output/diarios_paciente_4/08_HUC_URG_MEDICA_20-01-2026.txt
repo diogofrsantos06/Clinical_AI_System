@@ -1,0 +1,60 @@
+20-Jan-2026 10:18:00 Dr(a). Miguel Tavares Correia (HUC-URG_MEDICA)
+
+Trazido por familiar por febre, tosse produtiva c/ expectoração mucopurulenta amarelada e mal-estar geral c/ 48h evolução. Refere astenia, diminuição da ingestão hídrica/alimentar e dispneia ligeira ao esforço habitual. Nega dor torácica pleurítica, hemoptises, vómitos, diarreia ou sintomas urinários. Sem contactos conhecidos c/ doentes respiratórios. Antecedente de PAC em 12/2024, c/ recuperação completa.
+
+AP: FA permanente sob varfarina e digoxina; HTA; DRC 3a; gonartrose bilateral; défice cognitivo ligeiro; fractura colo fémur D pós-cirúrgica 09/2025. Anemia normocítica ligeira habitual no contexto de DRC. Sem alergias medicamentosas conhecidas.
+
+MH: varfarina conforme INR, digoxina 0,125 mg id, amlodipina 5 mg id, furosemida 20 mg id, paracetamol 1 g SOS.
+
+À observação consciente, colaborante, algo prostrado, orientado na pessoa e local; sem confusão aguda evidente. Mucosas secas. Eupneico em repouso, taquipneia ligeira à fala. Sem uso músculos acessórios. TA 128/68 mmHg, FC 96 bpm, irregular, FR 22 cpm, T 38,4ºC, SpO2 92% ar ambiente; glicemia capilar 126 mg/dL. AC: sons cardíacos arrítmicos, sem sopros audíveis. AP: murmúrio vesicular globalmente mantido, diminuído na base D, fervores crepitantes inspiratórios focalizados em terço inferior hemitórax D; sem sibilos. Abdómen plano, depressível, indolor, sem massas ou defesa. Sem edemas periféricos relevantes. Gémeos macios, indolores. Sem exantema. Sem sinais focais neurológicos.
+
+Colhidas hemoculturas x2 previamente a ATB. Testes rápidos SARS-CoV-2/influenza A/B negativos.
+
+Analítica: Hb 10,8 g/dL, VGM 91 fL, leucócitos 16,9 x10^9/L, neutrófilos 14,8 x10^9/L, plaquetas 212 x10^9/L. PCR 186 mg/L; PCT 0,42 ng/mL. Ureia 78 mg/dL, creatinina 1,71 mg/dL (basal referido ~1,35-1,45 mg/dL), TFGe 39 mL/min/1,73m2; Na 134 mmol/L, K 4,3 mmol/L, Cl 98 mmol/L. AST 24 U/L, ALT 18 U/L, BT 0,7 mg/dL. Glicemia 132 mg/dL. INR 2,46, compatível c/ anticoagulação terapêutica. Gasimetria arterial AA: pH 7,43, pCO2 35 mmHg, pO2 66 mmHg, HCO3- 23 mmol/L, lactato 1,4 mmol/L. Sumária urina sem leucocitúria/nitritos; densidade 1,025, compatível c/ hipohidratação.
+
+Rx tórax PA/perfil: opacidade alveolar mal definida, predominantemente no segmento basal posterior do lobo inferior direito, c/ broncograma aéreo, compatível c/ foco de condensação pneumónica. Discretas bandas atelectásicas bibasais. Sem derrame pleural. Sem pneumotórax. Silhueta cardíaca discretamente aumentada, sem sinais de edema pulmonar agudo.
+
+Quadro compatível c/ pneumonia adquirida na comunidade, lobo inferior D, c/ resposta inflamatória sistémica, hipoxemia ligeira e agravamento transitório da função renal, provavelmente pré-renal por reduzida ingestão/perdas insensíveis associadas a febre. Hemodinamicamente estável, sem critérios de choque ou necessidade de suporte ventilatório invasivo. CURB-65 elevado por idade e ureia, acrescendo fragilidade, DRC e dificuldade previsível em manter hidratação/vigilância domiciliária.
+
+Iniciada ceftriaxone EV + azitromicina EV após colheitas microbiológicas. Bólus cauteloso SF 0,9% 500 mL, seguido de perfusão 1000 mL/12h c/ reavaliação clínica e balanço hídrico, atendendo a idade/antecedente de diurético. Oxigenoterapia por cânula nasal 1 L/min, SpO2 pós-O2 95%. Paracetamol 1 g EV c/ apirexia subsequente. Suspender temporariamente furosemida; manter vigilância de função renal, ionograma e INR, dado contexto infeccioso e potencial interacção ATB-varfarina. Manter digoxina; reavaliar FC e função renal. Amlodipina condicionada a perfil tensional.
+
+Contactado Serviço de Medicina Interna. Aceite para internamento de curta duração, para ATB EV, suporte hídrico, vigilância respiratória e reavaliação analítica.
+
+Notas de Enfermagem
+
+10:32 – Admitido em cadeira de rodas, acompanhado por familiar. Febril, consciente, colaborante. SpO2 92% AA; iniciada O2 CN 1 L/min, SpO2 95%. Acesso venoso periférico 20G MSD, permeável. Colhidas análises, gasimetria e hemoculturas x2. Administrado paracetamol 1 g EV, ceftriaxone 2 g EV e azitromicina 500 mg EV, sem reacção adversa imediata.
+
+12:15 – Após hidratação EV, TA 122/64 mmHg, FC 88 bpm irregular, FR 19 cpm, T 37,6ºC, SpO2 95% c/ O2 1 L/min. Sem agravamento de dispneia, sem dor torácica. Transferido em condições estáveis.
+
+Diagnósticos
+
+(J18.9) - Pneumonia adquirida na comunidade, base pulmonar direita  
+(N17.9) - Agravamento agudo da função renal, provável componente pré-renal  
+(R09.02) - Hipoxemia ligeira  
+(I48.2) - Fibrilhação auricular permanente sob anticoagulação  
+
+Medicação
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco  
+20/01/2026 10:45 | 20/01/2026 10:45 | 20/01/2026 10:45 | Paracetamol 1 g EV  
+20/01/2026 11:20 | Em curso | 20/01/2026 11:20 | Ceftriaxone 2 g EV  
+20/01/2026 11:35 | Em curso | 20/01/2026 11:35 | Azitromicina 500 mg EV  
+20/01/2026 10:50 | 20/01/2026 12:50 | Em curso | Cloreto de sódio 0,9% EV, 1500 mL  
+20/01/2026 10:35 | Em curso | Em curso | Oxigénio por cânula nasal 1 L/min  
+
+MCDT Requisitados / Procedimentos Efectuados
+
+M10801 – Radiografia tórax PA e perfil: opacidade alveolar mal definida no território basal posterior do LID, c/ broncograma aéreo, sugestiva de condensação pneumónica. Sem derrame pleural associado. Sem pneumotórax. Discretas bandas atelectásicas bibasais.  
+L10001 – Hemograma completo: leucocitose 16,9 x10^9/L c/ neutrofilia 14,8 x10^9/L; Hb 10,8 g/dL, normocítica; plaquetas 212 x10^9/L.  
+L10016 – Bioquímica/inflamação: PCR 186 mg/L, PCT 0,42 ng/mL; creatinina 1,71 mg/dL, ureia 78 mg/dL, ligeiro agravamento face ao basal conhecido; ionograma sem alterações major.  
+L10042 – Coagulação: INR 2,46 sob varfarina.  
+L10112 – Gasimetria arterial: hipoxemia ligeira, pO2 66 mmHg AA, sem acidose ou hiperlactacidémia.  
+M41002 – Hemoculturas periféricas x2 colhidas antes de antibioterapia; resultados pendentes.  
+M41016 – PCR SARS-CoV-2 e teste influenza A/B: negativos.  
+L10221 – Sumária de urina: sem sinais de infecção urinária; urina concentrada.
+
+Destino do Doente
+
+Data: 20/01/2026 12:35  
+Destino: Internamento Medicina Interna – curta duração/observação, em maca, estável, sob O2 CN 1 L/min e hidratação EV.  
+Médico: Dr. Miguel Tavares Correia

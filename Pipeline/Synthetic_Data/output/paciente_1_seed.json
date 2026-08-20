@@ -1,0 +1,143 @@
+{
+  "paciente": {
+    "nome": "Fernanda Costa Almeida",
+    "idade": 58,
+    "sexo": "F",
+    "data_nascimento": "12/04/1968"
+  },
+  "patologias_cronicas": [
+    {
+      "diagnostico": "Epilepsia Focal",
+      "data_diagnostico": "03/06/2019",
+      "notas": "Bem controlada com medicação, sem crises nos últimos 2 anos."
+    },
+    {
+      "diagnostico": "Artrite Reumatoide",
+      "data_diagnostico": "17/11/2021",
+      "notas": "Atividade moderada, resposta parcial ao metotrexato."
+    },
+    {
+      "diagnostico": "Hipertensão Arterial",
+      "data_diagnostico": "09/02/2017",
+      "notas": "Controlo aceitável, valores tensionais próximos da meta."
+    },
+    {
+      "diagnostico": "Hipotiroidismo",
+      "data_diagnostico": "22/08/2020",
+      "notas": "Eutiroideia sob terapêutica de substituição."
+    },
+    {
+      "diagnostico": "Dislipidemia",
+      "data_diagnostico": "14/03/2022",
+      "notas": "Sob estatina, perfil lipídico em melhoria progressiva."
+    },
+    {
+      "diagnostico": "Anemia Ferropénica Crónica",
+      "data_diagnostico": "05/06/2023",
+      "notas": "Secundária a doença inflamatória crónica, sob suplementação oral, controlo periódico."
+    }
+  ],
+  "alergias": [
+    {
+      "substancia": "Penicilina",
+      "reacao": "Exantema cutâneo generalizado"
+    },
+    {
+      "substancia": "Contraste iodado",
+      "reacao": "Broncospasmo ligeiro em exposição prévia"
+    }
+  ],
+  "medicacao_base": [
+    {
+      "farmaco": "Levetiracetam",
+      "dosagem": "500mg",
+      "posologia": "2id",
+      "indicacao": "Epilepsia Focal"
+    },
+    {
+      "farmaco": "Metotrexato",
+      "dosagem": "15mg",
+      "posologia": "1x/semana",
+      "indicacao": "Artrite Reumatoide"
+    },
+    {
+      "farmaco": "Ácido Fólico",
+      "dosagem": "5mg",
+      "posologia": "1x/semana",
+      "indicacao": "Suplementação (associado ao metotrexato)"
+    },
+    {
+      "farmaco": "Prednisolona",
+      "dosagem": "5mg",
+      "posologia": "1id",
+      "indicacao": "Artrite Reumatoide"
+    },
+    {
+      "farmaco": "Perindopril",
+      "dosagem": "5mg",
+      "posologia": "1id",
+      "indicacao": "Hipertensão Arterial"
+    },
+    {
+      "farmaco": "Indapamida",
+      "dosagem": "1.5mg",
+      "posologia": "1id",
+      "indicacao": "Hipertensão Arterial"
+    },
+    {
+      "farmaco": "Levotiroxina",
+      "dosagem": "75mcg",
+      "posologia": "1id",
+      "indicacao": "Hipotiroidismo"
+    },
+    {
+      "farmaco": "Rosuvastatina",
+      "dosagem": "10mg",
+      "posologia": "1id",
+      "indicacao": "Dislipidemia"
+    },
+    {
+      "farmaco": "Omeprazol",
+      "dosagem": "20mg",
+      "posologia": "1id",
+      "indicacao": "Proteção gástrica (associado a corticoterapia crónica)"
+    },
+    {
+      "farmaco": "Sulfato Ferroso",
+      "dosagem": "80mg",
+      "posologia": "1id",
+      "indicacao": "Anemia Ferropénica Crónica"
+    },
+    {
+      "farmaco": "Colecalciferol",
+      "dosagem": "25000UI",
+      "posologia": "1x/mês",
+      "indicacao": "Suplementação (associado a corticoterapia crónica)"
+    }
+  ],
+  "ruido_clinico": {
+    "eventos_agudos_resolvidos": [
+      "Gastroenterite aguda em Janeiro de 2025, autolimitada, sem necessidade de internamento.",
+      "Entorse do tornozelo esquerdo em Junho de 2024, tratada conservadoramente, resolução completa.",
+      "Episódio de lombalgia aguda mecânica em Março de 2025, após esforço físico, resolvida com analgesia e repouso.",
+      "Infeção urinária baixa em Agosto de 2025, tratada com antibioterapia oral, resolução completa."
+    ],
+    "sintomas_isolados_sem_diagnostico": [
+      "Cefaleias tensionais ocasionais, sem padrão de alarme, atribuídas a stress.",
+      "Queixas dispépticas esporádicas, sem relação clara com a medicação.",
+      "Parestesias transitórias na mão direita, atribuídas a compressão postural, sem investigação adicional.",
+      "Sensação ocasional de tonturas posturais, sem síncope associada."
+    ],
+    "achados_incidentais_exames": [
+      "Quisto renal simples de 1,5cm, achado incidental em ecografia abdominal prévia, sem necessidade de vigilância ativa.",
+      "Nódulo tiroideu de 0,8cm, classificado como benigno em ecografia cervical prévia, sem indicação de biópsia.",
+      "Espondilose lombar ligeira, achado radiológico em radiografia da coluna, sem correlação clínica direta.",
+      "Discreta diminuição da densidade mineral óssea em densitometria prévia (T-score -1,8 ao colo do fémur), sem critérios formais de osteoporose até à data."
+    ],
+    "manifestacoes_secundarias": [
+      "Xerostomia atribuída à Síndrome sicca associada à Artrite Reumatoide, sem tratamento específico dirigido.",
+      "Osteopenia em densitometria óssea, atribuída a corticoterapia crónica de longa duração.",
+      "Fácies cushingoide ligeira, atribuída a corticoterapia crónica prolongada."
+    ]
+  }
+}

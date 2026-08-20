@@ -1,0 +1,81 @@
+{
+  "paciente": {
+    "nome": "Beatriz Fonseca Martins",
+    "idade": 45,
+    "sexo": "F",
+    "data_nascimento": "27/06/1981"
+  },
+  "patologias_cronicas": [
+    {
+      "diagnostico": "Fibrilhação Auricular Paroxística",
+      "data_diagnostico": "14/02/2023",
+      "notas": "Sob anticoagulação e controlo de frequência, episódios pouco frequentes."
+    },
+    {
+      "diagnostico": "Doença de Crohn",
+      "data_diagnostico": "09/05/2018",
+      "notas": "Localização ileocólica, em remissão clínica sob terapêutica imunossupressora."
+    },
+    {
+      "diagnostico": "Perturbação Depressiva Major",
+      "data_diagnostico": "22/11/2020",
+      "notas": "Em remissão parcial sob antidepressivo, seguimento regular em Psiquiatria."
+    }
+  ],
+  "alergias": [
+    {
+      "substancia": "Sulfamidas",
+      "reacao": "Exantema maculopapular"
+    }
+  ],
+  "medicacao_base": [
+    {
+      "farmaco": "Apixabano",
+      "dosagem": "5mg",
+      "posologia": "2id",
+      "indicacao": "Fibrilhação Auricular (anticoagulação)"
+    },
+    {
+      "farmaco": "Bisoprolol",
+      "dosagem": "2.5mg",
+      "posologia": "1id",
+      "indicacao": "Fibrilhação Auricular (controlo de frequência)"
+    },
+    {
+      "farmaco": "Azatioprina",
+      "dosagem": "100mg",
+      "posologia": "1id",
+      "indicacao": "Doença de Crohn"
+    },
+    {
+      "farmaco": "Mesalazina",
+      "dosagem": "1.2g",
+      "posologia": "2id",
+      "indicacao": "Doença de Crohn"
+    },
+    {
+      "farmaco": "Sertralina",
+      "dosagem": "100mg",
+      "posologia": "1id",
+      "indicacao": "Perturbação Depressiva Major"
+    }
+  ],
+  "ruido_clinico": {
+    "eventos_agudos_resolvidos": [
+      "Apendicite aguda em 2015, tratada cirurgicamente antes do diagnóstico de Crohn, sem intercorrências.",
+      "Episódio de gastroenterite aguda em Abril de 2025, autolimitado."
+    ],
+    "sintomas_isolados_sem_diagnostico": [
+      "Insónia inicial ocasional, atribuída a ansiedade situacional.",
+      "Palpitações isoladas de curta duração, fora de episódios documentados de FA, sem correlação com registo de Holter."
+    ],
+    "achados_incidentais_exames": [
+      "Pólipo cólico hiperplásico de 3mm, removido em colonoscopia de vigilância, sem atipia.",
+      "Esteatose hepática ligeira em ecografia abdominal prévia."
+    ],
+    "manifestacoes_secundarias": [
+      "Anemia ligeira associada a doença inflamatória intestinal, sob vigilância.",
+      "Aumento ponderal atribuído a efeito secundário da sertralina."
+    ]
+  }
+}

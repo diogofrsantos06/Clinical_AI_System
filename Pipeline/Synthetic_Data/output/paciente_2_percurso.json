@@ -1,0 +1,40 @@
+{
+  "percurso": [
+    {
+      "especialidade": "HUC-UROLOGIA",
+      "data": "18/09/2025",
+      "tipo": "seguimento",
+      "contexto": "Consulta de vigilância oncológica pós-prostatectomia radical. Assintomático do ponto de vista urológico, sem hematúria, sem disúria. Refere noctúria ocasional já conhecida. Foi revisto PSA de controlo (valor indetetável/muito baixo, sem sinais de recidiva bioquímica). Discutida a disfunção erétil residual associada à hormonoterapia, sem indicação de tratamento específico por agora. Toque retal sem alterações relevantes. Mantém-se hormonoterapia sem alterações, próxima vigilância analítica em 6 meses."
+    },
+    {
+      "especialidade": "HUC-URG_ORTOPEDIA",
+      "data": "22/10/2025",
+      "tipo": "urgencia",
+      "contexto": "Queda acidental em casa, com apoio sobre a mão direita, sem perda de consciência associada. Refere dor e edema ligeiro no punho direito. Ao exame objetivo: punho direito com edema ligeiro, dor à palpação e à mobilização, sem deformidade evidente, sem compromisso neurovascular distal. Foi realizada radiografia do punho direito, com descrição detalhada do resultado (sem evidência de traço de fratura, alinhamento ósseo mantido, discreta alteração degenerativa articular já conhecida). Imobilização ligeira e analgesia, com indicação de repouso relativo. Alta para o domicílio."
+    },
+    {
+      "especialidade": "HUC-URG_MEDICA",
+      "data": "14/01/2026",
+      "tipo": "urgencia",
+      "contexto": "Agravamento da dispneia habitual, com aumento da tosse produtiva e alteração da cor da expetoração, com 2 dias de evolução, sem febre relevante. Compatível com exacerbação ligeira a moderada de DPOC, sem critérios de gravidade para internamento. Ao exame objetivo: polipneico ligeiro, auscultação pulmonar com roncos dispersos bilateralmente, sem fervores, saturação periférica ligeiramente reduzida em ar ambiente. Foi realizada radiografia de tórax, com descrição detalhada (sem foco de condensação, hiperinsuflação já conhecida, sem derrame pleural), e análises de urgência (hemograma, PCR, função renal) com discreto aumento de parâmetros inflamatórios. Reforço broncodilatador e ciclo curto de corticoide oral, com melhoria sintomática parcial na urgência. Alta com indicação de reforço terapêutico e reavaliação em Pneumologia."
+    },
+    {
+      "especialidade": "HUC-PNEUMOLOGIA",
+      "data": "04/02/2026",
+      "tipo": "seguimento",
+      "contexto": "Reavaliação após exacerbação de DPOC tratada na urgência em Janeiro. Refere melhoria progressiva, mantém-se sem dispneia de repouso, tosse produtiva em resolução. Foi realizada espirometria de controlo, com descrição detalhada do resultado (padrão obstrutivo moderado, sem alteração significativa face a estudo anterior). Revista também TAC torácica prévia, mantendo-se estável o pequeno nódulo pulmonar já conhecido no lobo superior direito, sem critérios de crescimento, mantendo vigilância imagiológica programada. Discutida importância da vacinação antigripal e antipneumocócica. Mantém-se esquema inalatório atual sem alterações."
+    },
+    {
+      "especialidade": "HUC-URG_ORTOPEDIA",
+      "data": "29/04/2026",
+      "tipo": "urgencia",
+      "contexto": "Nova queda acidental em casa, desta vez com entorse do tornozelo esquerdo, sem trauma craniano associado. Ao exame objetivo: tornozelo esquerdo tumefacto, dor à palpação maleolar externa, mobilização dolorosa mas possível, sem deformidade. Foi realizada radiografia do tornozelo esquerdo, com descrição detalhada (sem evidência de fratura, tecidos moles com tumefação compatível com entorse). Analgesia, imobilização ligeira com ligadura elástica e indicação de repouso relativo com elevação do membro. Alta para o domicílio."
+    },
+    {
+      "especialidade": "HUC-OFTALMOLOGIA",
+      "data": "12/06/2026",
+      "tipo": "ruido",
+      "contexto": "Queixa isolada de visão turva ocasional, sem relação com o quadro crónico, referenciada para exclusão de causa oftalmológica primária. Observação compatível com catarata incipiente bilateral, sem indicação cirúrgica imediata. Nota curta, focada apenas neste achado isolado."
+    }
+  ]
+}

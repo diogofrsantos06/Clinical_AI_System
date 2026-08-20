@@ -1,0 +1,85 @@
+{
+  "paciente": {
+    "nome": "Cátia Raquel Lopes",
+    "idade": 34,
+    "sexo": "F",
+    "data_nascimento": "19/10/1991"
+  },
+  "patologias_cronicas": [
+    {
+      "diagnostico": "Asma Persistente Moderada",
+      "data_diagnostico": "06/04/2010",
+      "notas": "Controlo parcial, exacerbações ocasionais em contexto viral/alergénico."
+    },
+    {
+      "diagnostico": "Enxaqueca com Aura",
+      "data_diagnostico": "15/09/2013",
+      "notas": "Episódios frequência variável, atualmente sob profilaxia."
+    },
+    {
+      "diagnostico": "Tiroidite de Hashimoto (Hipotiroidismo Autoimune)",
+      "data_diagnostico": "11/01/2019",
+      "notas": "Eutiroideia sob terapêutica de substituição."
+    }
+  ],
+  "alergias": [
+    {
+      "substancia": "Ácaros do pó doméstico",
+      "reacao": "Rinite alérgica e agravamento de sintomas asmáticos"
+    },
+    {
+      "substancia": "Ibuprofeno",
+      "reacao": "Broncospasmo em exposição prévia"
+    }
+  ],
+  "medicacao_base": [
+    {
+      "farmaco": "Budesonido/Formoterol",
+      "dosagem": "200/6mcg",
+      "posologia": "2id (inalado)",
+      "indicacao": "Asma Persistente Moderada"
+    },
+    {
+      "farmaco": "Montelucaste",
+      "dosagem": "10mg",
+      "posologia": "1id (à noite)",
+      "indicacao": "Asma Persistente Moderada"
+    },
+    {
+      "farmaco": "Topiramato",
+      "dosagem": "50mg",
+      "posologia": "2id",
+      "indicacao": "Enxaqueca com Aura (profilaxia)"
+    },
+    {
+      "farmaco": "Sumatriptano",
+      "dosagem": "50mg",
+      "posologia": "SOS (crise)",
+      "indicacao": "Enxaqueca com Aura (alívio agudo)"
+    },
+    {
+      "farmaco": "Levotiroxina",
+      "dosagem": "50mcg",
+      "posologia": "1id",
+      "indicacao": "Hipotiroidismo Autoimune"
+    }
+  ],
+  "ruido_clinico": {
+    "eventos_agudos_resolvidos": [
+      "Sinusite aguda bacteriana em Outubro de 2024, tratada com antibioterapia oral, resolução completa.",
+      "Episódio de urticária aguda em contexto alimentar não esclarecido, em 2023, autolimitado."
+    ],
+    "sintomas_isolados_sem_diagnostico": [
+      "Fadiga ligeira intermitente, atribuída a padrão de sono irregular.",
+      "Palpitações isoladas associadas a picos de ansiedade situacional, sem correlação com alterações do ritmo cardíaco documentadas."
+    ],
+    "achados_incidentais_exames": [
+      "Nódulo tiroideu de 0,6cm, achado ecográfico prévio no contexto da tiroidite de base, classificado como benigno, sem indicação de biópsia.",
+      "Desvio do septo nasal ligeiro, achado em avaliação otorrinolaringológica prévia, sem indicação cirúrgica."
+    ],
+    "manifestacoes_secundarias": [
+      "Irritabilidade e alterações de concentração ocasionais, possivelmente relacionadas com o topiramato.",
+      "Xerostomia ligeira intermitente, também associada ao topiramato."
+    ]
+  }
+}

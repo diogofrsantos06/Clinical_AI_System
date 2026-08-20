@@ -1,0 +1,100 @@
+{
+  "percurso": [
+    {
+      "especialidade": "HUC-REUMATOLOGIA",
+      "data": "10/09/2025",
+      "tipo": "seguimento",
+      "contexto": "Reavaliação de artrite reumatoide com atividade moderada. Doente refere rigidez matinal com duração superior a 45 minutos, dor e tumefação ligeira nas articulações metacarpofalângicas bilateralmente e nos punhos. Ao exame objetivo espera-se sinovite palpável em 3-4 articulações, sem deformidades estruturais estabelecidas. Foram pedidas análises de controlo (velocidade de sedimentação, proteína C reativa, hemograma, função renal e hepática por causa do metotrexato) — inclui valores plausíveis compatíveis com atividade inflamatória ligeira a moderada (VS e PCR elevadas, restante normal). Menciona também, de forma incidental, a xerostomia associada à síndrome sicca já conhecida. Pondera-se otimização terapêutica, mantendo por agora o esquema atual e reavaliando na próxima consulta."
+    },
+    {
+      "especialidade": "HUC-NEUROLOGIA",
+      "data": "24/09/2025",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento de epilepsia focal, doente estável, sem crises desde a última consulta (há cerca de 6 meses). Exame neurológico sem défices focais, força muscular preservada, reflexos simétricos, marcha normal. Boa adesão e tolerância ao levetiracetam, sem efeitos adversos relatados. Refere também, de passagem, cefaleias tensionais ocasionais, sem padrão de alarme, atribuídas a stress. Mantém-se o esquema terapêutico atual sem alterações, próxima consulta agendada."
+    },
+    {
+      "especialidade": "HUC-MEDICINA_INTERNA",
+      "data": "15/10/2025",
+      "tipo": "seguimento",
+      "contexto": "Reavaliação global de hipertensão arterial, dislipidemia e anemia ferropénica crónica. Doente refere boa adesão à medicação, sem sintomas de descompensação cardiovascular. Ao exame objetivo, tensão arterial dentro da meta terapêutica, auscultação cardíaca sem sopros, sem edemas periféricos. Foi revisto perfil lipídico recente (colesterol total, LDL, HDL, triglicéridos) com melhoria progressiva, e hemograma de controlo da anemia ferropénica (hemoglobina em melhoria, ainda ligeiramente abaixo do normal). Menciona-se também o quisto renal simples já conhecido, achado incidental em ecografia prévia, sem necessidade de vigilância ativa, e episódio de infeção urinária baixa resolvido em Agosto. Discutida importância de medidas não farmacológicas. Mantém-se esquema terapêutico atual."
+    },
+    {
+      "especialidade": "HUC-URG_MEDICA",
+      "data": "03/12/2025",
+      "tipo": "urgencia",
+      "contexto": "Dor epigástrica intensa com regurgitação ácida e pirose, com cerca de 3 dias de evolução, agravada pelo decúbito. Sem febre, sem sinais de alarme digestivo. Ao exame objetivo: abdómen mole, depressível, dor à palpação epigástrica sem defesa nem sinais de irritação peritoneal. Foi realizada endoscopia digestiva alta em contexto de urgência, com descrição detalhada dos achados (hérnia do hiato de dimensões moderadas, mucosa esofágica com sinais de esofagite ligeira associada). Analgesia e inibidor da bomba de protões administrados na urgência, com melhoria sintomática. Alta com indicação de referenciação a Gastrenterologia para seguimento.",
+      "alteracoes_seed": {
+        "novos_diagnosticos_cronicos": [
+          {
+            "diagnostico": "Hérnia do Hiato",
+            "data_diagnostico": "03/12/2025",
+            "notas": "Diagnosticada por endoscopia digestiva alta em contexto de urgência, com esofagite ligeira associada. Referenciada para seguimento em Gastrenterologia."
+          }
+        ],
+        "nova_medicacao": [
+          {
+            "farmaco": "Pantoprazol",
+            "dosagem": "40mg",
+            "posologia": "1id",
+            "indicacao": "Hérnia do Hiato / Esofagite"
+          }
+        ],
+        "medicacao_removida": []
+      }
+    },
+    {
+      "especialidade": "HUC-GASTRENTEROLOGIA",
+      "data": "20/01/2026",
+      "tipo": "seguimento",
+      "contexto": "Primeira consulta de Gastrenterologia, na sequência da urgência de 03/12/2025 (hérnia do hiato e esofagite diagnosticadas por endoscopia). Doente refere melhoria significativa da pirose e regurgitação desde o início do pantoprazol. Sem novos sintomas de alarme. Menciona também, de forma incidental, queixas dispépticas esporádicas anteriores, sem relação clara com a medicação. Discutidas medidas comportamentais. Mantém-se pantoprazol, reavaliação endoscópica programada para daqui a 6-12 meses."
+    },
+    {
+      "especialidade": "HUC-ORTOPEDIA",
+      "data": "17/02/2026",
+      "tipo": "seguimento",
+      "contexto": "Consulta de Ortopedia por queixas de lombalgia recorrente, com antecedente de episódio agudo em Março de 2025 já resolvido. Foi pedida densitometria óssea de controlo, dado o antecedente de discreta diminuição da densidade mineral óssea em estudo prévio (T-score -1,8 ao colo do fémur) e a corticoterapia crónica de longa duração. Descrição detalhada do resultado da densitometria, agora com progressão para critérios de osteoporose (T-score inferior a -2,5 na coluna lombar). Discutido início de terapêutica específica.",
+      "alteracoes_seed": {
+        "novos_diagnosticos_cronicos": [
+          {
+            "diagnostico": "Osteoporose",
+            "data_diagnostico": "17/02/2026",
+            "notas": "Progressão de osteopenia prévia, atribuída a corticoterapia crónica de longa duração. Início de bifosfonato."
+          }
+        ],
+        "nova_medicacao": [
+          {
+            "farmaco": "Alendronato",
+            "dosagem": "70mg",
+            "posologia": "1x/semana",
+            "indicacao": "Osteoporose"
+          }
+        ],
+        "medicacao_removida": []
+      }
+    },
+    {
+      "especialidade": "HUC-REUMATOLOGIA",
+      "data": "10/03/2026",
+      "tipo": "seguimento",
+      "contexto": "Reavaliação de artrite reumatoide, com melhoria ligeira da atividade inflamatória face à consulta anterior. Discutida a redução progressiva da dose de prednisolona, dado o novo diagnóstico de osteoporose e o objetivo de minimizar exposição cumulativa a corticoterapia. Refere também parestesias transitórias ocasionais na mão direita, atribuídas a compressão postural, sem necessidade de investigação adicional. Analítica de controlo revista (função renal, hepática, hemograma), sem alterações relevantes de novo."
+    },
+    {
+      "especialidade": "HUC-DERMATOLOGIA",
+      "data": "05/04/2026",
+      "tipo": "ruido",
+      "contexto": "Lesão pigmentada isolada no antebraço esquerdo, notada pela doente há algumas semanas, sem relação com o quadro crónico. Observação dermatoscópica sem critérios sugestivos de malignidade, decisão de vigilância. Nota curta, focada apenas neste achado isolado."
+    },
+    {
+      "especialidade": "HUC-NEUROLOGIA",
+      "data": "22/06/2026",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento de epilepsia focal, mantém-se sem crises, boa adesão terapêutica. Exame neurológico sem alterações. Refere sensação ocasional de tonturas posturais, sem síncope associada, provavelmente relacionada com a polimedicação atual — discutida a possibilidade de causa multifatorial. Mantém-se esquema terapêutico inalterado."
+    },
+    {
+      "especialidade": "HUC-MEDICINA_INTERNA",
+      "data": "14/08/2026",
+      "tipo": "seguimento",
+      "contexto": "Reavaliação global e revisão completa do estado de saúde da doente, dada a polipatologia (epilepsia focal, artrite reumatoide, hipertensão arterial, hipotiroidismo, dislipidemia, anemia ferropénica crónica, hérnia do hiato, osteoporose). Revisão de todo o esquema terapêutico atual, com múltiplos fármacos em curso. Exame objetivo completo por sistemas, sem alterações agudas relevantes. Analítica alargada de rotina (hemograma, função renal, função hepática, ionograma, perfil lipídico, TSH), com valores globalmente controlados. Menciona-se também a fácies cushingoide ligeira, atribuída à corticoterapia crónica prolongada, e o nódulo tiroideu benigno conhecido, sem necessidade de biópsia. Discutida articulação entre as várias especialidades envolvidas no seguimento."
+    }
+  ]
+}

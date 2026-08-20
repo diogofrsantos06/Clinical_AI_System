@@ -1,0 +1,82 @@
+{
+  "percurso": [
+    {
+      "especialidade": "HUC-CARDIOLOGIA",
+      "data": "05/08/2025",
+      "tipo": "seguimento",
+      "contexto": "Consulta de vigilância de fibrilhação auricular paroxística. Assintomática, sem novos episódios percecionados desde a última consulta. Refere palpitações isoladas de curta duração ocasionalmente, sem correlação com registo de Holter prévio. Foi revisto ECG de consulta (ritmo sinusal, sem alterações agudas) e Holter de 24h prévio, com descrição detalhada (raros episódios de extrassistolia supraventricular, sem FA documentada no período de registo). Mantém-se anticoagulação e controlo de frequência sem alterações."
+    },
+    {
+      "especialidade": "HUC-GASTRENTEROLOGIA",
+      "data": "20/08/2025",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento de Doença de Crohn, em remissão clínica. Sem dor abdominal, sem alteração do trânsito intestinal, sem sangue nas fezes. Foram revistas análises de controlo (hemograma com ligeira anemia já conhecida, PCR e calprotectina fecal dentro de valores compatíveis com remissão). Discutido pólipo cólico hiperplásico removido em colonoscopia de vigilância prévia, sem necessidade de seguimento dirigido adicional. Mantém-se esquema imunossupressor atual."
+    },
+    {
+      "especialidade": "HUC-PSIQUIATRIA",
+      "data": "10/09/2025",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento de perturbação depressiva major, em remissão parcial. Refere humor globalmente estável, com flutuações ligeiras associadas a stress laboral. Insónia inicial ocasional já conhecida. Sem ideação suicida, sem sintomas psicóticos. Discutido aumento ponderal atribuído à sertralina, ponderando-se otimização futura se persistir. Mantém-se esquema terapêutico atual, próxima consulta em 3 meses."
+    },
+    {
+      "especialidade": "HUC-URG_MEDICA",
+      "data": "02/11/2025",
+      "tipo": "urgencia",
+      "contexto": "Episódio de palpitações rápidas e sustentadas, com cerca de 2 horas de duração, associadas a mal-estar geral e leve dispneia, sem dor torácica. Ao exame objetivo: taquicárdica, irregular à auscultação cardíaca, tensão arterial mantida, sem sinais de insuficiência cardíaca. Foi realizado ECG de urgência, com descrição detalhada (fibrilhação auricular de resposta ventricular rápida, sem alterações isquémicas agudas). Análises de urgência (função renal, ionograma, hormonas tiroideias) sem alterações relevantes. Controlo de frequência administrado na urgência, com reversão para ritmo sinusal antes da alta. Reforço transitório de bisoprolol, com indicação de reavaliação em Cardiologia."
+    },
+    {
+      "especialidade": "HUC-CARDIOLOGIA",
+      "data": "18/11/2025",
+      "tipo": "seguimento",
+      "contexto": "Reavaliação após episódio de FA sintomática na urgência em Novembro. Mantém-se em ritmo sinusal desde então, assintomática. Foi revisto ecocardiograma de controlo, com descrição detalhada (função sistólica preservada, sem valvulopatia significativa, aurícula esquerda com dimensões no limite superior do normal). Discutida a possibilidade de ablação futura caso recorrência de episódios sintomáticos. Mantém-se esquema atual de anticoagulação e controlo de frequência."
+    },
+    {
+      "especialidade": "HUC-DERMATOLOGIA",
+      "data": "14/01/2026",
+      "tipo": "ruido",
+      "contexto": "Lesão eczematosa isolada na face flexora do antebraço esquerdo, sem relação com o quadro crónico, provavelmente de etiologia irritativa/contacto. Tratamento tópico instituído, sem necessidade de investigação adicional. Nota curta e direta."
+    },
+    {
+      "especialidade": "HUC-GASTRENTEROLOGIA",
+      "data": "22/02/2026",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento de rotina de Doença de Crohn, mantém-se em remissão clínica. Refere adesão regular à terapêutica, sem efeitos adversos relevantes. Analítica de controlo revista, sem agravamento da anemia já conhecida. Sem alterações ao esquema terapêutico."
+    },
+    {
+      "especialidade": "HUC-URG_GASTRENTEROLOGIA",
+      "data": "30/04/2026",
+      "tipo": "urgencia",
+      "contexto": "Agravamento de dor abdominal em fossa ilíaca direita, associada a diarreia com cerca de 4-5 dejeções diárias, sem sangue visível, com 3 dias de evolução, sugestivo de possível exacerbação da Doença de Crohn. Sem febre. Ao exame objetivo: abdómen depressível, dor à palpação em fossa ilíaca direita, sem sinais de irritação peritoneal. Foram realizadas análises de urgência (hemograma com leucocitose ligeira, PCR elevada, calprotectina fecal muito aumentada face ao valor basal) e ecografia abdominal, com descrição detalhada dos achados (espessamento parietal ileal compatível com atividade inflamatória, sem sinais de complicação como abcesso ou fístula). Ajuste transitório de corticoterapia, com indicação de reavaliação em Gastrenterologia a curto prazo.",
+      "alteracoes_seed": {
+        "novos_diagnosticos_cronicos": [],
+        "nova_medicacao": [
+          {
+            "farmaco": "Prednisolona",
+            "dosagem": "20mg",
+            "posologia": "1id (dose decrescente)",
+            "indicacao": "Exacerbação de Doença de Crohn"
+          }
+        ],
+        "medicacao_removida": []
+      }
+    },
+    {
+      "especialidade": "HUC-GASTRENTEROLOGIA",
+      "data": "14/05/2026",
+      "tipo": "seguimento",
+      "contexto": "Reavaliação após exacerbação de Doença de Crohn tratada na urgência em Abril. Refere melhoria progressiva da dor abdominal e normalização do trânsito intestinal. Discutida redução gradual da dose de prednisolona, com plano de reavaliação de calprotectina fecal em 4-6 semanas. Mantém-se restante esquema imunossupressor inalterado."
+    },
+    {
+      "especialidade": "HUC-PSIQUIATRIA",
+      "data": "12/06/2026",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento, refere agravamento ligeiro do humor no contexto da exacerbação de Crohn recente, sem critérios para alteração aguda do plano terapêutico. Sem ideação suicida. Insónia inicial mantém-se ocasional. Mantém-se sertralina sem alterações, reforçada psicoeducação sobre gestão do stress associado à doença crónica."
+    },
+    {
+      "especialidade": "HUC-CARDIOLOGIA",
+      "data": "20/07/2026",
+      "tipo": "seguimento",
+      "contexto": "Consulta de vigilância anual de fibrilhação auricular, sem novos episódios sintomáticos desde Novembro de 2025. ECG de consulta sem alterações agudas. Mantém-se esquema de anticoagulação e controlo de frequência sem alterações, reforçada importância da adesão terapêutica."
+    }
+  ]
+}

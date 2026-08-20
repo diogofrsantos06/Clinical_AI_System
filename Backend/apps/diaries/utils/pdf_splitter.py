@@ -103,10 +103,12 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
 
             if debug:
                 print(f"Sending chunk: pages {i+1} to {min(i + chunk_size, total_pages)}...", flush=True)
-                
+                print("\n" + "=" * 20 + f" TEXTO EXTRAÍDO (bloco {int(i/chunk_size)+1}, antes da limpeza) " + "=" * 20, flush=True)
+                print(chunk_text, flush=True)
+                print("=" * 90 + "\n", flush=True)
 
             max_attempts = 3
-            cleaned_chunk_text = chunk_text
+            cleaned_chunk_text = chunk_text  # fallback bruto — só é substituído abaixo se uma resposta for validada com sucesso
             had_retry = False
             chunk_stats = {}
             attempts_exhausted = False
@@ -127,12 +129,24 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
                     if "504 Server Error" in response_text or "Gateway Timeout" in response_text:
                         raise ValueError("The LLM returned a timeout error disguised as text.")
 
-                    cleaned_chunk_text = response_text.strip()
+                    # Usa uma variável à parte para validar, ANTES de tocar em cleaned_chunk_text —
+                    # assim, uma resposta má nunca "contamina" o valor de recurso.
+                    candidate_text = response_text.strip()
+
+                    if len(candidate_text) < 0.3 * len(chunk_text):
+                        raise ValueError(
+                            f"Resposta da LLM suspeitosamente curta/vazia: "
+                            f"{len(candidate_text)} caracteres, contra {len(chunk_text)} do original."
+                        )
+
+                    cleaned_chunk_text = candidate_text  # só chega aqui depois de validado
                     had_retry = (attempt > 1)
 
                     if debug:
-                        print(" LIMPEZA LLM (bloco {int(i/chunk_size)+1})")
-                        
+                        print("\n" + "=" * 20 + f" TEXTO APÓS LIMPEZA DA LLM (bloco {int(i/chunk_size)+1}) " + "=" * 20, flush=True)
+                        print(cleaned_chunk_text, flush=True)
+                        print("=" * 90 + "\n", flush=True)
+
                     break  # success!
 
                 except Exception as e:
@@ -145,6 +159,7 @@ def extract_full_pdf_text(pdf_path, client_llm, chunk_size=4, debug=True):
                         print("[LLM PRE-CLEAN] Retry limit reached! Falling back to the raw OCR text to avoid data loss.", flush=True)
                         had_retry = True
                         attempts_exhausted = True
+                        cleaned_chunk_text = chunk_text  # reforço explícito, para garantir que nunca fica vazio
 
             chunk_duration = time.perf_counter() - start_chunk
 

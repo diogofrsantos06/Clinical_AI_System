@@ -1,0 +1,51 @@
+30-Abr-2026 16:42:00 Dr(a). Marta Lemos (HUC-URG_GASTRENTEROLOGIA)
+
+Mulher, 45a, recorre por dor abdominal predominantemente em FID, progressiva, c/ 3 dias evolução, associada a aumento do trânsito intestinal, 4-5 dejeções/dia, líquidas/pastosas, s/ sangue ou muco visível. Nega febre, vómitos, distensão abdominal marcada, rectorragias, melena, sintomas urinários ou queixas ginecológicas. Sem contactos conhecidos c/ gastroenterite, sem viagem recente, sem ingestão alimentar suspeita. Mantém tolerância oral, embora c/ menor apetite. Refere quadro semelhante a episódios prévios de actividade ileal.
+
+AP: doença de Crohn ileocólica dx 2018, habitualmente em remissão clínica; FA paroxística sob anticoagulação; perturbação depressiva major em remissão parcial. Apendicectomia 2015. Anemia ligeira previamente associada a DII. Alergia a sulfamidas - exantema maculopapular.
+
+MH: apixabano 5 mg 12/12h, bisoprolol 2,5 mg id, azatioprina 100 mg id, mesalazina 1,2 g 12/12h, sertralina 100 mg id. Refere adesão habitual, sem suspensão recente de azatioprina/mesalazina. Sem AINEs.
+
+EO: consciente, orientada, colaborante. Estado geral conservado, discretamente desconfortável por dor. Mucosas ligeiramente secas, coradas. TA 124/76 mmHg, FC 82 bpm, FR 16 cpm, SpO2 99% AA, T 36,7ºC. Cardíaca rítmica, sem sopros; sem sinais de insuficiência cardíaca. AP: murmúrio vesicular mantido bilateralmente, sem ruídos adventícios. Abdómen plano, depressível, ruídos hidroaéreos presentes, dor à palpação profunda em FID e discretamente peri-umbilical, sem defesa, contractura ou descompressão brusca dolorosa. Sem massas palpáveis, sem organomegalias. Sem dor lombar à punho-percussão. TR não realizado, sem indicação imediata na ausência de exteriorização hemática/queixas anorretais. Sem edemas periféricos; perfusão distal mantida.
+
+Analítica: Hb 11,3 g/dL, Htc 34,8%, VGM 84 fL, leucócitos 12,6 x10^9/L, neutrófilos 9,4 x10^9/L, plaquetas 412 x10^9/L. PCR 48 mg/L, VS 38 mm/h. Ionograma s/ alterações relevantes: Na 138 mmol/L, K 4,1 mmol/L. Ureia 24 mg/dL, creatinina 0,72 mg/dL, TFGe >90 mL/min/1,73m2. Glicemia 101 mg/dL. AST 19 U/L, ALT 22 U/L, FA 91 U/L, GGT 28 U/L, bilirrubina total 0,4 mg/dL. Lipase 24 U/L. Urina II s/ leucocitúria, nitritos, hematúria ou proteinúria. Calprotectina fecal 1260 µg/g, muito acima do valor basal referido habitualmente <150 µg/g, compatível c/ actividade inflamatória intestinal significativa.
+
+Ecografia abdomino-pélvica: ansa ileal terminal visualizável em FID c/ espessamento parietal circunferencial até 6-7 mm, extensão aproximada de 8 cm, estratificação mural parcialmente preservada e aumento da vascularização mural ao Doppler, achados compatíveis c/ actividade inflamatória de doença de Crohn. Discreta hiperecogenicidade da gordura mesentérica adjacente e pequenos gânglios mesentéricos reactivos subcentimétricos. Sem colecção organizada, abcesso, trajecto fistuloso, pneumoperitoneu ou líquido livre. Sem dilatação de ansas a montante ou sinais ecográficos de obstrução. Sem alterações hepatobiliares agudas.
+
+Quadro compatível c/ exacerbação inflamatória ligeira-moderada de Crohn ileal, sem critérios clínicos, analíticos ou imagiológicos de sépsis, perfuração, abcesso ou oclusão. Hemodinamicamente estável, tolera líquidos e terapêutica oral. Caso discutido c/ Gastrenterologia; indicada corticoterapia oral transitória e reavaliação prioritária para eventual optimização de terapêutica de manutenção/biológica.
+
+Iniciada prednisolona 40 mg PO id, após colheitas, a manter até reavaliação por Gastrenterologia nos próximos 3-5 dias; desmame posterior conforme orientação da consulta. Manter azatioprina e mesalazina nas doses habituais. Manter apixabano e bisoprolol, na ausência de hemorragia digestiva. Paracetamol SOS para dor; evitar AINEs. Hidratação oral reforçada e dieta pobre em resíduos transitória, conforme tolerância.
+
+Explicados sinais de alarme e indicação para regressar de imediato: febre, agravamento ou generalização da dor, vómitos persistentes, distensão abdominal, incapacidade de ingerir líquidos, síncope, sangue nas fezes/melena ou taquicardia persistente. Compreende e concorda.
+
+Notas de Enfermagem
+
+Admitida autónoma, deambulante, c/ dor abdominal referida 6/10 em FID. Canalização venosa periférica e colheitas efectuadas sem intercorrências. Administrado paracetamol 1 g PO, c/ melhoria álgica para 2-3/10. Sem dejeções observadas durante permanência no SU. Reavaliação pré-alta: TA 122/74 mmHg, FC 78 bpm, T 36,6ºC, SpO2 99% AA; mantém abdómen depressível, sem sinais peritoneais.
+
+Diagnósticos
+
+(K50.8) - Doença de Crohn ileocólica, exacerbação inflamatória sem complicação
+(R10.31) - Dor abdominal em fossa ilíaca direita
+(R19.7) - Diarreia, não especificada
+
+Medicação
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco
+30/04/2026 | 30/04/2026 | 30/04/2026 | Paracetamol 1 g PO, dose única em SU
+30/04/2026 | Até reavaliação por Gastrenterologia | 30/04/2026 | Prednisolona 40 mg PO id, de manhã
+30/04/2026 | Manter | 30/04/2026 | Azatioprina 100 mg PO id
+30/04/2026 | Manter | 30/04/2026 | Mesalazina 1,2 g PO 12/12h
+30/04/2026 | Manter | 30/04/2026 | Apixabano 5 mg PO 12/12h
+
+MCDT Requisitados / Procedimentos Efectuados
+
+A10001 - Hemograma completo c/ fórmula leucocitária e plaquetas: leucocitose ligeira neutrofílica, Hb 11,3 g/dL, anemia normocítica ligeira.
+A10012 - Bioquímica geral, função renal, ionograma, provas hepáticas, lipase e PCR: PCR 48 mg/L; função renal, ionograma, perfil hepático e lipase sem alterações relevantes.
+A10146 - Calprotectina fecal: 1260 µg/g, muito aumentada, sugestiva de actividade inflamatória intestinal.
+I30027 - Ecografia abdomino-pélvica: espessamento inflamatório do íleo terminal, c/ hiperémia mural ao Doppler; sem abcesso, fístula, colecção, obstrução ou líquido livre.
+
+Destino do Doente
+
+Data: 30/04/2026
+Destino: Alta para domicílio, c/ referenciação prioritária para consulta de Gastrenterologia em 3-5 dias.
+Médico: Dr(a). Marta Lemos

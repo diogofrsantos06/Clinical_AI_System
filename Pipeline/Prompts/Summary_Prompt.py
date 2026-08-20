@@ -86,12 +86,14 @@ FORMATO DE SAÍDA OBRIGATÓRIO (JSON VÁLIDO):
 PROMPT_EXAMES = """
 Atua como um Médico Sénior. O teu objetivo é consolidar os Meios Complementares de Diagnóstico (MCDT).
 
+FORMATO DE RESPOSTA (LÊ ANTES DE COMEÇARES): a tua resposta é SEMPRE, sem exceção, ou (a) o texto exato "SEM_DADOS", ou (b) um objeto JSON válido começado em "{{" e terminado em "}}". Nunca escrevas listas com marcadores, títulos como "MCDT CRÍTICOS:", texto corrido, ou qualquer outra estrutura — só uma destas duas opções.
+
 DADOS RECEBIDOS:
 {extracted_data}
 
 REGRAS CRÍTICAS:
 1. FILTRAGEM: A tua entrada contém exames classificados como 'exame_objetivo' e 'exame_complementar'. Deves ignorar COMPLETAMENTE qualquer exame cuja categoria seja 'exame_objetivo'. Mantém apenas os classificados como 'exame_complementar'.
-2. VAZIO: Se o diário não contiver exames complementares (apenas objetivos, nada, ou só exames excluídos pela regra 5), deves responder estritamente "SEM_DADOS" e não gerar nenhum objeto JSON.
+2. VAZIO: Se o diário não contiver exames complementares (apenas objetivos, nada, ou só exames excluídos pela regra 5), a tua resposta inteira deve ser, literalmente, só a palavra SEM_DADOS — nada antes, nada depois, sem JSON nenhum. Fora deste caso específico, a resposta é sempre JSON (nunca texto livre, nunca lista).
 3. TRATAMENTO DOS EXAMES (RIGOR ABSOLUTO DE REGISTO): 
    - A) VALORES ANALÍTICOS (Numéricos): Devem ser transcrevidos na ÍNTEGRA, valor a valor, parâmetro a parâmetro. É terminantemente proibido omitir ou resumir valores analíticos.
    - B) RESULTADOS QUALITATIVOS OU RESUMIDOS (Ex: "BQ: N", "Urina tipo: N", "Normal", "Negativo"): NUNCA os ignores ou elimines por não terem números. Se o resultado vier descrito como "N" (Normal) ou com uma menção qualitativa global, deves mantê-lo obrigatoriamente no JSON final indicando explicitamente esse estado (ex: "Normal / Sem alterações").
@@ -118,6 +120,11 @@ FORMATO DE SAÍDA OBRIGATÓRIO (JSON VÁLIDO):
 }}
 
 IMPORTANTE: A tua resposta deve conter APENAS o objeto JSON pedido, começando em "{{" e terminando em "}}". Não escrevas nenhum texto, explicação ou título antes ou depois do JSON.
+
+EXEMPLO DO QUE NÃO FAZER (nunca respondas assim):
+"MCDT CRÍTICOS:
+- 04-Fev-2026 | Pneumologia | Espirometria: ..."
+Isto está errado — não é JSON.
 """
 
 

@@ -1,0 +1,39 @@
+22-Out-2025 16:42:00 Dr(a). Miguel Andrade (HUC-URG_ORTOPEDIA)
+
+Homem, 71 anos, recorre por queda acidental no domicílio cerca das 14h00, por tropeção em tapete, com mecanismo de queda para a frente e apoio directo sobre mão/punho D. Nega traumatismo cranioencefálico, perda de conhecimento, lipotímia, dor cervical, dor torácica ou outra queixa traumática. Dor no punho D, predominantemente dorsal/radial, agravada pela mobilização e preensão. Edema ligeiro local. Sem ferida, hemorragia ou parestesias distais.
+
+AP: DM2, HTA, DPOC moderada; adenocarcinoma próstata submetido a prostatectomia radical em 2022, sob hormonoterapia/vigilância. Ex-fumador. Alergia a contraste iodado, urticária ligeira prévia. MH: bicalutamida 50 mg id, metformina 1000 mg 2id, empagliflozina 10 mg id, perindopril 5 mg id, tiotrópio inalado 18 mcg id, salbutamol SOS.
+
+EO: consciente, colaborante, orientado, GCS 15. Estado geral conservado. TA 146/78 mmHg, FC 82 bpm, FR 18 cpm, SpO2 96% AA, T 36,4ºC. Sem sinais de trauma craniofacial. Coluna cervical sem dor à palpação, mobilidade indolor. Membro superior D: ombro, braço, cotovelo e antebraço sem dor, deformidade ou limitação funcional. Punho D c/ discreto edema dorsorradial, sem equimose exuberante, sem deformidade evidente. Dor à palpação da região radiocárpica e dor à mobilização activa/passiva, sobretudo extensão e desvio radial. Sem dor selectiva marcada na tabaqueira anatómica; sem instabilidade clínica. Dedos c/ mobilidade activa mantida, preensão condicionada por dor. Pulsos radial e cubital palpáveis, perfusão distal mantida, TEC <2 seg. Sensibilidade e força distal preservadas nos territórios mediano, radial e cubital. Sem défice neurovascular.
+
+Rx punho D sem traço de fractura aguda ou luxação. Alinhamento radiocárpico e carpometacárpico mantido. Sem alterações traumáticas ósseas evidentes. Discretas alterações degenerativas radiocárpicas/intercarpais, já conhecidas. Quadro compatível c/ contusão/entorse ligeira do punho D pós-traumática.
+
+Feita analgesia c/ paracetamol, c/ melhoria parcial da dor. Aplicada imobilização ligeira c/ ligadura elástica/ortótese de punho, mantendo perfusão e sensibilidade distal preservadas após procedimento. Orientado para gelo local 15-20 min, 3-4x/dia nas primeiras 48h, elevação do membro e repouso relativo; evitar cargas, movimentos repetitivos e apoio sobre a mão D. Pode manter paracetamol SOS. Reavaliação por MF/Ortopedia se dor persistente >5-7 dias. Recorrer de imediato se dor crescente, edema importante, alteração de cor/temperatura dos dedos, parestesias, diminuição de força ou incapacidade funcional.
+
+Notas de Enfermagem
+
+16h18 – Admitido deambulante, acompanhado por familiar. Dor referida 5/10 no punho D. Sem queixas adicionais. Sinais vitais colhidos: TA 146/78 mmHg, FC 82 bpm, SpO2 96% em ar ambiente, T 36,4ºC.  
+17h25 – Após analgesia e imobilização, dor 2-3/10 em repouso. Extremidade D quente, rosada, pulsos presentes, sensibilidade conservada. Alta após esclarecimento de indicações e sinais de alarme.
+
+Diagnósticos
+
+(S63.5) - Entorse do punho direito  
+(M25.53) - Dor no punho direito pós-traumática  
+(W01) - Queda acidental ao mesmo nível no domicílio
+
+Medicação
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco  
+22/10/2025 16:55 | 22/10/2025 16:55 | 22/10/2025 16:55 | Paracetamol 1000 mg PO, toma única
+
+MCDT Requisitados / Procedimentos Efectuados
+
+M10865 – RX PUNHO DIREITO, 2 INCIDÊNCIAS (AP e perfil): mineralização óssea preservada. Sem evidência de traço de fractura aguda do rádio distal, cúbito distal ou ossos do carpo. Sem luxação ou subluxação. Alinhamento radiocárpico, intercarpal e carpometacárpico mantido. Discreto aumento de partes moles periarticular dorsal. Alterações degenerativas ligeiras radiocárpicas/intercarpais, sem agravamento traumático identificável.
+
+P00321 – Imobilização funcional ligeira do punho direito com ligadura elástica/ortótese.
+
+Destino do Doente
+
+Data: 22/10/2025 17:38  
+Destino: Alta para domicílio, autónomo, acompanhado.  
+Médico: Dr(a). Miguel Andrade

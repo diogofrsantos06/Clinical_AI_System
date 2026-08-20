@@ -1,0 +1,46 @@
+02-Nov-2025 16:42:00 Dr(a). Marta Sequeira (HUC-URG_MEDICA)
+
+Mulher, 44A, recorre por palpitações de início súbito cerca das 14h30, rápidas, sustentadas, associadas a mal-estar geral, astenia e dispneia ligeira aos esforços. Sem pré-síncope/síncope. Nega dor torácica, opressão, irradiação, sudorese fria, febre, tosse, hemoptises ou edema MMII. Sem vómitos/diarreia; sem exteriorização hemática ou queixas sugestivas de exacerbação de Crohn. Nega consumo recente de álcool, estimulantes, cocaína ou descongestionantes nasais. Refere adesão habitual a apixabano, sem omissões recentes, e toma regular de bisoprolol 2,5 mg/dia. Episódios prévios de FA paroxística pouco frequentes, habitualmente autolimitados; sem cardioversão eléctrica prévia conhecida.
+
+AP: FA paroxística; doença de Crohn ileocólica, clinicamente em remissão sob azatioprina/mesalazina; perturbação depressiva major em remissão parcial. Apendicectomia 2015. Anemia ligeira previamente vigiada no contexto de DII. Alergia a sulfamidas - exantema maculopapular.
+
+MH: apixabano 5 mg 2id, bisoprolol 2,5 mg id, azatioprina 100 mg id, mesalazina 1,2 g 2id, sertralina 100 mg id.
+
+À admissão consciente, colaborante, orientada, discurso fluente. Ligeiramente ansiosa, sem sinais de dificuldade respiratória. TA 128/76 mmHg, FC 146 bpm irregular, FR 18 cpm, SatO2 98% AA, T 36,7ºC, glicemia capilar 104 mg/dL. Bem perfundida, TEC <2 s, mucosas húmidas. Sem ingurgitamento jugular. AC: ritmo irregular, taquicárdico, sem sopros audíveis. AP: MV bilateralmente presente e simétrico, sem sibilos/crepitações. Abdómen plano, depressível, indolor, sem defesa ou massas. Sem edemas periféricos, gémeos indolores e simétricos. Sem focalidade neurológica.
+
+ECG 16h48: fibrilhação auricular, resposta ventricular rápida, FC média 148 bpm; QRS estreito, eixo intermédio, QTc 438 ms; sem supradesnivelamento ST, infradesnivelamentos significativos ou alterações agudas da onda T sugestivas de isquemia. Sem sinais electrocardiográficos de pré-excitação.
+
+Colheitas efectuadas. Hb 12,1 g/dL, Ht 36,8%, leucócitos 6,7x10^9/L, neutrófilos 4,2x10^9/L, plaquetas 241x10^9/L. PCR 1,8 mg/L. Glicose 101 mg/dL, ureia 28 mg/dL, creatinina 0,78 mg/dL, TFGe >90 mL/min/1,73m2. Na 139 mmol/L, K 4,2 mmol/L, Cl 104 mmol/L, Ca 9,3 mg/dL, Mg 1,9 mg/dL. AST 21 U/L, ALT 24 U/L, bilirrubina total 0,5 mg/dL. TSH 1,46 mUI/L, T4L 1,12 ng/dL. Troponina T ultrasensível 4 ng/L, sem critérios analíticos de lesão miocárdica aguda no contexto clínico. Sem alteração metabólica, electrolítica, renal ou tiroideia precipitante identificada.
+
+Monitorizada em área de observação, hemodinamicamente estável, sem dor torácica ou sinais de IC aguda. Administrado metoprolol 5 mg EV lento, com redução progressiva da FC para 95-110 bpm. Cerca das 18h05, conversão espontânea para ritmo sinusal, FC 72 bpm, mantendo estabilidade clínica. ECG pós-conversão 18h14: ritmo sinusal, FC 71 bpm, PR 164 ms, QRS 86 ms, QTc 421 ms; sem alterações isquémicas agudas.
+
+Reavaliada: assintomática, sem palpitações ou dispneia; TA 122/74 mmHg, FC 70-74 bpm regular, SatO2 99% AA. Discussão com Cardiologia de prevenção: manter anticoagulação sem interrupção; aumentar transitoriamente bisoprolol para 5 mg id, com vigilância de hipotensão/bradicardia e reavaliação breve em consulta de Cardiologia para ajuste de terapêutica/ponderação de estudo complementar. Explicados sinais de alarme: recorrência persistente de palpitações com FC elevada, síncope, dor torácica, dispneia agravada, hemorragia sob anticoagulação. Compreende e concorda.
+
+Notas de Enfermagem
+16h40: admitida por palpitações; monitorização cardíaca contínua iniciada, acesso venoso periférico 20G MSD, colheitas enviadas.
+17h02: administrado metoprolol EV conforme prescrição; sem reacção adversa, TA mantida.
+18h15: monitor evidencia ritmo sinusal; utente refere melhoria franca, sem queixas álgicas ou dispneia.
+19h00: deambula sem tonturas, sinais vitais estáveis; alta acompanhada por familiar.
+
+Diagnósticos
+(I48.0) - Fibrilhação auricular paroxística com resposta ventricular rápida, revertida espontaneamente após controlo de frequência.
+(Z79.01) - Terapêutica anticoagulante crónica.
+
+Medicação
+Data Início | Data Fim | Data da última toma | Designação do Fármaco
+02/11/2025 17:02 | 02/11/2025 17:02 | 02/11/2025 17:02 | Metoprolol 5 mg EV lento
+02/11/2025 | 16/11/2025 | 02/11/2025 manhã | Bisoprolol 5 mg PO id
+Manter apixabano 5 mg PO 2id e restante MH sem alterações.
+
+MCDT Requisitados / Procedimentos Efectuados
+M10110 - ECG 12 derivações: FA com resposta ventricular rápida, FC 148 bpm, QRS estreito, sem alterações isquémicas agudas.
+M10111 - ECG 12 derivações pós-terapêutica: ritmo sinusal, FC 71 bpm, sem alterações isquémicas agudas.
+M31001 - Hemograma completo: Hb 12,1 g/dL; leucócitos 6,7x10^9/L; plaquetas 241x10^9/L, sem citopenias relevantes.
+M31020 - Bioquímica urgente/ionograma/função renal: creatinina 0,78 mg/dL, Na 139 mmol/L, K 4,2 mmol/L, Mg 1,9 mg/dL; sem alterações relevantes.
+M31042 - Função tiroideia: TSH 1,46 mUI/L, T4L 1,12 ng/dL, eutiroideia analítica.
+M31066 - Troponina T ultrasensível: 4 ng/L, negativa.
+
+Destino do Doente
+Data: 02/11/2025 19:12
+Destino: Alta para domicílio, orientada para consulta de Cardiologia em 1-2 semanas e vigilância pelo MF.
+Médico: Dr(a). Marta Sequeira

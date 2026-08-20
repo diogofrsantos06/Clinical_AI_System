@@ -1,0 +1,34 @@
+18-Nov-2025 16:42:00 Dr(a). Inês Matos Valente (HUC-URG_MEDICA)
+
+Mulher, 34A. Recorre por agravamento súbito de dispneia, aperto torácico e pieira, iniciado há cerca de 3h após limpeza doméstica intensa c/ exposição a poeiras/produtos de limpeza. Tosse seca associada, sem expetoração. Sem febre, arrepios, dor torácica, hemoptises, síncope ou edema MMII. Sem contacto infecioso conhecido. Refere quadro semelhante em exposições alergénicas prévias, habitualmente com melhoria após broncodilatador. Sem internamentos/UCI prévios por asma.
+
+AP: asma persistente moderada, controlo parcial; enxaqueca c/ aura; tiroidite de Hashimoto sob substituição, eutiroideia conhecida. Alergia a ibuprofeno c/ broncospasmo; ácaros c/ rinite/agravamento asmático. MH: budesonido/formoterol 200/6, 2 inh 2id; montelucaste 10 mg à noite; levotiroxina 50 mcg id; topiramato 50 mg 2id; sumatriptano SOS. Refere adesão habitual à terapêutica de controlo.
+
+À observação: consciente, orientada, colaborante. Discurso em frases completas, ligeira polipneia, sem uso marcado de musculatura acessória. TA 128/76 mmHg, FC 102 bpm, FR 22 cpm, T 36,5ºC, SpO2 94% AA. Sem cianose. ORL sem edema labial/lingual, sem estridor, mucosas húmidas. AC: S1/S2 rítmicos, sem sopros. AP: MV globalmente diminuído, sibilos expiratórios difusos bilaterais, tempo expiratório prolongado; sem fervores/crepitações. Abdómen macio, depressível, indolor. MMII sem edemas, sem sinais de TVP. Pele sem urticária ou exantema. Sem sinais clínicos de anafilaxia.
+
+Efetuada nebulização c/ salbutamol + brometo de ipratrópio e administrada prednisolona oral 40 mg. Reavaliação ~45 min pós-terapêutica: refere melhoria franca da dispneia e resolução do aperto torácico; FR 16 cpm, FC 88 bpm, SpO2 97% AA. Sem dificuldade na fala. AP c/ MV bem audível bilateralmente, apenas sibilância expiratória ténue terminal dispersa, sem esforço respiratório.
+
+Quadro compatível c/ exacerbação ligeira-moderada de asma, provável desencadeante irritativo/alergénico por exposição a poeiras/produtos de limpeza. Sem elementos clínicos sugestivos de infeção respiratória baixa, pneumonia, TEP ou reação anafilática. Pela resposta sustentada à terapêutica, estabilidade hemodinâmica/respiratória e normalização da oximetria, sem indicação para gasimetria, análises ou Rx tórax nesta fase.
+
+Alta c/ reforço transitório de budesonido/formoterol: manter 2 inh 2id durante 5-7 dias; poderá efetuar 1 inalação SOS em caso de sintomas, sem ultrapassar total de 12 inalações/dia. Manter montelucaste e restante MH. Evitar exposição a poeiras, aerossóis, lixívias/amónia e outros desencadeantes conhecidos; aconselhada utilização de máscara e ventilação adequada se limpeza inevitável. Vigilância pela MF/consulta de Pneumologia/Imunoalergologia para reavaliação do controlo asmático e plano de ação escrito. Regressar de imediato por dispneia em repouso, dificuldade em falar, agravamento da pieira apesar de terapêutica, dor torácica, febre ou SpO2 baixa se monitorização disponível. Compreende e concorda.
+
+Notas de Enfermagem  
+Admitida autónoma, consciente, eupneica em repouso mas c/ queixas de falta de ar e pieira após exposição a produtos de limpeza. SpO2 inicial 94% AA. Nebulização efetuada sem intercorrências. Pós-terapêutica refere alívio significativo; SpO2 97% AA, sem sinais de desconforto respiratório. Alta pelo próprio pé, acompanhada.
+
+Diagnósticos  
+(J45.901) - Exacerbação aguda de asma, não especificada  
+(Z91.09) - Exposição a alergénio/irritante ambiental, provável desencadeante
+
+Medicação  
+Data Início | Data Fim | Data da última toma | Designação do Fármaco  
+18/11/2025 16:55 | 18/11/2025 16:55 | 18/11/2025 16:55 | Salbutamol 5 mg + brometo de ipratrópio 0,5 mg, solução para nebulização  
+18/11/2025 17:00 | 18/11/2025 17:00 | 18/11/2025 17:00 | Prednisolona 40 mg VO, dose única  
+
+MCDT Requisitados / Procedimentos Efectuados  
+PNEB01 - Nebulização broncodilatadora c/ salbutamol e brometo de ipratrópio, c/ boa resposta clínica e melhoria da oximetria periférica.  
+Sem MCDT analíticos ou imagiológicos requisitados, atendendo a apresentação típica, ausência de sinais de gravidade/infeção e resposta favorável ao tratamento instituído.
+
+Destino do Doente  
+Data: 18/11/2025 17:40  
+Destino: Alta para domicílio  
+Médico: Dr(a). Inês Matos Valente

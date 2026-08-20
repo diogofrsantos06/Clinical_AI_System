@@ -1,0 +1,92 @@
+{
+  "paciente": {
+    "nome": "Joaquim Manuel Pereira",
+    "idade": 71,
+    "sexo": "M",
+    "data_nascimento": "15/03/1955"
+  },
+  "patologias_cronicas": [
+    {
+      "diagnostico": "Adenocarcinoma da Próstata",
+      "data_diagnostico": "08/04/2022",
+      "notas": "Tratado com prostatectomia radical em 2022, atualmente sob hormonoterapia e vigilância analítica (PSA) periódica, sem evidência de recidiva até à data."
+    },
+    {
+      "diagnostico": "Diabetes Mellitus Tipo 2",
+      "data_diagnostico": "12/09/2016",
+      "notas": "Controlo glicémico aceitável sob terapêutica dupla, sem complicações microvasculares conhecidas até à data."
+    },
+    {
+      "diagnostico": "Doença Pulmonar Obstrutiva Crónica (DPOC)",
+      "data_diagnostico": "20/11/2019",
+      "notas": "Ex-fumador (40 UMA, cessação em 2019), estádio moderado, sem internamentos por exacerbação no último ano."
+    },
+    {
+      "diagnostico": "Hipertensão Arterial",
+      "data_diagnostico": "03/05/2015",
+      "notas": "Controlo aceitável sob monoterapia."
+    }
+  ],
+  "alergias": [
+    {
+      "substancia": "Contraste iodado",
+      "reacao": "Urticária ligeira em exposição prévia"
+    }
+  ],
+  "medicacao_base": [
+    {
+      "farmaco": "Bicalutamida",
+      "dosagem": "50mg",
+      "posologia": "1id",
+      "indicacao": "Adenocarcinoma da Próstata (hormonoterapia)"
+    },
+    {
+      "farmaco": "Metformina",
+      "dosagem": "1000mg",
+      "posologia": "2id",
+      "indicacao": "Diabetes Mellitus Tipo 2"
+    },
+    {
+      "farmaco": "Empagliflozina",
+      "dosagem": "10mg",
+      "posologia": "1id",
+      "indicacao": "Diabetes Mellitus Tipo 2"
+    },
+    {
+      "farmaco": "Brometo de Tiotrópio",
+      "dosagem": "18mcg",
+      "posologia": "1id (inalado)",
+      "indicacao": "DPOC"
+    },
+    {
+      "farmaco": "Salbutamol",
+      "dosagem": "100mcg",
+      "posologia": "SOS (inalado)",
+      "indicacao": "DPOC (alívio sintomático)"
+    },
+    {
+      "farmaco": "Perindopril",
+      "dosagem": "5mg",
+      "posologia": "1id",
+      "indicacao": "Hipertensão Arterial"
+    }
+  ],
+  "ruido_clinico": {
+    "eventos_agudos_resolvidos": [
+      "Exacerbação ligeira de DPOC em Fevereiro de 2025, tratada em ambulatório com corticoide oral em ciclo curto, sem necessidade de internamento.",
+      "Retenção urinária aguda pós-operatória em 2022, resolvida com algaliação temporária, sem sequelas."
+    ],
+    "sintomas_isolados_sem_diagnostico": [
+      "Noctúria ocasional, atribuída a hipertrofia benigna residual vs. efeito da idade, sem investigação adicional dirigida.",
+      "Fadiga ligeira intermitente, atribuída a fatores multifatoriais (idade, DPOC, sono)."
+    ],
+    "achados_incidentais_exames": [
+      "Pequeno nódulo pulmonar de 4mm no lobo superior direito, achado incidental em TAC torácico prévio, classificado como provavelmente benigno, com indicação de vigilância imagiológica.",
+      "Esteatose hepática ligeira, achado ecográfico incidental, sem elevação relevante de transaminases."
+    ],
+    "manifestacoes_secundarias": [
+      "Disfunção erétil atribuída à prostatectomia e à hormonoterapia, sem tratamento específico dirigido até à data.",
+      "Osteopenia em densitometria óssea, atribuída à hormonoterapia de privação androgénica prolongada."
+    ]
+  }
+}

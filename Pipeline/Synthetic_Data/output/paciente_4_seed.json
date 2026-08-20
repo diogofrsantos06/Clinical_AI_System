@@ -1,0 +1,86 @@
+{
+  "paciente": {
+    "nome": "Alberto Sousa Ribeiro",
+    "idade": 82,
+    "sexo": "M",
+    "data_nascimento": "03/01/1944"
+  },
+  "patologias_cronicas": [
+    {
+      "diagnostico": "Fibrilhação Auricular Permanente",
+      "data_diagnostico": "11/03/2014",
+      "notas": "Sob anticoagulação, controlo de frequência aceitável."
+    },
+    {
+      "diagnostico": "Doença Renal Crónica Estádio 3a",
+      "data_diagnostico": "25/06/2020",
+      "notas": "Função renal estável, vigilância analítica periódica."
+    },
+    {
+      "diagnostico": "Osteoartrose do Joelho Bilateral",
+      "data_diagnostico": "14/09/2017",
+      "notas": "Grau moderado a avançado, limitação funcional progressiva."
+    },
+    {
+      "diagnostico": "Défice Cognitivo Ligeiro",
+      "data_diagnostico": "08/02/2024",
+      "notas": "Sem critérios de demência estabelecida, seguimento neuropsicológico periódico."
+    },
+    {
+      "diagnostico": "Hipertensão Arterial",
+      "data_diagnostico": "1998 (data exata desconhecida)",
+      "notas": "De longa data, controlo aceitável sob terapêutica combinada."
+    }
+  ],
+  "alergias": [],
+  "medicacao_base": [
+    {
+      "farmaco": "Varfarina",
+      "dosagem": "ajustada por INR",
+      "posologia": "conforme esquema",
+      "indicacao": "Fibrilhação Auricular (anticoagulação)"
+    },
+    {
+      "farmaco": "Digoxina",
+      "dosagem": "0.125mg",
+      "posologia": "1id",
+      "indicacao": "Fibrilhação Auricular (controlo de frequência)"
+    },
+    {
+      "farmaco": "Amlodipina",
+      "dosagem": "5mg",
+      "posologia": "1id",
+      "indicacao": "Hipertensão Arterial"
+    },
+    {
+      "farmaco": "Furosemida",
+      "dosagem": "20mg",
+      "posologia": "1id",
+      "indicacao": "Hipertensão Arterial / sobrecarga hídrica ligeira"
+    },
+    {
+      "farmaco": "Paracetamol",
+      "dosagem": "1g",
+      "posologia": "SOS",
+      "indicacao": "Osteoartrose (analgesia)"
+    }
+  ],
+  "ruido_clinico": {
+    "eventos_agudos_resolvidos": [
+      "Pneumonia adquirida na comunidade em Dezembro de 2024, tratada em internamento curto, com recuperação completa.",
+      "Retenção urinária aguda em 2023, resolvida com algaliação temporária."
+    ],
+    "sintomas_isolados_sem_diagnostico": [
+      "Esquecimentos ocasionais de nomes/objetos, já enquadrados no défice cognitivo ligeiro conhecido, sem agravamento recente.",
+      "Tonturas posturais ocasionais, provavelmente multifatoriais (idade, polimedicação)."
+    ],
+    "achados_incidentais_exames": [
+      "Hiperplasia benigna da próstata, achado ecográfico prévio, sem sintomatologia obstrutiva significativa.",
+      "Calcificações vasculares ligeiras em radiografia prévia, achado esperado para a idade."
+    ],
+    "manifestacoes_secundarias": [
+      "Anemia ligeira normocítica, atribuída a doença renal crónica.",
+      "Fragilidade física ligeira, com redução progressiva da velocidade de marcha."
+    ]
+  }
+}

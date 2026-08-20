@@ -217,7 +217,9 @@ class Summarizer:
             section_timings["EXAMES"] = {"duration": time.perf_counter() - start_section, "inference": duration, "input_size": len(text_exams), "tokens_per_second": tokens_per_sec, "model_ram_gb": model_ram, "model_vram_gb": model_vram, **extra_stats}
         else:
             print("[EXAMES] Skipped: no exams in the last year.", flush=True)
-            merged_summary.update({"exames": [{"nome": "N/A", "data": "N/A", "tipo_exame": "N/A", "resultado": "Sem exames registados no último ano."}]})
+            # Não insere nenhum registo "fantasma" — sem exames, a chave 'exames' fica
+            # simplesmente de fora do sumário (o frontend já trata a ausência com o
+            # estado vazio próprio, tal como já faz para os Antecedentes).
             section_timings["EXAMES"] = {"duration": time.perf_counter() - start_section, "inference": 0.0, "input_size": 0, "tokens_per_second": 0.0, "model_ram_gb": None, "model_vram_gb": None, "prompt_tokens": None, "completion_tokens": None, "finish_reason": None, "attempt_count": None, "kv_cache_usage_percent": None, "requests_waiting": None, "fallback_used": False, "error_type": None}
 
 

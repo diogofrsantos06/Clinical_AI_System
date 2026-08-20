@@ -1,0 +1,58 @@
+{
+  "percurso": [
+    {
+      "especialidade": "HUC-PNEUMOLOGIA",
+      "data": "22/08/2025",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento de asma persistente moderada. Refere controlo parcial, com necessidade ocasional de broncodilatador de alívio, sem despertares noturnos frequentes. Foi realizada espirometria de controlo, com descrição detalhada do resultado (padrão obstrutivo ligeiro, com resposta positiva ao broncodilatador, sem alteração significativa face a estudo anterior). Discutida técnica inalatória, reforçada adesão. Refere também episódio de sinusite aguda resolvido em Outubro do ano anterior. Mantém-se esquema terapêutico atual."
+    },
+    {
+      "especialidade": "HUC-NEUROLOGIA",
+      "data": "05/09/2025",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento de enxaqueca com aura. Refere frequência de cerca de 2 episódios por mês, com boa resposta ao sumatriptano quando usado precocemente. Sem sinais de alarme neurológico associados aos episódios. Refere irritabilidade ocasional atribuída ao topiramato, sem indicação de suspensão por agora. Mantém-se esquema profilático atual, reforçada importância de diário de crises."
+    },
+    {
+      "especialidade": "HUC-ENDOCRINOLOGIA",
+      "data": "20/09/2025",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento de tiroidite de Hashimoto. Assintomática do ponto de vista tiroideu. Foram revistos TSH e T4 livre de controlo, dentro dos valores de referência, compatíveis com eutiroideia sob a dose atual. Revista ecografia tiroideia prévia, mantendo-se estável o nódulo já conhecido de 0,6cm, sem critérios de vigilância adicional dirigida. Mantém-se esquema terapêutico sem alterações."
+    },
+    {
+      "especialidade": "HUC-URG_MEDICA",
+      "data": "18/11/2025",
+      "tipo": "urgencia",
+      "contexto": "Agravamento agudo de dispneia e pieira, com tosse seca associada, com início após exposição a limpeza doméstica intensa (contexto alergénico/irritativo), sem febre. Ao exame objetivo: polipneica ligeira, sibilos expiratórios difusos bilateralmente à auscultação pulmonar, saturação periférica ligeiramente reduzida em ar ambiente. Foi administrado broncodilatador nebulizado com boa resposta clínica, e corticoide sistémico em dose única. Não foram necessários exames complementares adicionais dada a resposta clínica favorável. Alta com indicação de reforço transitório da terapêutica inalatória e evitamento de fatores desencadeantes conhecidos."
+    },
+    {
+      "especialidade": "HUC-PNEUMOLOGIA",
+      "data": "02/12/2025",
+      "tipo": "seguimento",
+      "contexto": "Reavaliação após exacerbação asmática tratada na urgência em Novembro, associada a exposição alergénica/irritativa. Refere melhoria completa dos sintomas. Discutidas medidas de controlo ambiental (evitamento de ácaros, ventilação adequada). Revista técnica inalatória. Mantém-se esquema atual, sem necessidade de escalada terapêutica permanente."
+    },
+    {
+      "especialidade": "HUC-OTORRINOLARINGOLOGIA",
+      "data": "14/02/2026",
+      "tipo": "ruido",
+      "contexto": "Consulta por queixas de obstrução nasal persistente, no contexto de desvio do septo nasal já conhecido. Sem indicação cirúrgica por agora, tratamento sintomático com lavagens nasais. Nota curta, focada apenas neste achado isolado."
+    },
+    {
+      "especialidade": "HUC-NEUROLOGIA",
+      "data": "10/04/2026",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento de enxaqueca com aura, refere boa resposta à profilaxia atual, com redução da frequência de crises para cerca de 1 por mês. Sem sinais de alarme. Refere xerostomia ligeira intermitente associada ao topiramato, tolerável. Mantém-se esquema atual."
+    },
+    {
+      "especialidade": "HUC-ENDOCRINOLOGIA",
+      "data": "15/06/2026",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento anual de tiroidite de Hashimoto. Assintomática, TSH e T4 livre de controlo dentro dos valores de referência. Mantém-se dose atual de levotiroxina sem alterações, reforçada importância da toma em jejum."
+    },
+    {
+      "especialidade": "HUC-PNEUMOLOGIA",
+      "data": "20/07/2026",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento de rotina de asma persistente moderada, sem exacerbações desde Novembro de 2025. Espirometria de controlo com descrição detalhada (função pulmonar estável, sem alteração significativa face a estudos anteriores). Boa adesão e técnica inalatória adequada. Mantém-se esquema terapêutico atual."
+    }
+  ]
+}

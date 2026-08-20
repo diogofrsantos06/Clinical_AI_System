@@ -1,0 +1,98 @@
+{
+  "percurso": [
+    {
+      "especialidade": "HUC-CARDIOLOGIA",
+      "data": "12/07/2025",
+      "tipo": "seguimento",
+      "contexto": "Consulta de vigilância de fibrilhação auricular permanente. Sem sintomas de descompensação, sem dispneia de esforço nova. Foi revisto INR de controlo (dentro do intervalo terapêutico). ECG de consulta com FA de resposta ventricular controlada. Refere tonturas posturais ocasionais já conhecidas. Mantém-se esquema de anticoagulação e digoxina sem alterações."
+    },
+    {
+      "especialidade": "HUC-NEFROLOGIA",
+      "data": "28/07/2025",
+      "tipo": "seguimento",
+      "contexto": "Consulta de vigilância de doença renal crónica estádio 3a. Assintomático do ponto de vista renal, sem edemas significativos, diurese mantida. Foram revistas análises completas (função renal estável face a controlo anterior, ionograma sem alterações relevantes, hemograma com anemia ligeira normocítica já conhecida atribuída à DRC). Discutida importância de evitar nefrotóxicos e ajuste de dose de fármacos conforme função renal. Mantém-se vigilância periódica."
+    },
+    {
+      "especialidade": "HUC-ORTOPEDIA",
+      "data": "05/08/2025",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento de osteoartrose bilateral dos joelhos, grau moderado a avançado. Refere agravamento progressivo da dor e limitação funcional, com redução da distância de marcha. Foi realizada radiografia de controlo dos joelhos, com descrição detalhada (redução do espaço articular medial bilateral, osteófitos marginais, esclerose subcondral, sem alteração significativa face a estudo anterior). Discutida eventual indicação futura para artroplastia, adiada por agora dado o contexto cardiovascular e renal. Reforço analgésico e encaminhamento para fisioterapia."
+    },
+    {
+      "especialidade": "HUC-URG_ORTOPEDIA",
+      "data": "14/09/2025",
+      "tipo": "urgencia",
+      "contexto": "Queda acidental em casa, com trauma direto na anca direita, sem perda de consciência associada, no contexto de limitação funcional conhecida por osteoartrose. Refere dor intensa na anca direita, incapacidade de carga no membro. Ao exame objetivo: membro inferior direito encurtado e em rotação externa, dor intensa à mobilização, sem compromisso neurovascular distal. Foi realizada radiografia da anca direita, com descrição detalhada (fratura subcapital do colo do fémur direito, deslocada). Analgesia endovenosa administrada. Internamento para tratamento cirúrgico programado.",
+      "alteracoes_seed": {
+        "novos_diagnosticos_cronicos": [
+          {
+            "diagnostico": "Fratura do Colo do Fémur Direito (pós-cirúrgica)",
+            "data_diagnostico": "14/09/2025",
+            "notas": "Fratura subcapital deslocada, tratada cirurgicamente, em seguimento ortopédico pós-operatório."
+          }
+        ],
+        "nova_medicacao": [],
+        "medicacao_removida": []
+      }
+    },
+    {
+      "especialidade": "HUC-ORTOPEDIA",
+      "data": "10/10/2025",
+      "tipo": "seguimento",
+      "contexto": "Consulta pós-operatória após cirurgia de fratura do colo do fémur direito (episódio de 14/09/2025). Refere dor controlada, em processo de reabilitação com carga parcial progressiva. Ferida cirúrgica com boa evolução, sem sinais de infeção. Foi revista radiografia de controlo pós-cirúrgica, com descrição detalhada (material de osteossíntese bem posicionado, consolidação em curso). Mantém-se plano de reabilitação com fisioterapia."
+    },
+    {
+      "especialidade": "HUC-NEUROLOGIA",
+      "data": "18/11/2025",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento de défice cognitivo ligeiro. Acompanhante refere esquecimentos ocasionais já conhecidos, sem agravamento funcional significativo nas atividades instrumentais de vida diária, à exceção da limitação física decorrente da fratura recente. Foi revista avaliação neuropsicológica de controlo, com descrição detalhada dos domínios avaliados (défice ligeiro na memória episódica, restantes domínios cognitivos preservados, sem alteração significativa face a avaliação anterior). Sem indicação farmacológica específica por agora, mantém-se vigilância."
+    },
+    {
+      "especialidade": "HUC-CARDIOLOGIA",
+      "data": "22/12/2025",
+      "tipo": "seguimento",
+      "contexto": "Reavaliação de fibrilhação auricular, no contexto pós-operatório recente. Sem sintomas de descompensação cardíaca, sem dispneia. ECG de consulta mantém FA de resposta controlada. INR revisto, dentro do intervalo terapêutico. Mantém-se esquema atual."
+    },
+    {
+      "especialidade": "HUC-URG_MEDICA",
+      "data": "20/01/2026",
+      "tipo": "urgencia",
+      "contexto": "Febre e tosse produtiva com 2 dias de evolução, associada a mal-estar geral, no contexto de antecedente de pneumonia em Dezembro de 2024. Ao exame objetivo: febril, taquipneico ligeiro, auscultação pulmonar com fervores na base direita, saturação periférica ligeiramente reduzida. Foi realizada radiografia de tórax, com descrição detalhada (opacidade compatível com condensação na base pulmonar direita, sem derrame pleural associado), e análises de urgência (leucocitose com neutrofilia, PCR elevada, função renal com discreto agravamento face ao basal, compatível com desidratação associada ao quadro agudo). Antibioterapia empírica iniciada, hidratação endovenosa. Decisão de internamento curto dado o contexto de fragilidade e idade.",
+      "alteracoes_seed": {
+        "novos_diagnosticos_cronicos": [],
+        "nova_medicacao": [],
+        "medicacao_removida": []
+      }
+    },
+    {
+      "especialidade": "HUC-NEFROLOGIA",
+      "data": "15/02/2026",
+      "tipo": "seguimento",
+      "contexto": "Reavaliação da função renal após episódio de pneumonia com agravamento renal transitório em Janeiro. Analítica de controlo revista, com descrição detalhada (função renal em recuperação, próxima do basal habitual, ionograma sem alterações significativas). Reforçada importância de hidratação adequada e vigilância em contexto de intercorrências agudas futuras."
+    },
+    {
+      "especialidade": "HUC-ORTOPEDIA",
+      "data": "10/03/2026",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento a 6 meses da cirurgia de fratura do colo do fémur direito. Refere marcha progressivamente mais autónoma, ainda com auxiliar de marcha. Radiografia de controlo com descrição detalhada (consolidação óssea completa, material de osteossíntese estável). Alta da vigilância ortopédica dirigida a este episódio, mantendo seguimento de rotina da osteoartrose de base."
+    },
+    {
+      "especialidade": "HUC-UROLOGIA",
+      "data": "22/04/2026",
+      "tipo": "ruido",
+      "contexto": "Consulta de rotina por hiperplasia benigna da próstata já conhecida, com sintomatologia obstrutiva ligeira estável, sem retenção urinária desde o episódio de 2023. Sem indicação cirúrgica por agora. Nota curta e direta."
+    },
+    {
+      "especialidade": "HUC-CARDIOLOGIA",
+      "data": "18/05/2026",
+      "tipo": "seguimento",
+      "contexto": "Consulta de vigilância de rotina de fibrilhação auricular. Assintomático do ponto de vista cardiovascular. ECG sem alterações agudas, INR dentro do intervalo terapêutico. Mantém-se esquema atual sem alterações."
+    },
+    {
+      "especialidade": "HUC-NEUROLOGIA",
+      "data": "25/06/2026",
+      "tipo": "seguimento",
+      "contexto": "Consulta de seguimento de défice cognitivo ligeiro, avaliação de rotina. Acompanhante refere estabilidade cognitiva face à consulta anterior, sem agravamento funcional. Reforçada importância de estimulação cognitiva e atividade física adaptada à limitação ortopédica de base."
+    }
+  ]
+}

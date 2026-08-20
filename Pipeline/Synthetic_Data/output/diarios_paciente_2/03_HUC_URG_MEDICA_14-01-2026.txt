@@ -1,0 +1,51 @@
+14-Jan-2026 16:42:00 Dr(a). Luís Miguel Tavares (HUC-URG_MEDICA)
+
+Homem, 71 anos, recorre por agravamento da dispneia habitual c/ 2 dias evolução, associado a aumento da tosse produtiva e expetoração mais abundante, amarelada/esverdeada. Sem hemoptises. Nega dor torácica, ortopneia, DPN, edemas MMII, síncope ou palpitações. Sem febre quantificada, arrepios ou prostração marcada. Refere utilização mais frequente de salbutamol SOS, c/ alívio incompleto. Sem contacto conhecido c/ doentes respiratórios. Sem internamentos recentes ou antibioterapia nos últimos 3 meses.
+
+AP: DPOC moderada; ex-fumador, 40 UMA, cessação 2019. DM2, HTA, adenocarcinoma próstata submetido a prostatectomia radical em 2022, sob hormonoterapia/vigilância. Exacerbação ligeira DPOC em 02/2025, tratada ambulatório. Sem antecedentes de IC ou cardiopatia isquémica conhecidos.  
+MH: tiotrópio 18 mcg id inalado; salbutamol 100 mcg SOS; metformina 1000 mg 2id; empagliflozina 10 mg id; perindopril 5 mg id; bicalutamida 50 mg id.  
+Alergia a contraste iodado, urticária ligeira prévia.
+
+À observação: consciente, colaborante, orientado, discurso em frases completas, sem utilização marcada de musculatura acessória. Polipneia ligeira em repouso. TA 138/76 mmHg, FC 96 bpm, FR 22 cpm, T 37,2ºC, SpO2 92% AA, glicemia capilar 184 mg/dL. Corado, hidratado, sem cianose central. Sem ingurgitamento jugular. AC: tons rítmicos, sem sopros. AP: MV globalmente diminuído, expiração prolongada, roncos dispersos bilateralmente e sibilância expiratória ligeira, sem fervores crepitantes focais. Sem macicez à percussão. Abdómen mole, depressível, indolor. MMII sem edemas, sem dor ou assimetria gemelar. Sem défices neurológicos focais.
+
+Quadro compatível c/ exacerbação infeciosa ligeira-moderada de DPOC, por aumento de dispneia, volume e purulência da expetoração. Sem critérios clínicos/radiológicos de pneumonia; sem instabilidade hemodinâmica, hipercapnia clínica ou necessidade de O2 suplementar persistente.
+
+Feita nebulização c/ salbutamol + ipratrópio e prednisolona 40 mg VO, c/ melhoria subjetiva da dispneia e diminuição dos roncos/sibilância. Reavaliação: FR 18 cpm, FC 88 bpm, SpO2 94% AA, mantém-se confortável em repouso e deambula sem dessaturação significativa (SpO2 mínima 92% AA).
+
+Alta c/ amoxicilina/ácido clavulânico 875/125 mg 12/12h durante 5 dias, prednisolona 40 mg id durante 5 dias, manter tiotrópio diário e salbutamol 2 puffs 6/6h SOS nos próximos dias. Alertado para possível agravamento transitório de glicemias sob corticoterapia; manter hidratação e vigilância glicémica capilar mais frequente, contactar médico assistente se valores persistentemente >250 mg/dL. Manter restante terapêutica habitual. Reavaliação por Médico de Família/Pneumologia em 48-72h; consulta Pneumologia para otimização de terapêutica inalatória. Explicados sinais de alarme: dispneia em repouso/agravamento, SpO2 <90%, febre persistente, dor torácica, confusão, incapacidade para alimentação/hidratação ou ausência de melhoria em 48h; se presentes, recorrer novamente SU.
+
+Notas de Enfermagem
+
+16:08h – Admitido por dispneia e tosse produtiva. SpO2 92% AA; sem dificuldade marcada na fala. Colhida amostra sanguínea, colocado acesso venoso periférico MSE.  
+16:25h – Realizada terapêutica inalatória conforme prescrição, bem tolerada, sem reações adversas.  
+17:18h – Reavaliado após terapêutica: refere melhoria parcial da falta de ar; SpO2 94% AA, sem necessidade de oxigenoterapia.  
+18:05h – Alta pelo próprio pé, acompanhado por familiar, consciente/orientado. Informação clínica e terapêutica entregue, verbaliza compreensão.
+
+Diagnósticos
+
+(J441) - Exacerbação aguda de DPOC, provável etiologia infeciosa, sem insuficiência respiratória aguda.  
+(E119) - Diabetes mellitus tipo 2, sem complicações agudas.  
+(I10) - Hipertensão arterial essencial.
+
+Medicação
+
+Data Início | Data Fim | Data da última toma | Designação do Fármaco  
+14/01/2026 16:25 | 14/01/2026 16:25 | 14/01/2026 16:25 | Salbutamol 2,5 mg solução para nebulização  
+14/01/2026 16:25 | 14/01/2026 16:25 | 14/01/2026 16:25 | Brometo de ipratrópio 0,5 mg solução para nebulização  
+14/01/2026 16:35 | 14/01/2026 16:35 | 14/01/2026 16:35 | Prednisolona 40 mg VO
+
+MCDT Requisitados / Procedimentos Efectuados
+
+A10021 – Hemograma completo: Hb 14,2 g/dL; Ht 43,1%; eritrócitos 4,71 x10^12/L; leucócitos 12,4 x10^9/L, neutrófilos 78,6%/9,75 x10^9/L, linfócitos 12,8%/1,59 x10^9/L; plaquetas 248 x10^9/L. Leucocitose neutrofílica ligeira.
+
+A10034 – Bioquímica urgente: glicose 196 mg/dL; ureia 34 mg/dL; creatinina 1,03 mg/dL, TFGe 78 mL/min/1,73m2; Na 137 mmol/L; K 4,4 mmol/L; Cl 101 mmol/L; AST 24 U/L; ALT 29 U/L. Sem lesão renal aguda ou alterações hidroeletrolíticas relevantes.
+
+A10048 – PCR 28 mg/L, elevação discreta; procalcitonina 0,07 ng/mL, sem elevação sugestiva de infeção bacteriana sistémica.
+
+R10830 – RX tórax PA e perfil: campos pulmonares hiperinsuflados, c/ aumento do espaço retroesternal e discreto achatamento diafragmático, compatível c/ DPOC conhecida. Sem focos de condensação alveolar. Sem infiltrado intersticial agudo. Seios costofrénicos livres, sem derrame pleural ou pneumotórax. Silhueta cardíaca sem aumento. Sem alterações agudas ósseas visíveis.
+
+Destino do Doente
+
+Data: 14/01/2026 18:10  
+Destino: Domicílio  
+Médico: Dr(a). Luís Miguel Tavares
